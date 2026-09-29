@@ -1,13 +1,16 @@
 """Build the Workshop architecture diagram (SVG + editable Excalidraw) from official icons.
 
 Run: python tools/build_architecture.py
-Then render assets/architecture.svg to assets/architecture.png at 1800x1360 in a browser.
+Writes assets/architecture.svg, .excalidraw and, when Microsoft Edge is installed, .png (1800x1360).
 """
 import base64
 import hashlib
 import html
 import json
 import re
+import shutil
+import subprocess
+import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -15,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "assets"
 BLUE = "#0078D4"
 GRAY = "#64748B"
+EDGE_PATHS = [Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"),
+              Path(r"C:\Program Files\Microsoft\Edge\Application\msedge.exe")]
 
 
 class Diagram:
@@ -170,7 +175,7 @@ def architecture():
     d.card(750, 360, 270, 200, "OneLake Gold",
            "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블 17개\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
            "lakehouse.svg")
-    d.card(750, 590, 270, 140, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 관계")
+    d.card(750, 590, 270, 140, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 관계", "ontology.svg")
     d.card(750, 800, 270, 180, "Notebook · 승인 기록", "승인 후 자동 실행\n승인한 대응안 저장\ndbo.chip_decision_log", "notebook.svg")
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
@@ -221,7 +226,26 @@ def architecture():
     d.arrow([(620, 1330), (685, 1330)], True, GRAY)
     d.text(700, 1315, "점선: 운영에 적용할 때 연결", 17, 420)
     d.save()
+    return d
+
+
+def render_png(d):
+    edge = next((str(p) for p in EDGE_PATHS if p.exists()), None) or shutil.which("msedge")
+    if not edge:
+        return False
+    png = ASSETS / f"{d.name}.png"
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as profile:
+        subprocess.run([edge, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+                        f"--user-data-dir={profile}", f"--window-size={d.width},{d.height}",
+                        f"--screenshot={png}", (ASSETS / f"{d.name}.svg").as_uri()],
+                       check=True, capture_output=True, timeout=120)
+    return png.exists()
+
 
 if __name__ == "__main__":
-    architecture()
-    print("Built assets/architecture.svg and assets/architecture.excalidraw. Render the SVG to PNG next.")
+    diagram = architecture()
+    if render_png(diagram):
+        print("Built assets/architecture.svg, .excalidraw and .png.")
+    else:
+        print("Built assets/architecture.svg and .excalidraw. Microsoft Edge not found: "
+              "render the SVG to assets/architecture.png at 1800x1360 in a browser.")
