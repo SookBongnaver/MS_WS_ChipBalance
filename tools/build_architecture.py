@@ -1,7 +1,7 @@
 """Build the Workshop architecture diagram (SVG + editable Excalidraw) from official icons.
 
 Run: python tools/build_architecture.py
-Then render assets/architecture.svg to assets/architecture.png at 1800x1385 in a browser.
+Then render assets/architecture.svg to assets/architecture.png at 1800x1360 in a browser.
 """
 import base64
 import hashlib
@@ -122,15 +122,15 @@ class Diagram:
 
 
 def architecture():
-    d = Diagram("architecture", 1800, 1385)
+    d = Diagram("architecture", 1800, 1360)
     d.text(45, 26, "원료 Chip Balance와 긴급 오더 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
-    d.text(45, 78, "Databricks에서 원본을 정제·계산해 Gold를 OneLake에 저장하고, "
-                   "Fabric에서 현황을 파악한 뒤 Operations agent의 제안을 담당자가 Teams에서 승인합니다", 20, 1700)
+    d.text(45, 78, "Azure Databricks에서 정제·계산한 Gold를 Microsoft Fabric에서 활용하고, "
+                   "Operations agent의 제안을 담당자가 Microsoft Teams에서 승인합니다", 20, 1700)
 
     steps = [("① 현재 계산", "Databricks 04·05 계산 · Power BI 현황"),
              ("② 판단 기준", "Databricks 05 · 대응안별 기준 충족 여부"),
-             ("③ Agent 제안", "Operations agent · Teams로 제안"),
-             ("④ 사람 승인", "Teams에서 Yes/No · 승인 내역 저장")]
+             ("③ Agent 제안", "Fabric Operations agent → Teams로 제안"),
+             ("④ 사람 승인", "Teams에서 Yes/No · 승인 기록 저장")]
     xs = [45, 480, 915, 1350]
     for i, (title, detail) in enumerate(steps):
         x, w = xs[i], (380 if i < 3 else 405)
@@ -140,74 +140,82 @@ def architecture():
         if i < 3:
             d.arrow([(x + w, 159), (xs[i + 1], 159)])
 
-    d.rect(40, 222, 680, 830, GRAY, True)
+    # Azure Databricks
+    d.rect(40, 222, 600, 790, GRAY, True)
     d.icon("databricks.svg", 60, 242)
-    d.text(122, 248, "Azure Databricks | 데이터 정제·계산", 23, 600, True)
-    d.text(70, 304, "Classic compute · Notebook 01~05 · Spark / Delta\n원본·Bronze·Silver는 Unity Catalog에 저장", 17, 640)
-    d.card(70, 380, 270, 180, "원본 → Bronze", "02 원본 데이터 6종 생성\n03 원본 그대로 적재\nchip_bronze_* 6개", "storage.svg")
-    d.arrow([(340, 470), (400, 470)])
-    d.text(352, 437, "정제", 15, 50)
-    d.card(400, 380, 300, 180, "Silver / 정제", "형식 맞춤 · 중복 제거\n수량 없는 입고는 격리\nchip_silver_* 6개 + 격리 1개", "storage.svg")
-    d.arrow([(550, 560), (550, 630)])
-    d.text(565, 582, "업무 계산", 16, 130)
-    d.card(400, 630, 300, 250, "Gold / 계산",
-           "04 날짜별 소요량·예상 재고\n05 긴급 오더 재계산·비교\n05 대응안 3개와 판단 기준\nGold 9개를 OneLake에 저장",
+    d.text(122, 248, "Azure Databricks | 데이터 정제·계산", 23, 500, True)
+    d.text(70, 304, "Classic compute · Notebook 01~05 · Spark / Delta\n원천·Bronze·Silver는 Unity Catalog에 저장", 17, 550)
+    d.card(70, 380, 240, 180, "원천 → Bronze", "02 원천 파일 14개 업로드\nSAP · FPIMS · PVSS\n03 원천 그대로 적재", "storage.svg")
+    d.arrow([(310, 470), (360, 470)])
+    d.text(316, 437, "정제", 15, 40)
+    d.card(360, 380, 260, 180, "Silver / 정제", "날짜·단위 형식 맞춤 · 중복 제거\n수량 누락·센서 이상값 격리\n정제 테이블 + 격리 테이블", "storage.svg")
+    d.arrow([(490, 560), (490, 630)])
+    d.text(505, 582, "업무 계산", 16, 110)
+    d.card(360, 630, 260, 250, "Gold / 계산",
+           "04 실제 소요량·시작 재고\n04 4분기 날짜별 재고\n05 긴급 오더·대응안 4개\nGold 17개 OneLake 저장",
            "databricks.svg")
-    d.text(75, 632, "① 현재 계산 · ② 판단 기준", 19, 320, True)
-    d.text(75, 674, "소요량 = 생산량 × 소요량 기준\n마감 재고 = 전일 + 입고 − 소요량", 16, 320)
-    d.text(75, 748, "판단 기준 (대응안마다)", 17, 320, True)
-    d.text(75, 780, "· 매일 마감 재고 ≥ 안전재고 200kg\n· 입고 직후 재고 ≤ 용량 3,000kg", 16, 320)
-    d.text(70, 930, "Bronze·Silver: Unity Catalog lab_factory.lab_p001\nOneLake 저장 인증 정보는 secret scope에 보관", 16, 640)
+    d.text(75, 632, "① 현재 계산 · ② 판단 기준", 19, 270, True)
+    d.text(75, 674, "소요량 = 계획 × 실제 소요량 기준\n마감 = 전일 + 입고 ± 이송 − 소요", 16, 270)
+    d.text(75, 748, "판단 기준 (대응안마다)", 17, 270, True)
+    d.text(75, 780, "· 모든 Bunker 매일 안전재고 이상\n· 입고 후 재고 ≤ Bunker 용량\n· 모든 판매오더 납기 준수\n· 이송량 ≤ 경로 하루 한도", 16, 270)
+    d.text(70, 930, "Bronze·Silver: Unity Catalog lab_factory.chipbalance_p001\nOneLake 저장: 관리 ID (Unity Catalog service credential)", 16, 550)
 
-    d.rect(800, 222, 960, 830, GRAY, True)
-    d.icon("fabric.svg", 820, 242)
-    d.text(882, 248, "Microsoft Fabric | 현황 파악·의사결정 지원", 23, 860, True)
-    d.text(830, 304, "Gold를 읽어 현황을 파악하고, Agent 제안을 담당자가 Teams에서 승인합니다", 17, 900)
-    d.card(840, 360, 290, 240, "OneLake Gold",
-           "Lakehouse lh_factory_p001\ngold 스키마 Delta 테이블 9개\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
+    # Microsoft Fabric
+    d.rect(720, 222, 690, 790, GRAY, True)
+    d.icon("fabric.svg", 740, 242)
+    d.text(802, 248, "Microsoft Fabric | 현황 파악·대응안 제안", 23, 590, True)
+    d.text(750, 304, "Gold를 읽어 현황을 파악하고, Operations agent가 대응안을 제안합니다", 17, 640)
+    d.arrow([(620, 700), (680, 700), (680, 480), (750, 480)])
+    d.text(646, 708, "직접 저장", 15, 70)
+    d.card(750, 360, 270, 240, "OneLake Gold",
+           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블 17개\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
            "lakehouse.svg")
-    d.arrow([(700, 700), (770, 700), (770, 560), (840, 560)])
-    d.text(706, 708, "직접 저장", 15, 70)
-    d.text(845, 640, "SQL · Power BI · Ontology ·\nOperations agent가\n같은 Gold를 읽습니다", 16, 280)
-    d.card(840, 815, 290, 175, "Notebook · 승인 기록", "승인한 대응안을 저장\ndbo.chip_decision_log\n발주는 기존 절차로 진행",
-           "notebook.svg")
-
-    d.card(1190, 345, 250, 130, "Semantic model", "Direct Lake\n관계 · 측정값", "semantic-model.svg")
-    d.arrow([(1440, 410), (1485, 410)])
-    d.card(1485, 345, 250, 130, "Power BI 보고서", "① 현황 파악\n수급 · 비교 · 대응안", "power-bi.svg")
-    d.card(1190, 500, 545, 115, "Ontology (preview) · Graph",
-           "원료 · Bunker · 생산계획 · 일별 재고 · 시나리오 · 대응안의 관계")
-    d.card(1190, 640, 545, 150, "Operations agent · ③ Agent 제안",
-           "Fabric IQ · Ontology를 5분마다 확인\n판단 기준을 만족한 대응안을 요약해 Teams로 제안",
+    d.text(755, 640, "SQL · Power BI · Ontology가\n같은 Gold를 읽습니다", 16, 260)
+    d.card(750, 800, 270, 180, "Notebook · 승인 기록", "승인 후 자동 실행\n승인한 대응안 저장\ndbo.chip_decision_log", "notebook.svg")
+    d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
+    d.arrow([(1225, 445), (1225, 470)])
+    d.card(1060, 470, 330, 135, "Power BI 보고서", "① 원료 수급 · 긴급 오더 비교\n대응안 검토", "power-bi.svg")
+    d.card(1060, 630, 330, 135, "Ontology (preview) · Graph", "라인 · Bunker · 원료 · 제품 · 생산계획\n일별 재고 · 대응안의 관계")
+    d.arrow([(1225, 765), (1225, 790)])
+    d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology를 5분마다 확인\n위험 이벤트에 맞는 대응안을 제안",
            "operations-agent.svg")
-    d.card(1190, 815, 545, 175, "Teams · ④ 사람 승인",
-           "Fabric Operations Agent 앱으로 제안 수신\n담당자가 보고서 수치와 대조해 Yes/No\nYes이면 승인 기록 Notebook 실행",
-           "users.svg")
-    d.arrow([(1130, 410), (1190, 410)])
-    d.arrow([(1130, 557), (1190, 557)])
-    d.arrow([(1462, 615), (1462, 640)])
-    d.arrow([(1462, 790), (1462, 815)])
-    d.arrow([(1190, 902), (1130, 902)])
-    d.text(1142, 870, "Yes", 15, 40)
+    d.arrow([(1020, 395), (1060, 395)])
+    d.arrow([(1020, 570), (1040, 570), (1040, 697), (1060, 697)])
+    d.arrow([(1060, 880), (1020, 880)])
 
-    d.rect(40, 1085, 1720, 225, GRAY, True)
-    d.text(65, 1100, "운영에 적용할 때 연결", 20, 1000, True)
-    d.card(70, 1150, 490, 135, "원천 시스템", "FPIMS · PVSS · SAP 추출 데이터\n02의 원본 데이터 대신 Bronze로 적재", dashed=True)
-    d.card(620, 1150, 520, 135, "Power Automate", "승인한 조치를 업무 시스템에 연결\n예: 구매 요청 작성 · 공급사 메일",
+    # Microsoft 365
+    d.rect(1450, 222, 310, 790, GRAY, True)
+    d.text(1470, 248, "Microsoft 365", 23, 270, True)
+    d.text(1470, 304, "담당자가 Teams에서\n제안을 확인하고 승인합니다", 17, 280)
+    d.card(1470, 790, 270, 180, "Microsoft Teams",
+           "④ Fabric Operations Agent\n앱으로 제안 수신\n보고서 수치와 대조 후\nYes / No 선택", "users.svg")
+    d.arrow([(1390, 830), (1470, 830)])
+    d.text(1416, 798, "제안", 15, 34)
+    d.arrow([(1470, 905), (1390, 905)])
+    d.text(1416, 912, "승인", 15, 34)
+
+    # Operational extension
+    d.rect(40, 1045, 1720, 250, GRAY, True)
+    d.text(65, 1058, "운영에 적용할 때 연결", 20, 400, True)
+    d.card(70, 1105, 540, 160, "원천 시스템 연계", "SAP · FPIMS · PVSS 정기 추출\n파일 업로드 대신 Bronze로 자동 적재", dashed=True)
+    d.rect(700, 1090, 1045, 190, GRAY, True)
+    d.text(720, 1100, "Power Platform", 18, 300, True)
+    d.card(720, 1140, 480, 125, "Power Automate", "승인한 조치를 업무 시스템에 연결\n예: 구매 요청 작성 · 공급사 메일",
            "power-automate.svg", dashed=True)
-    d.card(1190, 1150, 545, 135, "Power Apps", "대응안 승인·이력 화면\nPower BI 보고서에 Power Apps visual로 삽입",
+    d.card(1240, 1140, 485, 125, "Power Apps", "대응안 승인·이력 화면\nPower BI 보고서에 Power Apps visual로 삽입",
            "power-apps.svg", dashed=True)
-    d.arrow([(1300, 990), (1300, 1068), (880, 1068), (880, 1150)], True, GRAY)
-    d.text(892, 1112, "승인한 조치", 15, 150)
-    d.arrow([(1600, 990), (1600, 1150)], True, GRAY)
-    d.text(1612, 1100, "승인 화면을 앱으로", 15, 200)
+    d.arrow([(340, 1105), (340, 1014)], True, GRAY)
+    d.text(352, 1062, "Bronze로 적재", 15, 150)
+    d.arrow([(1300, 930), (1300, 1030), (960, 1030), (960, 1140)], True, GRAY)
+    d.text(972, 1106, "승인한 조치", 15, 150)
+    d.arrow([(1605, 970), (1605, 1140)], True, GRAY)
+    d.text(1468, 1106, "승인 화면을 앱으로", 15, 135)
 
-    d.arrow([(65, 1345), (130, 1345)])
-    d.text(145, 1330, "실선: 실습에서 만들고 실행하는 흐름", 17, 420)
-    d.arrow([(620, 1345), (685, 1345)], True, GRAY)
-    d.text(700, 1330, "점선: 운영에 적용할 때 연결", 17, 420)
+    d.arrow([(65, 1330), (130, 1330)])
+    d.text(145, 1315, "실선: 실습에서 만들고 실행하는 흐름", 17, 420)
+    d.arrow([(620, 1330), (685, 1330)], True, GRAY)
+    d.text(700, 1315, "점선: 운영에 적용할 때 연결", 17, 420)
     d.save()
-
 
 if __name__ == "__main__":
     architecture()

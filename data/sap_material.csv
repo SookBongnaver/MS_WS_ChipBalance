@@ -1,0 +1,13 @@
+material_id,material_name,description,unit_price_krw_per_kg,base_uom
+PET-BR,Bright PET chip,BOPET main bright polyester,1180,KG
+PET-SD,Semi-dull PET chip,BOPET semi-dull polyester,1250,KG
+PET-RC,Recycled PET chip,Recycled polyester blend,980,KG
+PET-CO,Copolyester chip,Copolyester sealant grade,1420,KG
+MB-AB,Anti-block masterbatch,Silica anti-block MB,2850,KG
+MB-SL,Slip masterbatch,Slip additive MB,3120,KG
+MB-WH,White masterbatch,TiO2 white MB,3350,KG
+MB-UV,UV masterbatch,UV stabilizer MB,3680,KG
+NY6-F,Nylon 6 film chip,BOPA film grade nylon 6,2180,KG
+NY6-H,High-viscosity nylon 6,High IV nylon 6,2380,KG
+MB-NA,Nylon anti-block MB,BOPA anti-block MB,3260,KG
+MB-NS,Nylon slip MB,BOPA slip MB,3480,KG

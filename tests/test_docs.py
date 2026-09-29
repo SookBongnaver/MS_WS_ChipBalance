@@ -3,6 +3,7 @@ import importlib.util
 import json
 import re
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -136,6 +137,18 @@ class NotebookTests(unittest.TestCase):
                 cells = json.loads(target.read_text(encoding="utf-8"))["cells"]
                 self.assertEqual(cells, build_notebooks.cells_from_source(source),
                                  f"{rel(target)} differs from {rel(source)}; run python tools/build_notebooks.py")
+
+    def test_import_archive_matches_notebooks(self):
+        archive = NOTEBOOKS / "ChipBalance.zip"
+        self.assertTrue(archive.is_file(), "notebooks/ChipBalance.zip is missing; run python tools/build_notebooks.py")
+        with zipfile.ZipFile(archive) as bundle:
+            names = sorted(bundle.namelist())
+            expected = sorted(f"ChipBalance/{p.name}" for p in NOTEBOOKS.glob("*.ipynb"))
+            self.assertEqual(names, expected)
+            for name in names:
+                with self.subTest(entry=name):
+                    self.assertEqual(bundle.read(name), (NOTEBOOKS / name.split("/", 1)[1]).read_bytes(),
+                                     f"{name} is stale; run python tools/build_notebooks.py")
 
 
 if __name__ == "__main__":

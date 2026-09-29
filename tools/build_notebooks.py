@@ -1,11 +1,14 @@
-"""Build participant .ipynb notebooks from src/notebooks/*.py (Databricks source format)."""
+"""Build participant .ipynb notebooks and the import archive from src/notebooks/*.py (Databricks source format)."""
 import hashlib
 import json
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src" / "notebooks"
 OUTPUT = ROOT / "notebooks"
+ARCHIVE = OUTPUT / "ChipBalance.zip"
+ARCHIVE_FOLDER = "ChipBalance"
 
 
 def cells_from_source(path):
@@ -62,7 +65,19 @@ def build():
         target = OUTPUT / f"{path.stem}.ipynb"
         target.write_text(json.dumps(notebook, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
         built.append(target)
+    built.append(build_archive(built))
     return built
+
+
+def build_archive(notebooks):
+    """One ZIP for Databricks Import: it creates the ChipBalance folder with every notebook."""
+    with zipfile.ZipFile(ARCHIVE, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in sorted(notebooks):
+            info = zipfile.ZipInfo(f"{ARCHIVE_FOLDER}/{path.name}", date_time=(2026, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            archive.writestr(info, path.read_bytes())
+    return ARCHIVE
 
 
 if __name__ == "__main__":
