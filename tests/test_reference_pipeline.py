@@ -179,75 +179,75 @@ class SilverTests(Base):
 class GoldTests(Base):
     def test_gold_row_counts(self):
         self.assertEqual({
-            "chip_dim_line": 6, "chip_dim_bunker": 24, "chip_dim_material": 12, "chip_dim_product": 30, "chip_dim_supplier": 6,
-            "chip_dim_customer": 12, "chip_dim_route": 12, "chip_dim_date": 92, "chip_dim_scenario": 1, "chip_fact_usage_factor": 118,
-            "chip_fact_monthly_usage": 288, "chip_fact_opening_stock": 24, "chip_fact_inbound": 719, "chip_fact_sales_order": 321,
-            "chip_fact_plan": 547, "chip_fact_order_fulfillment": 321, "chip_fact_balance": 2208, "chip_scenario_summary": 24,
+            "dim_line": 6, "dim_bunker": 24, "dim_material": 12, "dim_product": 30, "dim_supplier": 6,
+            "dim_customer": 12, "dim_route": 12, "dim_date": 92, "dim_scenario": 1, "fact_usage_factor": 118,
+            "fact_monthly_usage": 288, "fact_opening_stock": 24, "fact_inbound": 719, "fact_sales_order": 321,
+            "fact_plan": 547, "fact_order_fulfillment": 321, "fact_balance": 2208, "fact_bunker_summary": 24,
         }, {k: len(v) for k, v in self.g.items()})
 
     def test_opening_stock_is_the_last_september_reading(self):
-        for r in self.g["chip_fact_opening_stock"]:
+        for r in self.g["fact_opening_stock"]:
             self.assertEqual(datetime(2026, 9, 30, 23), r["reading_ts"])
             self.assertEqual(gen.OPENING[r["bunker_id"]], r["opening_kg"])
 
     def test_supplier_planning_delay(self):
-        delay = {s["supplier_id"]: s["planning_delay_days"] for s in self.g["chip_dim_supplier"]}
+        delay = {s["supplier_id"]: s["planning_delay_days"] for s in self.g["dim_supplier"]}
         self.assertEqual({"SUP-PET-A": 0, "SUP-PET-B": 0, "SUP-MB-A": 1, "SUP-NY-A": 1, "SUP-NY-B": 2, "SUP-ADD-A": 3}, delay)
 
     def test_actual_usage_is_above_standard(self):
-        for r in self.g["chip_fact_usage_factor"]:
+        for r in self.g["fact_usage_factor"]:
             self.assertGreater(r["actual_kg_per_kg"], r["std_kg_per_kg"], r["usage_factor_key"])
             self.assertLess(r["loss_pct"], 5)
 
     def test_v1_current_plan_keeps_every_bunker_above_safety(self):
-        self.assertEqual(0, sum(r["below_safety"] for r in self.g["chip_fact_balance"]))
-        self.assertEqual(0, sum(r["over_capacity"] for r in self.g["chip_fact_balance"]))
-        self.assertTrue(all(r["on_time"] for r in self.g["chip_fact_order_fulfillment"]))
+        self.assertEqual(0, sum(r["below_safety"] for r in self.g["fact_balance"]))
+        self.assertEqual(0, sum(r["over_capacity"] for r in self.g["fact_balance"]))
+        self.assertTrue(all(r["on_time"] for r in self.g["fact_order_fulfillment"]))
 
     def test_v2_urgent_order_hits_l3_pet_sd_only(self):
-        below = [r for r in self.e["chip_scenario_summary"] if r["below_safety_days"]]
+        below = [r for r in self.e["fact_bunker_summary"] if r["below_safety_days"]]
         self.assertEqual(["BNK-L3-2"], [r["bunker_id"] for r in below])
         r = below[0]
         self.assertEqual((D("2026-10-06"), D("2026-10-07")), (r["first_below_safety_date"], r["first_shortage_date"]))
         self.assertEqual((-23630, D("2026-11-26"), 35630), (r["min_closing_kg"], r["min_closing_date"], r["required_topup_kg"]))
-        urgent = self.e["chip_fact_sales_order"][0]
+        urgent = self.e["fact_sales_order"][0]
         self.assertEqual(("SO-10322", "C-1004", "P-L3-05", 100000, D("2026-10-08"), True),
                          (urgent["sales_order_id"], urgent["customer_id"], urgent["product_id"], urgent["order_qty_kg"], urgent["due_date"], urgent["is_urgent"]))
 
     def test_v3_moved_production_keeps_every_order_on_time(self):
-        moved = [r for r in self.e["chip_fact_plan"] if r["change_type"] == "moved"]
+        moved = [r for r in self.e["fact_plan"] if r["change_type"] == "moved"]
         self.assertEqual(6, len(moved))
         self.assertTrue(all(r["plan_date"] - r["original_plan_date"] == timedelta(days=2) for r in moved))
         self.assertEqual(["SO-10108", "SO-10109", "SO-10110"], sorted({r["sales_order_id"] for r in moved}))
         customers = {o["sales_order_id"]: o["customer_id"] for o in self.s["sales_order"]}
         self.assertEqual(["C-1004", "C-1009", "C-1001"], [customers[so] for so in ("SO-10108", "SO-10109", "SO-10110")])
-        fulfillment = {r["sales_order_id"]: r for r in self.e["chip_fact_order_fulfillment"]}
+        fulfillment = {r["sales_order_id"]: r for r in self.e["fact_order_fulfillment"]}
         self.assertTrue(all(r["on_time"] for r in fulfillment.values()))
         self.assertEqual((D("2026-10-06"), 2), (fulfillment["SO-10322"]["finish_date"], fulfillment["SO-10322"]["slack_days"]))
 
     def test_v4_transfer_source_stays_above_safety(self):
-        opt2 = next(o for o in self.e["chip_response_option"] if o["option_id"] == "OPT-2")
+        opt2 = next(o for o in self.e["fact_response_option"] if o["option_id"] == "OPT-2")
         self.assertEqual(("BNK-L1-2", "R-01", 40000, D("2026-10-03")), (opt2["source_bunker_id"], opt2["route_id"], opt2["qty_kg"], opt2["first_arrival_date"]))
-        donor = [r for r in self.e["chip_option_balance"] if r["option_id"] == "OPT-2" and r["bunker_id"] == "BNK-L1-2"]
+        donor = [r for r in self.e["fact_option_balance"] if r["option_id"] == "OPT-2" and r["bunker_id"] == "BNK-L1-2"]
         self.assertEqual(92, len(donor))
         self.assertGreaterEqual(min(r["closing_kg"] for r in donor), 6000)
 
     def test_v5_next_pet_sd_receipt(self):
-        key = self.e["chip_risk_event"][0]["next_inbound_key"]
-        inbound = next(r for r in self.g["chip_fact_inbound"] if r["inbound_key"] == key)
+        key = self.e["fact_risk_event"][0]["next_inbound_key"]
+        inbound = next(r for r in self.g["fact_inbound"] if r["inbound_key"] == key)
         self.assertEqual(("4500010294", "00020", "SUP-PET-B", D("2026-10-09"), 25000),
                          (inbound["purchase_order_id"], inbound["po_line_no"], inbound["supplier_id"], inbound["expected_date"], inbound["quantity_kg"]))
 
     def test_v6_options_and_recommendation(self):
         result = {o["option_id"]: (o["c1_safety_pass"], o["c2_capacity_pass"], o["c3_due_date_pass"], o["c4_route_limit_pass"], o["rank"], o["added_cost_krw"])
-                  for o in self.e["chip_response_option"]}
+                  for o in self.e["fact_response_option"]}
         self.assertEqual({
             "OPT-1": (False, True, True, True, None, 500000),
             "OPT-2": (True, True, True, True, 1, 1000000),
             "OPT-3": (True, True, True, True, 2, 3750000),
             "OPT-4": (False, True, False, True, None, 0),
         }, result)
-        risk = self.e["chip_risk_event"][0]
+        risk = self.e["fact_risk_event"][0]
         self.assertEqual(("EVT-20261001-001", "SO-10322", "BNK-L3-2", "OPT-2", "open"),
                          (risk["event_id"], risk["sales_order_id"], risk["bunker_id"], risk["recommended_option_id"], risk["status"]))
 

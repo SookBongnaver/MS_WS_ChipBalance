@@ -318,30 +318,30 @@ def gold_current(s):
     bal = balance("baseline", plan, inbound, opening, s["bunker"], factors)
     weekday = "월화수목금토일"
     gold = {
-        "chip_dim_line": [dict(r) for r in s["line"]],
-        "chip_dim_bunker": [{"bunker_id": b["bunker_id"], "bunker_name": f"{b['line_id']} {b['material_id']}", **{k: b[k] for k in ("line_id", "material_id", "capacity_kg", "safety_stock_kg")}}
+        "dim_line": [dict(r) for r in s["line"]],
+        "dim_bunker": [{"bunker_id": b["bunker_id"], "bunker_name": f"{b['line_id']} {b['material_id']}", **{k: b[k] for k in ("line_id", "material_id", "capacity_kg", "safety_stock_kg")}}
                             for b in s["bunker"]],
-        "chip_dim_material": [{**{k: m[k] for k in ("material_id", "material_name", "description", "unit_price_krw_per_kg")}, "supplier_id": supplier_of[m["material_id"]]}
+        "dim_material": [{**{k: m[k] for k in ("material_id", "material_name", "description", "unit_price_krw_per_kg")}, "supplier_id": supplier_of[m["material_id"]]}
                               for m in s["material"]],
-        "chip_dim_product": [{k: p[k] for k in ("product_id", "product_name", "line_id", "film_family")} for p in s["product"]],
-        "chip_dim_supplier": [{**sup, **delay[sup["supplier_id"]]} for sup in s["supplier"]],
-        "chip_dim_customer": sorted({(o["customer_id"], o["customer_name"]) for o in orders}),
-        "chip_dim_route": [dict(r) for r in s["transfer_route"]],
-        "chip_dim_date": [{"date_key": d, "yyyymm": d.strftime("%Y%m"), "day_of_week": d.isoweekday(), "weekday_name": weekday[d.weekday()]}
+        "dim_product": [{k: p[k] for k in ("product_id", "product_name", "line_id", "film_family")} for p in s["product"]],
+        "dim_supplier": [{**sup, **delay[sup["supplier_id"]]} for sup in s["supplier"]],
+        "dim_customer": sorted({(o["customer_id"], o["customer_name"]) for o in orders}),
+        "dim_route": [dict(r) for r in s["transfer_route"]],
+        "dim_date": [{"date_key": d, "yyyymm": d.strftime("%Y%m"), "day_of_week": d.isoweekday(), "weekday_name": weekday[d.weekday()]}
                           for d in daterange(PLAN_START, PLAN_END)],
-        "chip_dim_scenario": [{"scenario_id": "baseline", "scenario_name": "현재 계획", "description": "2026년 4분기 생산계획과 입고 예정"}],
-        "chip_fact_usage_factor": usage_rows,
-        "chip_fact_monthly_usage": monthly_usage(s),
-        "chip_fact_opening_stock": opening,
-        "chip_fact_inbound": inbound,
-        "chip_fact_sales_order": [{**{k: o[k] for k in ("sales_order_id", "order_date", "customer_id", "product_id")}, "line_id": line_of[o["product_id"]],
+        "dim_scenario": [{"scenario_id": "baseline", "scenario_name": "현재 계획", "description": "2026년 4분기 생산계획과 입고 예정"}],
+        "fact_usage_factor": usage_rows,
+        "fact_monthly_usage": monthly_usage(s),
+        "fact_opening_stock": opening,
+        "fact_inbound": inbound,
+        "fact_sales_order": [{**{k: o[k] for k in ("sales_order_id", "order_date", "customer_id", "product_id")}, "line_id": line_of[o["product_id"]],
                                    **{k: o[k] for k in ("order_qty_kg", "due_date", "priority")}, "is_urgent": False} for o in orders],
-        "chip_fact_plan": plan_rows("baseline", plan),
-        "chip_fact_order_fulfillment": fulfillment("baseline", plan, orders, s["product"]),
-        "chip_fact_balance": bal,
-        "chip_scenario_summary": summarize("baseline", bal, s["bunker"]),
+        "fact_plan": plan_rows("baseline", plan),
+        "fact_order_fulfillment": fulfillment("baseline", plan, orders, s["product"]),
+        "fact_balance": bal,
+        "fact_bunker_summary": summarize("baseline", bal, s["bunker"]),
     }
-    gold["chip_dim_customer"] = [{"customer_id": c, "customer_name": n} for c, n in gold["chip_dim_customer"]]
+    gold["dim_customer"] = [{"customer_id": c, "customer_name": n} for c, n in gold["dim_customer"]]
     context = {"delay": delay, "factors": factors, "opening": opening, "inbound": inbound, "plan": plan, "orders": orders}
     return gold, context
 
@@ -468,7 +468,7 @@ def gold_emergency(s, gold, ctx, detected_at=None):
     plan = emergency_plan(ctx["plan"], so_id)
     bal = balance("emergency", plan, ctx["inbound"], ctx["opening"], s["bunker"], ctx["factors"])
     summary = summarize("emergency", bal, s["bunker"])
-    base_below = {r["bunker_id"] for r in gold["chip_scenario_summary"] if r["below_safety_days"]}
+    base_below = {r["bunker_id"] for r in gold["fact_bunker_summary"] if r["below_safety_days"]}
     newly = sorted((r for r in summary if r["below_safety_days"] and r["bunker_id"] not in base_below),
                    key=lambda r: (r["first_below_safety_date"], r["bunker_id"]))
     affected = newly[0]
@@ -481,17 +481,17 @@ def gold_emergency(s, gold, ctx, detected_at=None):
             "required_topup_kg": affected["required_topup_kg"], "next_inbound_key": next_in["inbound_key"],
             "recommended_option_id": best["option_id"], "recommended_action": best["action_detail"], "status": "open"}
     return {
-        "chip_dim_scenario": [{"scenario_id": "emergency", "scenario_name": "긴급 오더 반영",
+        "dim_scenario": [{"scenario_id": "emergency", "scenario_name": "긴급 오더 반영",
                                "description": f"{URGENT['order_date']:%Y-%m-%d} 접수 {so_id} ({URGENT['customer_name']}, {URGENT['product_id']} {URGENT['order_qty_kg']:,} kg)"}],
-        "chip_fact_sales_order": [{**{k: urgent[k] for k in ("sales_order_id", "order_date", "customer_id", "product_id")}, "line_id": URGENT["line_id"],
+        "fact_sales_order": [{**{k: urgent[k] for k in ("sales_order_id", "order_date", "customer_id", "product_id")}, "line_id": URGENT["line_id"],
                                    **{k: urgent[k] for k in ("order_qty_kg", "due_date", "priority")}, "is_urgent": True}],
-        "chip_fact_plan": plan_rows("emergency", plan),
-        "chip_fact_order_fulfillment": fulfillment("emergency", plan, orders, s["product"]),
-        "chip_fact_balance": bal,
-        "chip_scenario_summary": summary,
-        "chip_response_option": options,
-        "chip_option_balance": option_balance,
-        "chip_risk_event": [risk],
+        "fact_plan": plan_rows("emergency", plan),
+        "fact_order_fulfillment": fulfillment("emergency", plan, orders, s["product"]),
+        "fact_balance": bal,
+        "fact_bunker_summary": summary,
+        "fact_response_option": options,
+        "fact_option_balance": option_balance,
+        "fact_risk_event": [risk],
     }
 
 
@@ -511,12 +511,12 @@ def main():
     print("SILVER", res["quarantine_metrics"])
     print("GOLD", {k: len(v) for k, v in res["gold"].items()})
     print("EMERGENCY", {k: len(v) for k, v in res["emergency"].items()})
-    for r in res["emergency"]["chip_scenario_summary"]:
+    for r in res["emergency"]["fact_bunker_summary"]:
         if r["below_safety_days"]:
             print("BELOW", r)
-    for r in res["emergency"]["chip_response_option"]:
+    for r in res["emergency"]["fact_response_option"]:
         print("OPTION", r)
-    print("RISK", res["emergency"]["chip_risk_event"][0])
+    print("RISK", res["emergency"]["fact_risk_event"][0])
 
 
 if __name__ == "__main__":

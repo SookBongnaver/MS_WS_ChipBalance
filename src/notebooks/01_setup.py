@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # 01. 설정과 연결 확인
-# MAGIC 02~05 Notebook은 첫 코드 셀 `%run ./01_setup`으로 이 Notebook을 불러옵니다.
+# MAGIC 다른 Notebook은 첫 코드 셀 `%run ./01_setup`으로 이 Notebook을 불러옵니다.
 # MAGIC
 # MAGIC 1. **2. 설정값** 셀에서 `participant`만 본인 참가자 번호로 바꿉니다.
 # MAGIC 2. 위에서부터 셀을 하나씩 실행합니다. (**Shift+Enter**)
@@ -38,8 +38,8 @@ print("Runtime:", cluster_tag("sparkVersion"))
 # MAGIC
 # MAGIC | 이름 | 값 (`p001`일 때) | 용도 |
 # MAGIC |---|---|---|
-# MAGIC | `catalog`, `schema` | `lab_factory`, `chipbalance_p001` | Bronze·Silver 테이블을 저장하는 Unity Catalog 위치 |
-# MAGIC | `raw_volume` | `/Volumes/lab_factory/chipbalance_p001/raw` | SAP·FPIMS·PVSS 원천 파일을 올리는 Volume |
+# MAGIC | `catalog`, `schema` | `lab_factory`, `chipbalance_p001` | Bronze·Silver·Gold 테이블을 저장하는 Unity Catalog 위치 |
+# MAGIC | `raw_volume` | `/Volumes/lab_factory/chipbalance_p001/raw` | 02에서 SAP·FPIMS·PVSS 원천 파일을 만드는 Volume |
 # MAGIC | `fabric_workspace`, `fabric_lakehouse` | `chipbalance-p001`, `lh_chipbalance_p001` | Gold를 저장하는 Fabric 작업 영역과 Lakehouse |
 # MAGIC | `service_credential` | `chipbalance_onelake` | OneLake에 저장할 때 쓰는 관리 ID |
 
@@ -59,7 +59,7 @@ service_credential = "chipbalance_onelake"
 # MAGIC 본인 스키마와 원천 파일 Volume을 확인하고, 이후 SQL이 본인 스키마를 기본으로 쓰도록 지정합니다.
 # MAGIC 시간대는 한국 시간(Asia/Seoul)으로 맞춥니다.
 # MAGIC
-# MAGIC **예상 결과:** 스키마 이름과 Volume 경로가 표시됩니다. 원천 파일은 02에서 올리므로 처음에는 0개입니다.
+# MAGIC **예상 결과:** 스키마 이름과 Volume 경로가 표시됩니다.
 
 # COMMAND ----------
 if not re.fullmatch(r"p\d{3}", participant):
@@ -68,9 +68,9 @@ if not re.fullmatch(r"p\d{3}", participant):
 spark.sql(f"USE CATALOG `{catalog}`")
 spark.sql(f"USE SCHEMA `{schema}`")
 spark.conf.set("spark.sql.session.timeZone", "Asia/Seoul")
-raw_files = [f.name for f in dbutils.fs.ls(raw_volume) if not f.name.endswith("/")]
+dbutils.fs.ls(raw_volume)
 print("Unity Catalog 스키마:", f"{catalog}.{schema}")
-print("원천 파일 Volume:", raw_volume, f"(파일 {len(raw_files)}개)")
+print("원천 파일 Volume:", raw_volume)
 
 # COMMAND ----------
 # MAGIC %md
@@ -85,7 +85,7 @@ print("원천 파일 Volume:", raw_volume, f"(파일 {len(raw_files)}개)")
 # MAGIC |---|---|
 # MAGIC | `onelake_options` | 관리 ID 토큰을 받아 OneLake 접속 옵션을 만듭니다. |
 # MAGIC | `write_delta` | Spark DataFrame을 OneLake 경로에 Delta 형식으로 덮어써서 저장하고, 저장된 행 수를 돌려줍니다. |
-# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. 04·05 Notebook에서 씁니다. |
+# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. 05_gold와 긴급 오더 Notebook에서 씁니다. |
 
 # COMMAND ----------
 from zoneinfo import ZoneInfo
@@ -113,9 +113,16 @@ def onelake_options():
     return {"bearer_token": token, "use_fabric_endpoint": "true"}
 
 
+def arrow_type(data_type):
+    if isinstance(data_type, T.DecimalType):
+        return pa.decimal128(data_type.precision, data_type.scale)
+    return ARROW_TYPES[type(data_type)]
+
+
 def to_arrow(df):
     fields = df.schema.fields
-    unsupported = [f"{f.name} {f.dataType.simpleString()}" for f in fields if type(f.dataType) not in ARROW_TYPES]
+    unsupported = [f"{f.name} {f.dataType.simpleString()}" for f in fields
+                   if type(f.dataType) not in ARROW_TYPES and not isinstance(f.dataType, T.DecimalType)]
     if unsupported:
         raise TypeError("OneLake에 저장할 수 없는 형식입니다: " + ", ".join(unsupported))
     zone = ZoneInfo(spark.conf.get("spark.sql.session.timeZone"))
@@ -125,7 +132,7 @@ def to_arrow(df):
             for row in rows:
                 if row[field.name] is not None:
                     row[field.name] = row[field.name].replace(tzinfo=zone)
-    schema = pa.schema([pa.field(f.name, ARROW_TYPES[type(f.dataType)]) for f in fields])
+    schema = pa.schema([pa.field(f.name, arrow_type(f.dataType)) for f in fields])
     return pa.Table.from_pylist(rows, schema=schema)
 
 
