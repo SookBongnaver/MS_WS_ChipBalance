@@ -1,7 +1,0 @@
-supplier_id,supplier_name,standard_lead_time_days,max_pull_in_days,order_unit_kg
-SUP-PET-A,한빛케미칼,7,2,25000
-SUP-PET-B,세미폴리머,4,2,25000
-SUP-MB-A,첨단마스터,6,1,5000
-SUP-NY-A,나일론소재,9,2,25000
-SUP-NY-B,고점도케미칼,10,2,25000
-SUP-ADD-A,기능성첨가,5,1,1000

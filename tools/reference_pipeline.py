@@ -1,553 +1,522 @@
-from __future__ import annotations
+"""Reference calculation for the Chip Balance workshop.
 
+Plain-Python version of the Silver, Gold and emergency-order notebooks. The notebooks must
+return the same numbers. The tests generate the source files into a temporary folder and
+check these results.
+
+Run: python tools/reference_pipeline.py <source_dir>
+"""
 import csv
 import json
 import sys
 from collections import defaultdict
-from copy import deepcopy
 from datetime import date, datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 
-if __package__ is None or __package__ == "":
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-
-from tools.generate_source_data import PLAN_START, PLAN_END, SAFETY, CAPACITY, SUP_BY_MAT, q_half_up
-
-DATA_DIR = Path(__file__).resolve().parents[1] / "data"
+PLAN_START = date(2026, 10, 1)
+PLAN_END = date(2026, 12, 31)
 TODAY = date(2026, 10, 1)
-URGENT_ORDER = {
-    "sales_order_id": "URG-20261001-L3-001",
-    "product_id": "P-L3-05",
-    "line_id": "L3",
-    "qty_kg": 100000,
-    "due_date": date(2026, 10, 8),
-    "production_dates": [date(2026, 10, d) for d in range(5, 7)],
+OPENING_TS = datetime(2026, 9, 30, 23)
+URGENT = {
+    "customer_id": "C-1004", "customer_name": "누리전자소재", "product_id": "P-L3-05", "line_id": "L3",
+    "order_qty_kg": 100000, "order_date": date(2026, 10, 1), "due_date": date(2026, 10, 8), "priority": "high",
+    "production": [(date(2026, 10, 5), 50000), (date(2026, 10, 6), 50000)],
 }
-SPARE_DATES = [date(2026, 10, d) for d in range(11, 16)]
-AFFECTED_BUNKER = "BNK-L3-2"
-DETECTED_AT_PLACEHOLDER = "<current_timestamp>"
+MOVE_FROM, MOVE_TO, MOVE_DAYS = date(2026, 10, 5), date(2026, 10, 10), 2
+TRANSFER_STEP_KG = 5000
+FACTOR_PLACES = Decimal("0.000001")
+
+SOURCE = {
+    "material": "sap_material",
+    "supplier": "sap_supplier",
+    "purchase_receipt": "sap_purchase_receipt_2025-10_2026-09",
+    "purchase_order_open": "sap_purchase_order_open_2026Q4",
+    "sales_order": "sap_sales_order_open_2026Q4",
+    "line": "fpims_line",
+    "bunker": "fpims_bunker",
+    "product": "fpims_product",
+    "recipe": "fpims_recipe",
+    "transfer_route": "fpims_bunker_transfer_route",
+    "production_lot": "fpims_production_lot_2025-10_2026-09",
+    "material_consumption": "fpims_material_consumption_2025-10_2026-09",
+    "production_plan": "fpims_production_plan_2026Q4",
+    "bunker_level": "pvss_bunker_level_2026-09",
+}
 
 
-def d8(s: str) -> date:
-    return datetime.strptime(s, "%Y%m%d").date()
+def q_half_up(value, places=Decimal("1")):
+    return Decimal(value).quantize(places, rounding=ROUND_HALF_UP)
 
 
-def ymd(d: date | None) -> str:
-    return "" if d is None else d.isoformat()
+def d8(text):
+    return datetime.strptime(text, "%Y%m%d").date()
 
 
-def ceil_to_unit(value: int, unit: int) -> int:
-    return ((value + unit - 1) // unit) * unit
+def ts(text):
+    return datetime.fromisoformat(text).replace(tzinfo=None)
 
 
-def read_csv(path: Path) -> list[dict]:
-    with path.open("r", encoding="utf-8", newline="") as f:
-        return list(csv.DictReader(f))
-
-
-def read_jsonl(path: Path) -> list[dict]:
-    with path.open("r", encoding="utf-8") as f:
-        return [json.loads(line) for line in f if line.strip()]
-
-
-def source_tables(data_dir: Path = DATA_DIR) -> dict[str, list[dict]]:
-    tables = {}
-    for path in sorted(data_dir.glob("*.csv")):
-        tables[path.name] = read_csv(path)
-    for path in sorted(data_dir.glob("*.json")):
-        tables[path.name] = read_jsonl(path)
-    return tables
-
-
-def cleanse(data_dir: Path = DATA_DIR):
-    src = source_tables(data_dir)
-    qrows: list[dict] = []
-    silver = {k: deepcopy(v) for k, v in src.items()}
-
-    materials = {r["material_id"] for r in src["sap_material.csv"]}
-    bunkers = {r["bunker_id"]: r for r in src["fpims_bunker.csv"]}
-
-    clean_po = []
-    seen_po_keys = set()
-    for idx, r in enumerate(src["sap_purchase_order_open_2026Q4.csv"], 1):
-        key = (r["purchase_order_id"], r["po_line_no"])
-        reason = None
-        if r["material_id"] not in materials:
-            reason = "unknown_material"
-        elif r["quantity"] == "":
-            reason = "null_quantity"
-        elif key in seen_po_keys:
-            reason = "duplicate_open_po"
-        if reason:
-            bad = dict(r)
-            bad.update({"source_table": "sap_purchase_order_open_2026Q4", "source_row_number": idx, "reason": reason})
-            qrows.append(bad)
-            continue
-        seen_po_keys.add(key)
-        nr = dict(r)
-        qty = Decimal(nr["quantity"])
-        if nr["unit"] == "TO":
-            qty *= Decimal(1000)
-            nr["unit"] = "KG"
-        nr["quantity_kg"] = str(q_half_up(qty))
-        clean_po.append(nr)
-    silver["sap_purchase_order_open_2026Q4"] = clean_po
-
-    clean_sensor = []
-    seen_sensor = set()
-    capacities = {bid: int(b["capacity_kg"]) for bid, b in bunkers.items()}
-    observed_unique = set()
-    for idx, r in enumerate(src["pvss_bunker_level_2026-09.json"], 1):
-        key = (r["bunker_id"], r["timestamp"])
-        observed_unique.add(key)
-        level = int(r["level_kg"])
-        reason = None
-        if level < 0 or level > capacities[r["bunker_id"]]:
-            reason = "sensor_spike_out_of_capacity"
-        elif key in seen_sensor:
-            reason = "duplicate_sensor_timestamp"
-        if reason:
-            bad = dict(r)
-            bad.update({"source_table": "pvss_bunker_level_2026-09", "source_row_number": idx, "reason": reason})
-            qrows.append(bad)
-            continue
-        seen_sensor.add(key)
-        clean_sensor.append({"bunker_id": r["bunker_id"], "timestamp": r["timestamp"], "level_kg": str(level)})
-    silver["pvss_bunker_level_2026-09"] = clean_sensor
-
-    expected_sensor_keys = 24 * 30 * 24
-    metrics = {
-        "open_po_duplicate": sum(1 for r in qrows if r["reason"] == "duplicate_open_po"),
-        "open_po_null_quantity": sum(1 for r in qrows if r["reason"] == "null_quantity"),
-        "open_po_unknown_material": sum(1 for r in qrows if r["reason"] == "unknown_material"),
-        "open_po_to_converted": sum(1 for r in clean_po if r.get("unit") == "KG" and Decimal(r["quantity"]) < Decimal(r["quantity_kg"])),
-        "sensor_spike": sum(1 for r in qrows if r["reason"] == "sensor_spike_out_of_capacity"),
-        "sensor_duplicate": sum(1 for r in qrows if r["reason"] == "duplicate_sensor_timestamp"),
-        "sensor_missing_hour": expected_sensor_keys - len(observed_unique),
-        "total_quarantine_rows": len(qrows),
-    }
-    return src, silver, qrows, metrics
-
-
-def supplier_delay(receipts: list[dict]) -> tuple[list[dict], dict[str, int]]:
-    sums = defaultdict(int)
-    counts = defaultdict(int)
-    for r in receipts:
-        delay = (d8(r["received_date"]) - d8(r["promised_date"])).days
-        sums[r["supplier_id"]] += delay
-        counts[r["supplier_id"]] += 1
-    rows = []
-    rounded = {}
-    for sid in sorted(counts):
-        avg = Decimal(sums[sid]) / Decimal(counts[sid])
-        rd = q_half_up(avg)
-        rounded[sid] = rd
-        rows.append({"supplier_id": sid, "receipt_count": str(counts[sid]), "avg_delay_days": f"{avg:.6f}", "rounded_delay_days": str(rd)})
-    return rows, rounded
-
-
-def usage_factors(lots: list[dict], consumption: list[dict], recipes: list[dict]):
-    lot_prod = {r["lot_id"]: r["product_id"] for r in lots}
-    output_by_prod = defaultdict(int)
-    for r in lots:
-        output_by_prod[r["product_id"]] += int(r["output_kg"])
-    cons_by_prod_mat = defaultdict(int)
-    monthly_by_bunker = defaultdict(int)
-    lot_month = {r["lot_id"]: r["start_ts"][:7] for r in lots}
-    for r in consumption:
-        pid = lot_prod[r["lot_id"]]
-        kg = int(r["consumed_kg"])
-        cons_by_prod_mat[(pid, r["material_id"])] += kg
-        monthly_by_bunker[(lot_month[r["lot_id"]], r["bunker_id"])] += kg
-    std = {(r["product_id"], r["material_id"]): Decimal(r["std_kg_per_kg"]) for r in recipes}
-    uf_rows = []
-    factors: dict[tuple[str, str], Decimal] = {}
-    for key in sorted(cons_by_prod_mat):
-        pid, mat = key
-        factor = Decimal(cons_by_prod_mat[key]) / Decimal(output_by_prod[pid])
-        factors[key] = factor
-        uf_rows.append({
-            "usage_factor_key": f"{pid}|{mat}", "product_id": pid, "material_id": mat,
-            "actual_kg_per_kg": f"{factor:.6f}", "std_kg_per_kg": f"{std[key]:.6f}",
-            "variance_kg_per_kg": f"{(factor - std[key]):.6f}",
-            "total_consumed_kg": str(cons_by_prod_mat[key]), "total_output_kg": str(output_by_prod[pid]),
-        })
-    monthly_rows = []
-    for (month, bid), kg in sorted(monthly_by_bunker.items()):
-        monthly_rows.append({"monthly_usage_key": f"{month}|{bid}", "month": month, "bunker_id": bid, "consumed_kg": str(kg)})
-    return uf_rows, factors, monthly_rows
-
-
-def opening_stock(clean_sensor: list[dict]) -> list[dict]:
-    latest = {}
-    cutoff = "2026-09-30T23:00:00+09:00"
-    for r in clean_sensor:
-        if r["timestamp"] <= cutoff and (r["bunker_id"] not in latest or r["timestamp"] > latest[r["bunker_id"]]["timestamp"]):
-            latest[r["bunker_id"]] = r
-    rows = []
-    for bid in sorted(latest):
-        r = latest[bid]
-        rows.append({"opening_stock_key": f"2026-10-01|{bid}", "as_of_date": "2026-10-01", "bunker_id": bid, "source_timestamp": r["timestamp"], "opening_kg": r["level_kg"]})
-    return rows
-
-
-def plan_rows(baseline_src: list[dict], scenario: str) -> list[dict]:
-    rows = deepcopy(baseline_src)
-    if scenario == "emergency":
-        displaced = []
-        for r in rows:
-            pd = d8(r["plan_date"])
-            if r["line_id"] == "L3" and pd in URGENT_ORDER["production_dates"]:
-                displaced.append(dict(r))
-                r["product_id"] = URGENT_ORDER["product_id"]
-                r["planned_output_kg"] = "50000"
-                r["sales_order_id"] = URGENT_ORDER["sales_order_id"]
-        for moved, spare_date in zip(displaced, SPARE_DATES):
-            nr = dict(moved)
-            nr["plan_id"] = f"EMG-MOVE-{spare_date.strftime('%Y%m%d')}"
-            nr["plan_date"] = spare_date.strftime("%Y%m%d")
-            rows.append(nr)
-    elif scenario == "opt4_postpone":
-        for i, spare_date in enumerate(SPARE_DATES[:len(URGENT_ORDER["production_dates"])], 1):
-            rows.append({
-                "plan_id": f"OPT4-URG-{i:02d}",
-                "plan_date": spare_date.strftime("%Y%m%d"),
-                "line_id": "L3",
-                "product_id": URGENT_ORDER["product_id"],
-                "planned_output_kg": "50000",
-                "sales_order_id": URGENT_ORDER["sales_order_id"],
-            })
-    return sorted(rows, key=lambda r: (r["plan_date"], r["line_id"], r["plan_id"]))
-
-
-def requirement_by_bunker(plan: list[dict], bunkers: list[dict], factors: dict[tuple[str, str], Decimal]):
-    b_by_line_mat = {(b["line_id"], b["material_id"]): b["bunker_id"] for b in bunkers}
-    req = defaultdict(int)
-    for r in plan:
-        pd = d8(r["plan_date"])
-        pid = r["product_id"]
-        for (p, mat), factor in factors.items():
-            if p != pid:
-                continue
-            bid = b_by_line_mat.get((r["line_id"], mat))
-            if bid:
-                req[(bid, pd)] += q_half_up(Decimal(r["planned_output_kg"]) * factor)
-    return req
-
-
-def expected_receipts(open_po: list[dict], delay_by_supplier: dict[str, int], pullin: dict[tuple[str, str], int] | None = None, extra_pos: list[dict] | None = None):
-    rows = deepcopy(open_po) + deepcopy(extra_pos or [])
-    pullin = pullin or {}
-    rec = defaultdict(int)
-    receipt_rows = []
-    for r in rows:
-        promised = d8(r["promised_date"])
-        key = (r["purchase_order_id"], r["po_line_no"])
-        if key in pullin:
-            promised = pullin[key] if isinstance(pullin[key], date) else promised - timedelta(days=pullin[key])
-        ed = promised + timedelta(days=delay_by_supplier.get(r["supplier_id"], 0))
-        qty = int(r["quantity_kg"])
-        rec[(r["bunker_id"], ed)] += qty
-        receipt_rows.append((r, ed, qty))
-    return rec, receipt_rows
-
-
-def balance(plan: list[dict], open_po: list[dict], delay_by_supplier: dict[str, int], opening: list[dict], bunkers: list[dict], factors, scenario_id: str, transfers=None, pullin=None, extra_pos=None):
-    transfers = transfers or []
-    opening_by_b = {r["bunker_id"]: int(r["opening_kg"]) for r in opening}
-    binfo = {b["bunker_id"]: b for b in bunkers}
-    req = requirement_by_bunker(plan, bunkers, factors)
-    rec, _ = expected_receipts(open_po, delay_by_supplier, pullin, extra_pos)
-    tin = defaultdict(int); tout = defaultdict(int)
-    for t in transfers:
-        out_d = t["date"]
-        in_d = out_d + timedelta(days=t["lead_time_days"])
-        tout[(t["from_bunker_id"], out_d)] += t["qty_kg"]
-        tin[(t["to_bunker_id"], in_d)] += t["qty_kg"]
-    rows = []
-    dates = list(_daterange(PLAN_START, PLAN_END))
-    for bid in sorted(binfo):
-        prev = opening_by_b[bid]
-        for d in dates:
-            receipts = rec[(bid, d)]
-            transfers_in = tin[(bid, d)]
-            transfers_out = tout[(bid, d)]
-            requirement = req[(bid, d)]
-            close = prev + receipts + transfers_in - transfers_out - requirement
-            cap = int(binfo[bid]["capacity_kg"])
-            safety = int(binfo[bid]["safety_stock_kg"])
-            rows.append({
-                "balance_key": f"{scenario_id}|{bid}|{d.isoformat()}", "scenario_id": scenario_id, "bunker_id": bid,
-                "line_id": binfo[bid]["line_id"], "material_id": binfo[bid]["material_id"], "balance_date": d.isoformat(),
-                "opening_kg": str(prev), "receipt_kg": str(receipts), "transfer_in_kg": str(transfers_in), "transfer_out_kg": str(transfers_out),
-                "requirement_kg": str(requirement), "closing_kg": str(close), "safety_stock_kg": str(safety), "capacity_kg": str(cap),
-                "below_safety": str(close < safety).lower(), "shortage": str(close < 0).lower(), "over_capacity": str(prev + receipts + transfers_in > cap).lower(),
-            })
-            prev = close
-    return rows
-
-
-def _daterange(start: date, end: date):
+def daterange(start, end):
     d = start
     while d <= end:
         yield d
         d += timedelta(days=1)
 
 
-def summarize_balance(rows: list[dict], scenario_id: str) -> list[dict]:
-    by_b = defaultdict(list)
+def ceil_to(value, step):
+    return -(-value // step) * step
+
+
+def read_source(source_dir):
+    source_dir = Path(source_dir)
+    tables = {}
+    for path in sorted(source_dir.glob("*/*.csv")):
+        with path.open(encoding="utf-8", newline="") as f:
+            tables[path.stem] = list(csv.DictReader(f))
+    for path in sorted(source_dir.glob("*/*.json")):
+        with path.open(encoding="utf-8") as f:
+            tables[path.stem] = [json.loads(line) for line in f if line.strip()]
+    return tables
+
+
+# ---------------------------------------------------------------- Silver
+
+def silver_tables(src):
+    s = {}
+    get = lambda name: src[SOURCE[name]]
+    s["material"] = [{"material_id": r["material_id"], "material_name": r["material_name"], "description": r["description"],
+                      "unit_price_krw_per_kg": int(r["unit_price_krw_per_kg"]), "base_uom": r["base_uom"]} for r in get("material")]
+    s["supplier"] = [{"supplier_id": r["supplier_id"], "supplier_name": r["supplier_name"],
+                      **{k: int(r[k]) for k in ("standard_lead_time_days", "max_pull_in_days", "order_unit_kg", "pull_in_fee_krw_per_kg", "spot_premium_pct")}}
+                     for r in get("supplier")]
+    s["purchase_receipt"] = [{"receipt_id": r["receipt_id"], "purchase_order_id": r["purchase_order_id"], "supplier_id": r["supplier_id"],
+                              "material_id": r["material_id"], "bunker_id": r["bunker_id"], "promised_date": d8(r["promised_date"]),
+                              "received_date": d8(r["received_date"]), "quantity_kg": int(r["quantity"])} for r in get("purchase_receipt")]
+    s["sales_order"] = [{"sales_order_id": r["sales_order_id"], "order_date": d8(r["order_date"]), "customer_id": r["customer_id"],
+                         "customer_name": r["customer_name"], "product_id": r["product_id"], "order_qty_kg": int(r["order_qty_kg"]),
+                         "due_date": d8(r["due_date"]), "priority": r["priority"]} for r in get("sales_order")]
+    s["line"] = [{"line_id": r["line_id"], "plant_id": r["plant_id"], "line_family": r["line_family"],
+                  "default_daily_output_kg": int(r["default_daily_output_kg"])} for r in get("line")]
+    s["bunker"] = [{"bunker_id": r["bunker_id"], "line_id": r["line_id"], "material_id": r["material_id"],
+                    "capacity_kg": int(r["capacity_kg"]), "safety_stock_kg": int(r["safety_stock_kg"])} for r in get("bunker")]
+    s["product"] = [{"product_id": r["product_id"], "line_id": r["line_id"], "product_name": r["product_name"], "film_family": r["film_family"],
+                     "default_daily_output_kg": int(r["default_daily_output_kg"])} for r in get("product")]
+    s["recipe"] = [{"product_id": r["product_id"], "line_id": r["line_id"], "material_id": r["material_id"],
+                    "std_kg_per_kg": Decimal(r["std_kg_per_kg"])} for r in get("recipe")]
+    s["transfer_route"] = [{"route_id": r["route_id"], "from_bunker_id": r["from_bunker_id"], "to_bunker_id": r["to_bunker_id"],
+                            "material_id": r["material_id"], "max_kg_per_day": int(r["max_kg_per_day"]),
+                            "lead_time_days": int(r["lead_time_days"]), "cost_krw_per_kg": int(r["cost_krw_per_kg"])} for r in get("transfer_route")]
+    s["production_lot"] = [{"lot_id": r["lot_id"], "line_id": r["line_id"], "product_id": r["product_id"], "start_ts": ts(r["start_ts"]),
+                            "end_ts": ts(r["end_ts"]), "output_kg": int(r["output_kg"])} for r in get("production_lot")]
+    s["material_consumption"] = [{"consumption_id": r["consumption_id"], "lot_id": r["lot_id"], "line_id": r["line_id"],
+                                  "bunker_id": r["bunker_id"], "material_id": r["material_id"], "consumed_kg": int(r["consumed_kg"])}
+                                 for r in get("material_consumption")]
+    s["production_plan"] = [{"plan_id": r["plan_id"], "plan_date": d8(r["plan_date"]), "line_id": r["line_id"], "product_id": r["product_id"],
+                             "planned_output_kg": int(r["planned_output_kg"]), "sales_order_id": r["sales_order_id"]} for r in get("production_plan")]
+
+    quarantine = []
+
+    def reject(table, row_number, key, reason, raw):
+        quarantine.append({"source_table": table, "source_row_number": row_number, "record_key": key, "reason": reason,
+                           "raw_record": json.dumps(raw, ensure_ascii=False, sort_keys=True)})
+
+    materials = {r["material_id"] for r in s["material"]}
+    seen, open_po, converted = set(), [], 0
+    for i, r in enumerate(get("purchase_order_open"), 1):
+        key = (r["purchase_order_id"], r["po_line_no"])
+        reason = ("unknown_material" if r["material_id"] not in materials else
+                  "blank_quantity" if r["quantity"] == "" else
+                  "duplicate_line" if key in seen else None)
+        if reason:
+            reject("purchase_order_open", i, "|".join(key), reason, r)
+            continue
+        seen.add(key)
+        qty = int(r["quantity"])
+        converted += r["unit"] == "TO"
+        open_po.append({"purchase_order_id": r["purchase_order_id"], "po_line_no": r["po_line_no"], "supplier_id": r["supplier_id"],
+                        "material_id": r["material_id"], "bunker_id": r["bunker_id"], "promised_date": d8(r["promised_date"]),
+                        "source_quantity": qty, "source_unit": r["unit"], "quantity_kg": qty * 1000 if r["unit"] == "TO" else qty})
+    s["purchase_order_open"] = open_po
+
+    capacity = {b["bunker_id"]: b["capacity_kg"] for b in s["bunker"]}
+    seen, levels, observed = set(), [], set()
+    for i, r in enumerate(get("bunker_level"), 1):
+        key = (r["bunker_id"], r["timestamp"])
+        observed.add(key)
+        level = int(r["level_kg"])
+        reason = ("out_of_range" if level < 0 or level > capacity[r["bunker_id"]] else
+                  "duplicate_reading" if key in seen else None)
+        if reason:
+            reject("bunker_level", i, "|".join(key), reason, r)
+            continue
+        seen.add(key)
+        levels.append({"bunker_id": r["bunker_id"], "reading_ts": ts(r["timestamp"]), "level_kg": level})
+    s["bunker_level"] = levels
+    s["quarantine"] = quarantine
+
+    count = lambda reason: sum(1 for q in quarantine if q["reason"] == reason)
+    metrics = {
+        "open_po_unit_converted": converted,
+        "open_po_duplicate_line": count("duplicate_line"),
+        "open_po_blank_quantity": count("blank_quantity"),
+        "open_po_unknown_material": count("unknown_material"),
+        "sensor_out_of_range": count("out_of_range"),
+        "sensor_duplicate_reading": count("duplicate_reading"),
+        "sensor_missing_hour": len(capacity) * 30 * 24 - len(observed),
+        "quarantine_rows": len(quarantine),
+    }
+    return s, metrics
+
+
+# ---------------------------------------------------------------- Gold (current plan)
+
+def usage_factors(s):
+    product_of = {l["lot_id"]: l["product_id"] for l in s["production_lot"]}
+    output = defaultdict(int)
+    for l in s["production_lot"]:
+        output[l["product_id"]] += l["output_kg"]
+    used = defaultdict(int)
+    for c in s["material_consumption"]:
+        used[(product_of[c["lot_id"]], c["material_id"])] += c["consumed_kg"]
+    std = {(r["product_id"], r["material_id"]): r["std_kg_per_kg"] for r in s["recipe"]}
+    rows, factors = [], {}
+    for (pid, mat), kg in sorted(used.items()):
+        factor = q_half_up(Decimal(kg) / Decimal(output[pid]), FACTOR_PLACES)
+        factors[(pid, mat)] = factor
+        rows.append({"usage_factor_key": f"{pid}|{mat}", "product_id": pid, "material_id": mat, "std_kg_per_kg": std[(pid, mat)],
+                     "actual_kg_per_kg": factor, "loss_pct": q_half_up((factor / std[(pid, mat)] - 1) * 100, Decimal("0.01")),
+                     "consumed_kg": kg, "output_kg": output[pid]})
+    return rows, factors
+
+
+def monthly_usage(s):
+    month_of = {l["lot_id"]: l["start_ts"].strftime("%Y-%m") for l in s["production_lot"]}
+    kg, material = defaultdict(int), {}
+    for c in s["material_consumption"]:
+        kg[(month_of[c["lot_id"]], c["bunker_id"])] += c["consumed_kg"]
+        material[c["bunker_id"]] = c["material_id"]
+    return [{"monthly_usage_key": f"{m}|{b}", "usage_month": m, "bunker_id": b, "material_id": material[b], "consumed_kg": v}
+            for (m, b), v in sorted(kg.items())]
+
+
+def supplier_delay(s):
+    total, count = defaultdict(int), defaultdict(int)
+    for r in s["purchase_receipt"]:
+        total[r["supplier_id"]] += (r["received_date"] - r["promised_date"]).days
+        count[r["supplier_id"]] += 1
+    return {sid: {"receipt_count": count[sid], "avg_delay_days": q_half_up(Decimal(total[sid]) / count[sid], Decimal("0.01")),
+                  "planning_delay_days": int(q_half_up(Decimal(total[sid]) / count[sid]))} for sid in count}
+
+
+def opening_stock(s):
+    latest = {}
+    for r in s["bunker_level"]:
+        if r["reading_ts"] <= OPENING_TS and (r["bunker_id"] not in latest or r["reading_ts"] > latest[r["bunker_id"]]["reading_ts"]):
+            latest[r["bunker_id"]] = r
+    return [{"bunker_id": b, "as_of_date": PLAN_START, "reading_ts": r["reading_ts"], "opening_kg": r["level_kg"]} for b, r in sorted(latest.items())]
+
+
+def inbound_lines(s, delay):
+    rows = []
+    for r in s["purchase_order_open"]:
+        rows.append({"inbound_key": f"{r['purchase_order_id']}|{r['po_line_no']}", "purchase_order_id": r["purchase_order_id"],
+                     "po_line_no": r["po_line_no"], "supplier_id": r["supplier_id"], "material_id": r["material_id"], "bunker_id": r["bunker_id"],
+                     "promised_date": r["promised_date"], "expected_date": r["promised_date"] + timedelta(days=delay[r["supplier_id"]]["planning_delay_days"]),
+                     "quantity_kg": r["quantity_kg"], "source_quantity": r["source_quantity"], "source_unit": r["source_unit"]})
+    return sorted(rows, key=lambda r: (r["expected_date"], r["bunker_id"], r["inbound_key"]))
+
+
+def requirements(plan, bunkers, factors):
+    bunker_of = {(b["line_id"], b["material_id"]): b["bunker_id"] for b in bunkers}
+    by_product = defaultdict(list)
+    for (pid, mat), factor in factors.items():
+        by_product[pid].append((mat, factor))
+    req = defaultdict(int)
+    for r in plan:
+        for mat, factor in by_product[r["product_id"]]:
+            bid = bunker_of.get((r["line_id"], mat))
+            if bid:
+                req[(bid, r["plan_date"])] += int(q_half_up(Decimal(r["planned_output_kg"]) * factor))
+    return req
+
+
+def balance(scenario_id, plan, inbound, opening, bunkers, factors, transfers=(), extra_receipts=()):
+    req = requirements(plan, bunkers, factors)
+    receipts = defaultdict(int)
+    for r in inbound:
+        receipts[(r["bunker_id"], r["expected_date"])] += r["quantity_kg"]
+    for bid, d, qty in extra_receipts:
+        receipts[(bid, d)] += qty
+    t_in, t_out = defaultdict(int), defaultdict(int)
+    for t in transfers:
+        t_out[(t["from_bunker_id"], t["ship_date"])] += t["qty_kg"]
+        t_in[(t["to_bunker_id"], t["arrival_date"])] += t["qty_kg"]
+    start = {r["bunker_id"]: r["opening_kg"] for r in opening}
+    rows = []
+    for b in sorted(bunkers, key=lambda x: x["bunker_id"]):
+        bid, level = b["bunker_id"], start[b["bunker_id"]]
+        for d in daterange(PLAN_START, PLAN_END):
+            available = level + receipts[(bid, d)] + t_in[(bid, d)]
+            closing = available - t_out[(bid, d)] - req[(bid, d)]
+            rows.append({"balance_key": f"{scenario_id}|{bid}|{d.isoformat()}", "scenario_id": scenario_id, "bunker_id": bid, "balance_date": d,
+                         "opening_kg": level, "receipt_kg": receipts[(bid, d)], "transfer_in_kg": t_in[(bid, d)], "transfer_out_kg": t_out[(bid, d)],
+                         "requirement_kg": req[(bid, d)], "closing_kg": closing, "safety_stock_kg": b["safety_stock_kg"], "capacity_kg": b["capacity_kg"],
+                         "below_safety": closing < b["safety_stock_kg"], "shortage": closing < 0, "over_capacity": available > b["capacity_kg"]})
+            level = closing
+    return rows
+
+
+def summarize(scenario_id, rows, bunkers):
+    by_bunker = defaultdict(list)
     for r in rows:
-        by_b[r["bunker_id"]].append(r)
+        by_bunker[r["bunker_id"]].append(r)
+    info = {b["bunker_id"]: b for b in bunkers}
     out = []
-    for bid in sorted(by_b):
-        br = by_b[bid]
-        first_below = next((r["balance_date"] for r in br if r["below_safety"] == "true"), "")
-        first_short = next((r["balance_date"] for r in br if r["shortage"] == "true"), "")
-        min_row = min(br, key=lambda r: (int(r["closing_kg"]), r["balance_date"]))
-        ending = br[-1]
-        safety = int(br[0]["safety_stock_kg"])
-        min_close = int(min_row["closing_kg"])
-        out.append({"summary_key": f"{scenario_id}|{bid}", "scenario_id": scenario_id, "bunker_id": bid, "line_id": br[0]["line_id"], "material_id": br[0]["material_id"],
-                    "first_below_safety_date": first_below, "first_shortage_date": first_short, "min_closing_kg": str(min_close),
-                    "min_closing_date": min_row["balance_date"], "ending_closing_kg": ending["closing_kg"], "required_topup_kg": str(max(0, safety - min_close))})
+    for bid in sorted(by_bunker):
+        br = by_bunker[bid]
+        low = min(br, key=lambda r: (r["closing_kg"], r["balance_date"]))
+        out.append({"summary_key": f"{scenario_id}|{bid}", "scenario_id": scenario_id, "bunker_id": bid, "line_id": info[bid]["line_id"],
+                    "material_id": info[bid]["material_id"], "below_safety_days": sum(r["below_safety"] for r in br),
+                    "first_below_safety_date": next((r["balance_date"] for r in br if r["below_safety"]), None),
+                    "first_shortage_date": next((r["balance_date"] for r in br if r["shortage"]), None),
+                    "min_closing_kg": low["closing_kg"], "min_closing_date": low["balance_date"],
+                    "required_topup_kg": max(0, info[bid]["safety_stock_kg"] - low["closing_kg"])})
     return out
 
 
-def sales_due_dates(sales_rows: list[dict]) -> dict[str, date]:
-    due = {r["sales_order_id"]: d8(r["due_date"]) for r in sales_rows}
-    due[URGENT_ORDER["sales_order_id"]] = URGENT_ORDER["due_date"]
-    return due
+def plan_rows(scenario_id, plan):
+    return [{"plan_key": f"{scenario_id}|{r['plan_id']}", "scenario_id": scenario_id, **r,
+             "original_plan_date": r.get("original_plan_date", r["plan_date"]), "change_type": r.get("change_type", "none")} for r in plan]
 
 
-def sales_finish_dates(plan: list[dict]) -> dict[str, date]:
+def fulfillment(scenario_id, plan, orders, products):
     finish = {}
     for r in plan:
-        so = r["sales_order_id"]
-        pd = d8(r["plan_date"])
-        if so not in finish or pd > finish[so]:
-            finish[so] = pd
-    return finish
+        finish[r["sales_order_id"]] = max(finish.get(r["sales_order_id"], r["plan_date"]), r["plan_date"])
+    line_of = {p["product_id"]: p["line_id"] for p in products}
+    rows = []
+    for o in orders:
+        done = finish[o["sales_order_id"]]
+        rows.append({"fulfillment_key": f"{scenario_id}|{o['sales_order_id']}", "scenario_id": scenario_id, "sales_order_id": o["sales_order_id"],
+                     "customer_id": o["customer_id"], "product_id": o["product_id"], "line_id": line_of[o["product_id"]], "due_date": o["due_date"],
+                     "finish_date": done, "slack_days": (o["due_date"] - done).days, "on_time": done <= o["due_date"]})
+    return rows
 
 
-def late_order_count(plan: list[dict], due_dates: dict[str, date]) -> int:
-    return sum(1 for so, finish in sales_finish_dates(plan).items() if finish > due_dates[so])
-
-
-def earliest_below_date(rows: list[dict]) -> str:
-    return min((r["balance_date"] for r in rows if r["below_safety"] == "true"), default="")
-
-
-def below_safety_breakdown(rows: list[dict]) -> dict[str, int]:
-    counts = defaultdict(int)
-    for r in rows:
-        if r["below_safety"] == "true":
-            counts[r["bunker_id"]] += 1
-    return dict(counts)
-
-
-def bunker_margin_table(balance_rows: list[dict]) -> list[dict]:
-    by_b = defaultdict(list)
-    for r in balance_rows:
-        by_b[r["bunker_id"]].append(r)
-    out = []
-    for bid in sorted(by_b):
-        rows = by_b[bid]
-        avg_use = sum(int(r["requirement_kg"]) for r in rows) / len(rows)
-        safety = int(rows[0]["safety_stock_kg"])
-        min_closing = min(int(r["closing_kg"]) for r in rows)
-        out.append({
-            "bunker_id": bid,
-            "safety_stock_kg": str(safety),
-            "avg_daily_use_kg": f"{avg_use:.1f}",
-            "baseline_min_closing_kg": str(min_closing),
-            "min_safety_ratio": f"{(min_closing / safety if safety else 0):.2f}",
-        })
-    return out
-
-
-def option_evaluations(base_plan, clean_po, delay_by_supplier, opening, bunkers, factors, routes, material_prices, supplier_rows, emergency_summary, sales_rows):
-    affected = next(r for r in emergency_summary if r["bunker_id"] == AFFECTED_BUNKER)
-    required_topup = int(affected["required_topup_kg"])
-    first_below = date.fromisoformat(affected["first_below_safety_date"])
-    binfo = {b["bunker_id"]: b for b in bunkers}
-    affected_material = binfo[AFFECTED_BUNKER]["material_id"]
-    supplier = next(s for s in supplier_rows if s["supplier_id"] == SUP_BY_MAT[affected_material])
-    max_pull = int(supplier["max_pull_in_days"])
-    order_unit = int(supplier["order_unit_kg"])
-    lead = int(supplier["standard_lead_time_days"])
-    price = int(material_prices[affected_material])
-    due_dates = sales_due_dates(sales_rows)
-
-    _, receipt_detail = expected_receipts(clean_po, delay_by_supplier)
-    affected_receipts = sorted(
-        [(r, expected, qty) for r, expected, qty in receipt_detail if r["bunker_id"] == AFFECTED_BUNKER and expected > first_below],
-        key=lambda x: (x[1], x[0]["purchase_order_id"], x[0]["po_line_no"]),
-    )
-    first_po, first_expected, _ = affected_receipts[0]
-    pulled_promised = max(d8(first_po["promised_date"]) - timedelta(days=max_pull), TODAY + timedelta(days=1))
-    pullin = {(first_po["purchase_order_id"], first_po["po_line_no"]): pulled_promised}
-
-    candidate_routes = sorted(
-        [r for r in routes if r["to_bunker_id"] == AFFECTED_BUNKER and r["material_id"] == affected_material],
-        key=lambda r: (int(r["cost_krw_per_kg"]), r["from_bunker_id"]),
-    )
-    route = candidate_routes[0]
-    transfer_qty = ceil_to_unit(required_topup, 5000)
-    transfers = []
-    remaining = transfer_qty
-    ship_date = TODAY + timedelta(days=1)
-    while remaining > 0:
-        qty = min(remaining, int(route["max_kg_per_day"]))
-        transfers.append({"date": ship_date, "from_bunker_id": route["from_bunker_id"], "to_bunker_id": AFFECTED_BUNKER, "qty_kg": qty, "lead_time_days": int(route["lead_time_days"])})
-        remaining -= qty
-        ship_date += timedelta(days=1)
-    first_transfer_arrival = transfers[0]["date"] + timedelta(days=transfers[0]["lead_time_days"])
-
-    purchase_qty = ceil_to_unit(required_topup, order_unit)
-    promised = TODAY + timedelta(days=lead)
-    expected_new = promised + timedelta(days=delay_by_supplier.get(supplier["supplier_id"], 0))
-    extra_po = {"purchase_order_id": "PO-EMER-001", "po_line_no": "10", "supplier_id": supplier["supplier_id"], "material_id": affected_material, "bunker_id": AFFECTED_BUNKER,
-                "promised_date": promised.strftime("%Y%m%d"), "quantity_kg": str(purchase_qty), "unit": "KG"}
-
-    opt4_plan = plan_rows(base_plan, "opt4_postpone")
-    displaced_rows = sorted([r for r in base_plan if r["line_id"] == "L3" and r["plan_id"].startswith("EMG-MOVE-")], key=lambda r: r["plan_date"])
-    opt4_plan = [dict(r) for r in base_plan if r["sales_order_id"] != URGENT_ORDER["sales_order_id"] and not r["plan_id"].startswith("EMG-MOVE-")]
-    for moved, original_date in zip(displaced_rows, URGENT_ORDER["production_dates"]):
-        nr = dict(moved)
-        nr["plan_id"] = f"OPT4-RESTORE-{original_date.strftime('%Y%m%d')}"
-        nr["plan_date"] = original_date.strftime("%Y%m%d")
-        opt4_plan.append(nr)
-    opt4_dates = [d for d in SPARE_DATES if d > first_expected][:len(URGENT_ORDER["production_dates"])]
-    if len(opt4_dates) < len(URGENT_ORDER["production_dates"]):
-        opt4_dates = SPARE_DATES[-len(URGENT_ORDER["production_dates"]):]
-    for i, spare_date in enumerate(opt4_dates, 1):
-        opt4_plan.append({"plan_id": f"OPT4-URG-{i:02d}", "plan_date": spare_date.strftime("%Y%m%d"), "line_id": "L3",
-                          "product_id": URGENT_ORDER["product_id"], "planned_output_kg": "50000", "sales_order_id": URGENT_ORDER["sales_order_id"]})
-    opt4_plan = sorted(opt4_plan, key=lambda r: (r["plan_date"], r["line_id"], r["plan_id"]))
-    options = [
-        {"option_id": "OPT-1", "option_name": "입고 앞당김", "plan": base_plan, "pullin": pullin, "transfers": [], "extra_pos": [], "added_cost_krw": 0,
-         "action_detail": f"{first_po['purchase_order_id']} 납기 {max_pull}일 앞당김", "source_bunker_id": "", "target_bunker_id": AFFECTED_BUNKER,
-         "qty_kg": first_po["quantity_kg"], "first_arrival_date": (pulled_promised + timedelta(days=delay_by_supplier.get(first_po["supplier_id"], 0))).isoformat()},
-        {"option_id": "OPT-2", "option_name": "Bunker 간 이송", "plan": base_plan, "pullin": {}, "transfers": transfers, "extra_pos": [], "added_cost_krw": transfer_qty * int(route["cost_krw_per_kg"]),
-         "action_detail": f"{route['from_bunker_id']}에서 {AFFECTED_BUNKER}로 {affected_material} {transfer_qty:,}kg 이송", "source_bunker_id": route["from_bunker_id"],
-         "target_bunker_id": AFFECTED_BUNKER, "qty_kg": str(transfer_qty), "first_arrival_date": first_transfer_arrival.isoformat()},
-        {"option_id": "OPT-3", "option_name": "추가 구매", "plan": base_plan, "pullin": {}, "transfers": [], "extra_pos": [extra_po], "added_cost_krw": purchase_qty * price,
-         "action_detail": f"{supplier['supplier_id']}에 {affected_material} {purchase_qty:,}kg 추가 구매", "source_bunker_id": "", "target_bunker_id": AFFECTED_BUNKER,
-         "qty_kg": str(purchase_qty), "first_arrival_date": expected_new.isoformat()},
-        {"option_id": "OPT-4", "option_name": "생산 순서 조정", "plan": opt4_plan, "pullin": {}, "transfers": [], "extra_pos": [], "added_cost_krw": 0,
-         "action_detail": f"긴급 생산을 다음 예상 입고일 {first_expected.isoformat()} 이후 예비일로 이동", "source_bunker_id": "", "target_bunker_id": AFFECTED_BUNKER,
-         "qty_kg": str(URGENT_ORDER["qty_kg"]), "first_arrival_date": opt4_dates[0].isoformat()},
-    ]
-    option_rows = []
-    option_balance = []
-    for opt in options:
-        br = balance(opt["plan"], clean_po, delay_by_supplier, opening, bunkers, factors, opt["option_id"], opt["transfers"], opt["pullin"], opt["extra_pos"])
-        changed = {AFFECTED_BUNKER}
-        if opt["option_id"] == "OPT-2":
-            changed.add("BNK-L1-2")
-        for r in br:
-            if r["bunker_id"] in changed:
-                nr = dict(r)
-                nr["option_id"] = opt["option_id"]
-                nr["option_balance_key"] = f"{opt['option_id']}|{r['bunker_id']}|{r['balance_date']}"
-                option_balance.append(nr)
-        c1 = all(r["below_safety"] == "false" for r in br)
-        c2 = all(r["over_capacity"] == "false" for r in br)
-        c3 = late_order_count(opt["plan"], due_dates) == 0
-        route_keys = {(r["from_bunker_id"], r["to_bunker_id"]) for r in routes}
-        c4 = all(t["qty_kg"] <= int(route["max_kg_per_day"]) and (t["from_bunker_id"], t["to_bunker_id"]) in route_keys for t in opt["transfers"])
-        meets = c1 and c2 and c3 and c4
-        below_breakdown = below_safety_breakdown(br)
-        below_days = sum(below_breakdown.values())
-        first_below_any = earliest_below_date(br)
-        late_count = late_order_count(opt["plan"], due_dates)
-        option_rows.append({"option_id": opt["option_id"], "option_name": opt["option_name"], "c1_safety_pass": str(c1).lower(), "c2_capacity_pass": str(c2).lower(),
-                            "c3_due_date_pass": str(c3).lower(), "c4_route_limit_pass": str(c4).lower(), "added_cost_krw": str(opt["added_cost_krw"]),
-                            "below_safety_days": str(below_days), "first_below_safety_date": first_below_any, "late_order_count": str(late_count),
-                            "action_detail": opt["action_detail"], "source_bunker_id": opt["source_bunker_id"], "target_bunker_id": opt["target_bunker_id"],
-                            "qty_kg": str(opt["qty_kg"]), "first_arrival_date": opt["first_arrival_date"],
-                            "below_safety_breakdown": "; ".join(f"{k}:{v}" for k, v in sorted(below_breakdown.items())),
-                            "meets_all": str(meets).lower(), "rank": ""})
-    passing = sorted([r for r in option_rows if r["meets_all"] == "true"], key=lambda r: (int(r["added_cost_krw"]), r["option_id"]))
-    for i, r in enumerate(passing, 1):
-        r["rank"] = str(i)
-    return option_rows, option_balance
-
-
-def build_gold(data_dir: Path = DATA_DIR):
-    src, silver, quarantine, qmetrics = cleanse(data_dir)
-    materials = silver["sap_material.csv"]
-    suppliers = silver["sap_supplier.csv"]
-    lines = silver["fpims_line.csv"]
-    bunkers = silver["fpims_bunker.csv"]
-    products = silver["fpims_product.csv"]
-    recipes = silver["fpims_recipe.csv"]
-    clean_po = silver["sap_purchase_order_open_2026Q4"]
-    clean_sensor = silver["pvss_bunker_level_2026-09"]
-    delay_rows, delay_by_supplier = supplier_delay(silver["sap_purchase_receipt_2025-10_2026-09.csv"])
-    uf_rows, factors, monthly_rows = usage_factors(silver["fpims_production_lot_2025-10_2026-09.csv"], silver["fpims_material_consumption_2025-10_2026-09.csv"], recipes)
-    opening = opening_stock(clean_sensor)
-    baseline_plan = plan_rows(silver["fpims_production_plan_2026Q4.csv"], "baseline")
-    emergency_plan = plan_rows(silver["fpims_production_plan_2026Q4.csv"], "emergency")
-    baseline_bal = balance(baseline_plan, clean_po, delay_by_supplier, opening, bunkers, factors, "baseline")
-    emergency_bal = balance(emergency_plan, clean_po, delay_by_supplier, opening, bunkers, factors, "emergency")
-    baseline_sum = summarize_balance(baseline_bal, "baseline")
-    emergency_sum = summarize_balance(emergency_bal, "emergency")
-    material_prices = {r["material_id"]: r["unit_price_krw_per_kg"] for r in materials}
-    opt_rows, opt_bal = option_evaluations(emergency_plan, clean_po, delay_by_supplier, opening, bunkers, factors, silver["fpims_bunker_transfer_route.csv"], material_prices, suppliers, emergency_sum, silver["sap_sales_order_open_2026Q4.csv"])
-    rec = next(r for r in opt_rows if r["rank"] == "1")
-    aff_sum = next(r for r in emergency_sum if r["bunker_id"] == AFFECTED_BUNKER)
-    risk = [{"event_id": "EVT-20261001-001", "detected_at": DETECTED_AT_PLACEHOLDER, "scenario_id": "emergency", "bunker_id": AFFECTED_BUNKER,
-             "material_id": aff_sum["material_id"], "line_id": aff_sum["line_id"], "first_below_safety_date": aff_sum["first_below_safety_date"],
-             "first_shortage_date": aff_sum["first_shortage_date"], "min_closing_kg": aff_sum["min_closing_kg"], "required_topup_kg": aff_sum["required_topup_kg"],
-             "recommended_option_id": rec["option_id"], "recommended_action": rec["action_detail"], "status": "open"}]
-    date_dim = [{"date_key": d.isoformat(), "calendar_date": d.isoformat(), "yyyymm": d.strftime("%Y%m"), "day_of_week": str(d.isoweekday())} for d in _daterange(PLAN_START, PLAN_END)]
-    dim_scenario = [{"scenario_id": "baseline", "scenario_name": "현재 계산", "description": "Q4 기준 생산계획"}, {"scenario_id": "emergency", "scenario_name": "긴급 오더 반영", "description": "2026-10-01 접수 긴급 오더 반영"}]
-    fact_plan = []
-    for sid, rows in (("baseline", baseline_plan), ("emergency", emergency_plan)):
-        for r in rows:
-            nr = dict(r); nr["scenario_id"] = sid; nr["plan_key"] = f"{sid}|{r['plan_date']}|{r['line_id']}"; fact_plan.append(nr)
+def gold_current(s):
+    delay = supplier_delay(s)
+    usage_rows, factors = usage_factors(s)
+    opening = opening_stock(s)
+    inbound = inbound_lines(s, delay)
+    supplier_of = {}
+    for r in s["purchase_receipt"]:
+        supplier_of[r["material_id"]] = r["supplier_id"]
+    orders = s["sales_order"]
+    line_of = {p["product_id"]: p["line_id"] for p in s["product"]}
+    plan = s["production_plan"]
+    bal = balance("baseline", plan, inbound, opening, s["bunker"], factors)
+    weekday = "월화수목금토일"
     gold = {
-        "chip_dim_line": lines, "chip_dim_bunker": bunkers, "chip_dim_material": materials, "chip_dim_product": products, "chip_dim_supplier": suppliers,
-        "chip_dim_date": date_dim, "chip_dim_scenario": dim_scenario, "chip_fact_usage_factor": uf_rows, "chip_fact_monthly_usage": monthly_rows,
-        "chip_fact_supplier_delay": delay_rows, "chip_fact_opening_stock": opening, "chip_fact_plan": fact_plan,
-        "chip_fact_balance": baseline_bal + emergency_bal, "chip_scenario_summary": baseline_sum + emergency_sum,
-        "chip_response_option": opt_rows, "chip_option_balance": opt_bal, "chip_risk_event": risk,
+        "chip_dim_line": [dict(r) for r in s["line"]],
+        "chip_dim_bunker": [{"bunker_id": b["bunker_id"], "bunker_name": f"{b['line_id']} {b['material_id']}", **{k: b[k] for k in ("line_id", "material_id", "capacity_kg", "safety_stock_kg")}}
+                            for b in s["bunker"]],
+        "chip_dim_material": [{**{k: m[k] for k in ("material_id", "material_name", "description", "unit_price_krw_per_kg")}, "supplier_id": supplier_of[m["material_id"]]}
+                              for m in s["material"]],
+        "chip_dim_product": [{k: p[k] for k in ("product_id", "product_name", "line_id", "film_family")} for p in s["product"]],
+        "chip_dim_supplier": [{**sup, **delay[sup["supplier_id"]]} for sup in s["supplier"]],
+        "chip_dim_customer": sorted({(o["customer_id"], o["customer_name"]) for o in orders}),
+        "chip_dim_route": [dict(r) for r in s["transfer_route"]],
+        "chip_dim_date": [{"date_key": d, "yyyymm": d.strftime("%Y%m"), "day_of_week": d.isoweekday(), "weekday_name": weekday[d.weekday()]}
+                          for d in daterange(PLAN_START, PLAN_END)],
+        "chip_dim_scenario": [{"scenario_id": "baseline", "scenario_name": "현재 계획", "description": "2026년 4분기 생산계획과 입고 예정"}],
+        "chip_fact_usage_factor": usage_rows,
+        "chip_fact_monthly_usage": monthly_usage(s),
+        "chip_fact_opening_stock": opening,
+        "chip_fact_inbound": inbound,
+        "chip_fact_sales_order": [{**{k: o[k] for k in ("sales_order_id", "order_date", "customer_id", "product_id")}, "line_id": line_of[o["product_id"]],
+                                   **{k: o[k] for k in ("order_qty_kg", "due_date", "priority")}, "is_urgent": False} for o in orders],
+        "chip_fact_plan": plan_rows("baseline", plan),
+        "chip_fact_order_fulfillment": fulfillment("baseline", plan, orders, s["product"]),
+        "chip_fact_balance": bal,
+        "chip_scenario_summary": summarize("baseline", bal, s["bunker"]),
     }
-    return {"source": src, "silver": silver, "quarantine": quarantine, "quarantine_metrics": qmetrics, "gold": gold,
-            "key": {"baseline_affected": next(r for r in baseline_sum if r["bunker_id"] == AFFECTED_BUNKER), "emergency_affected": aff_sum,
-                    "options": opt_rows, "risk_event": risk[0], "urgent_order": URGENT_ORDER, "spare_dates": [d.isoformat() for d in SPARE_DATES],
-                    "bunker_margin": bunker_margin_table(baseline_bal)}}
+    gold["chip_dim_customer"] = [{"customer_id": c, "customer_name": n} for c, n in gold["chip_dim_customer"]]
+    context = {"delay": delay, "factors": factors, "opening": opening, "inbound": inbound, "plan": plan, "orders": orders}
+    return gold, context
+
+
+# ---------------------------------------------------------------- Emergency order
+
+def urgent_order_id(orders):
+    return f"SO-{max(int(o['sales_order_id'][3:]) for o in orders) + 1}"
+
+
+def emergency_plan(plan, so_id):
+    rows = []
+    for r in plan:
+        moved = r["line_id"] == URGENT["line_id"] and MOVE_FROM <= r["plan_date"] <= MOVE_TO
+        rows.append({**r, "plan_date": r["plan_date"] + timedelta(days=MOVE_DAYS) if moved else r["plan_date"],
+                     "original_plan_date": r["plan_date"], "change_type": "moved" if moved else "none"})
+    for d, qty in URGENT["production"]:
+        rows.append({"plan_id": f"PP-{d:%Y%m%d}-{URGENT['line_id']}-U", "plan_date": d, "line_id": URGENT["line_id"], "product_id": URGENT["product_id"],
+                     "planned_output_kg": qty, "sales_order_id": so_id, "original_plan_date": d, "change_type": "urgent"})
+    return sorted(rows, key=lambda r: (r["plan_date"], r["line_id"], r["plan_id"]))
+
+
+def check_options(s, ctx, affected, orders, emg_plan):
+    """Build and test the four responses. Only the passing responses get a rank, cheapest first."""
+    bunkers = {b["bunker_id"]: b for b in s["bunker"]}
+    target = affected["bunker_id"]
+    material = bunkers[target]["material_id"]
+    supplier_id = next(r["supplier_id"] for r in s["purchase_receipt"] if r["material_id"] == material)
+    sup = next(x for x in s["supplier"] if x["supplier_id"] == supplier_id)
+    delay = ctx["delay"][supplier_id]["planning_delay_days"]
+    price = next(m["unit_price_krw_per_kg"] for m in s["material"] if m["material_id"] == material)
+    topup = affected["required_topup_kg"]
+    first_below = affected["first_below_safety_date"]
+    inbound = ctx["inbound"]
+
+    next_in = min((r for r in inbound if r["bunker_id"] == target and r["expected_date"] > first_below),
+                  key=lambda r: (r["expected_date"], r["inbound_key"]))
+    pulled_promised = max(next_in["promised_date"] - timedelta(days=sup["max_pull_in_days"]), TODAY + timedelta(days=1))
+    pulled = [dict(r, expected_date=pulled_promised + timedelta(days=delay)) if r is next_in else r for r in inbound]
+
+    route = min((r for r in s["transfer_route"] if r["to_bunker_id"] == target and r["material_id"] == material),
+                key=lambda r: (r["cost_krw_per_kg"], r["route_id"]))
+    transfer_qty = ceil_to(topup, TRANSFER_STEP_KG)
+    transfers, left, ship = [], transfer_qty, TODAY + timedelta(days=1)
+    while left > 0:
+        qty = min(left, route["max_kg_per_day"])
+        transfers.append({"route_id": route["route_id"], "from_bunker_id": route["from_bunker_id"], "to_bunker_id": target, "qty_kg": qty,
+                          "ship_date": ship, "arrival_date": ship + timedelta(days=route["lead_time_days"])})
+        left -= qty
+        ship += timedelta(days=1)
+
+    spot_qty = ceil_to(topup, sup["order_unit_kg"])
+    spot_arrival = TODAY + timedelta(days=sup["standard_lead_time_days"] + delay)
+
+    urgent_rows = [r for r in emg_plan if r["change_type"] == "urgent"]
+    free_days = [d for d in daterange(next_in["expected_date"] + timedelta(days=1), PLAN_END)
+                 if not any(r["line_id"] == URGENT["line_id"] and r["plan_date"] == d for r in ctx["plan"])][:len(urgent_rows)]
+    resched = [dict(r, original_plan_date=r["plan_date"], change_type="none") for r in ctx["plan"]]
+    resched += [dict(r, plan_date=d, change_type="urgent") for r, d in zip(urgent_rows, free_days)]
+
+    options = [
+        {"option_id": "OPT-1", "option_name": "입고 앞당김", "plan": emg_plan, "inbound": pulled, "transfers": [], "extra": [],
+         "added_cost_krw": next_in["quantity_kg"] * sup["pull_in_fee_krw_per_kg"], "qty_kg": next_in["quantity_kg"],
+         "source_bunker_id": None, "route_id": None, "purchase_order_id": next_in["purchase_order_id"], "supplier_id": supplier_id,
+         "first_arrival_date": pulled_promised + timedelta(days=delay),
+         "action_detail": f"{next_in['purchase_order_id']}-{next_in['po_line_no']} 입고일을 {next_in['expected_date']:%m/%d}에서 {pulled_promised + timedelta(days=delay):%m/%d}로 앞당김"},
+        {"option_id": "OPT-2", "option_name": "Bunker 간 이송", "plan": emg_plan, "inbound": inbound, "transfers": transfers, "extra": [],
+         "added_cost_krw": transfer_qty * route["cost_krw_per_kg"], "qty_kg": transfer_qty,
+         "source_bunker_id": route["from_bunker_id"], "route_id": route["route_id"], "purchase_order_id": None, "supplier_id": None,
+         "first_arrival_date": transfers[0]["arrival_date"],
+         "action_detail": f"{route['from_bunker_id']}에서 {target}로 {material} {transfer_qty:,} kg 이송 ({route['route_id']}, {transfers[0]['ship_date']:%m/%d} 출고, {transfers[-1]['arrival_date']:%m/%d} 도착)"},
+        {"option_id": "OPT-3", "option_name": "추가 구매", "plan": emg_plan, "inbound": inbound, "transfers": [], "extra": [(target, spot_arrival, spot_qty)],
+         "added_cost_krw": int(q_half_up(Decimal(spot_qty * price * sup["spot_premium_pct"]) / 100)), "qty_kg": spot_qty,
+         "source_bunker_id": None, "route_id": None, "purchase_order_id": None, "supplier_id": supplier_id, "first_arrival_date": spot_arrival,
+         "action_detail": f"{sup['supplier_name']}({supplier_id})에 {material} {spot_qty:,} kg 긴급 구매 ({spot_arrival:%m/%d} 입고)"},
+        {"option_id": "OPT-4", "option_name": "생산 순서 조정", "plan": resched, "inbound": inbound, "transfers": [], "extra": [],
+         "added_cost_krw": 0, "qty_kg": URGENT["order_qty_kg"], "source_bunker_id": None, "route_id": None, "purchase_order_id": None,
+         "supplier_id": None, "first_arrival_date": None,
+         "action_detail": f"긴급 생산을 다음 입고({next_in['expected_date']:%m/%d}) 뒤 {free_days[0]:%m/%d}~{free_days[-1]:%m/%d}로 이동"},
+    ]
+    due = {o["sales_order_id"]: o["due_date"] for o in orders}
+    route_limit = {(r["from_bunker_id"], r["to_bunker_id"]): r["max_kg_per_day"] for r in s["transfer_route"]}
+    option_rows, option_balance = [], []
+    for opt in options:
+        rows = balance(opt["option_id"], opt["plan"], opt["inbound"], ctx["opening"], s["bunker"], ctx["factors"], opt["transfers"], opt["extra"])
+        touched = {target} | {t["from_bunker_id"] for t in opt["transfers"]}
+        option_balance += [dict(r, option_id=opt["option_id"], option_balance_key=r["balance_key"]) for r in rows if r["bunker_id"] in touched]
+        below = [r for r in rows if r["below_safety"]]
+        over = [r for r in rows if r["over_capacity"]]
+        finish = {}
+        for r in opt["plan"]:
+            finish[r["sales_order_id"]] = max(finish.get(r["sales_order_id"], r["plan_date"]), r["plan_date"])
+        late = sorted((so for so, d in finish.items() if d > due[so]), key=lambda so: finish[so])
+        bad_route = [t for t in opt["transfers"] if t["qty_kg"] > route_limit.get((t["from_bunker_id"], t["to_bunker_id"]), 0)]
+        c1, c2, c3, c4 = not below, not over, not late, not bad_route
+        reasons = []
+        if not c1:
+            first = min(below, key=lambda r: (r["balance_date"], r["bunker_id"]))
+            reasons.append(f"C1 안전재고: {first['bunker_id']} {first['balance_date']:%m/%d}부터 미달")
+        if not c2:
+            first = min(over, key=lambda r: (r["balance_date"], r["bunker_id"]))
+            reasons.append(f"C2 용량: {first['bunker_id']} {first['balance_date']:%m/%d} 초과")
+        if not c3:
+            reasons.append(f"C3 납기: {late[0]} 완료 {finish[late[0]]:%m/%d}, 납기 {due[late[0]]:%m/%d}")
+        if not c4:
+            reasons.append(f"C4 이송 한도: {bad_route[0]['route_id']} 하루 한도 초과")
+        option_rows.append({"option_id": opt["option_id"], "option_name": opt["option_name"], "scenario_id": "emergency", "target_bunker_id": target,
+                            "source_bunker_id": opt["source_bunker_id"], "route_id": opt["route_id"], "purchase_order_id": opt["purchase_order_id"],
+                            "supplier_id": opt["supplier_id"], "qty_kg": opt["qty_kg"], "first_arrival_date": opt["first_arrival_date"],
+                            "added_cost_krw": opt["added_cost_krw"], "c1_safety_pass": c1, "c2_capacity_pass": c2, "c3_due_date_pass": c3,
+                            "c4_route_limit_pass": c4, "meets_all": c1 and c2 and c3 and c4, "below_safety_days": len(below),
+                            "late_order_count": len(late), "rank": None, "action_detail": opt["action_detail"], "result_note": "; ".join(reasons) or "모든 기준 충족"})
+    passing = sorted((r for r in option_rows if r["meets_all"]), key=lambda r: (r["added_cost_krw"], r["option_id"]))
+    for i, r in enumerate(passing, 1):
+        r["rank"] = i
+    return option_rows, option_balance, next_in
+
+
+def gold_emergency(s, gold, ctx, detected_at=None):
+    so_id = urgent_order_id(ctx["orders"])
+    urgent = {"sales_order_id": so_id, "order_date": URGENT["order_date"], "customer_id": URGENT["customer_id"], "customer_name": URGENT["customer_name"],
+              "product_id": URGENT["product_id"], "order_qty_kg": URGENT["order_qty_kg"], "due_date": URGENT["due_date"], "priority": URGENT["priority"]}
+    orders = ctx["orders"] + [urgent]
+    plan = emergency_plan(ctx["plan"], so_id)
+    bal = balance("emergency", plan, ctx["inbound"], ctx["opening"], s["bunker"], ctx["factors"])
+    summary = summarize("emergency", bal, s["bunker"])
+    base_below = {r["bunker_id"] for r in gold["chip_scenario_summary"] if r["below_safety_days"]}
+    newly = sorted((r for r in summary if r["below_safety_days"] and r["bunker_id"] not in base_below),
+                   key=lambda r: (r["first_below_safety_date"], r["bunker_id"]))
+    affected = newly[0]
+    options, option_balance, next_in = check_options(s, ctx, affected, orders, plan)
+    best = next(r for r in options if r["rank"] == 1)
+    risk = {"event_id": f"EVT-{TODAY:%Y%m%d}-001", "detected_at": detected_at, "scenario_id": "emergency", "sales_order_id": so_id,
+            "bunker_id": affected["bunker_id"], "line_id": affected["line_id"], "material_id": affected["material_id"],
+            "first_below_safety_date": affected["first_below_safety_date"], "first_shortage_date": affected["first_shortage_date"],
+            "min_closing_kg": affected["min_closing_kg"], "min_closing_date": affected["min_closing_date"],
+            "required_topup_kg": affected["required_topup_kg"], "next_inbound_key": next_in["inbound_key"],
+            "recommended_option_id": best["option_id"], "recommended_action": best["action_detail"], "status": "open"}
+    return {
+        "chip_dim_scenario": [{"scenario_id": "emergency", "scenario_name": "긴급 오더 반영",
+                               "description": f"{URGENT['order_date']:%Y-%m-%d} 접수 {so_id} ({URGENT['customer_name']}, {URGENT['product_id']} {URGENT['order_qty_kg']:,} kg)"}],
+        "chip_fact_sales_order": [{**{k: urgent[k] for k in ("sales_order_id", "order_date", "customer_id", "product_id")}, "line_id": URGENT["line_id"],
+                                   **{k: urgent[k] for k in ("order_qty_kg", "due_date", "priority")}, "is_urgent": True}],
+        "chip_fact_plan": plan_rows("emergency", plan),
+        "chip_fact_order_fulfillment": fulfillment("emergency", plan, orders, s["product"]),
+        "chip_fact_balance": bal,
+        "chip_scenario_summary": summary,
+        "chip_response_option": options,
+        "chip_option_balance": option_balance,
+        "chip_risk_event": [risk],
+    }
+
+
+def build(source_dir):
+    src = read_source(source_dir)
+    s, metrics = silver_tables(src)
+    gold, ctx = gold_current(s)
+    emergency = gold_emergency(s, gold, ctx)
+    return {"source": src, "silver": s, "quarantine_metrics": metrics, "gold": gold, "emergency": emergency, "context": ctx}
 
 
 def main():
-    res = build_gold(DATA_DIR)
-    print("SOURCE ROW COUNTS")
-    for name in sorted(res["source"]):
-        print(f"{name}: {len(res['source'][name])}")
-    print(f"source_total: {sum(len(v) for v in res['source'].values())}")
-    print("SILVER QUARANTINE COUNTS")
-    for k in sorted(res["quarantine_metrics"]):
-        print(f"{k}: {res['quarantine_metrics'][k]}")
-    print("GOLD ROW COUNTS")
-    for name in sorted(res["gold"]):
-        print(f"{name}: {len(res['gold'][name])}")
-    print(f"gold_total: {sum(len(v) for v in res['gold'].values())}")
-    print("AFFECTED BUNKER")
-    print("baseline", res["key"]["baseline_affected"])
-    print("emergency", res["key"]["emergency_affected"])
-    print("OPTIONS")
-    for r in res["key"]["options"]:
-        print(r)
-    print("BUNKER MARGIN TABLE")
-    for r in res["key"]["bunker_margin"]:
-        print(r)
-    print("OPTION BELOW-SAFETY BREAKDOWN")
-    for r in res["key"]["options"]:
-        print(r["option_id"], r.get("below_safety_breakdown", ""))
-    print("RISK EVENT")
-    print(res["key"]["risk_event"])
+    if len(sys.argv) < 2:
+        sys.exit("usage: python tools/reference_pipeline.py <source_dir>")
+    res = build(sys.argv[1])
+    print("SOURCE", {k: len(v) for k, v in res["source"].items()}, "total", sum(len(v) for v in res["source"].values()))
+    print("SILVER", res["quarantine_metrics"])
+    print("GOLD", {k: len(v) for k, v in res["gold"].items()})
+    print("EMERGENCY", {k: len(v) for k, v in res["emergency"].items()})
+    for r in res["emergency"]["chip_scenario_summary"]:
+        if r["below_safety_days"]:
+            print("BELOW", r)
+    for r in res["emergency"]["chip_response_option"]:
+        print("OPTION", r)
+    print("RISK", res["emergency"]["chip_risk_event"][0])
 
 
 if __name__ == "__main__":

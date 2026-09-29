@@ -99,7 +99,7 @@ RECIPES = {
            [("PET-BR", "0.895"), ("PET-SD", "0.100"), ("MB-SL", "0.020"), ("MB-UV", "0.010")],
            [("PET-BR", "0.845"), ("PET-SD", "0.150"), ("MB-SL", "0.020"), ("MB-UV", "0.010")],
            [("PET-BR", "0.900"), ("PET-SD", "0.095"), ("MB-SL", "0.020"), ("MB-UV", "0.015")],
-           [("PET-BR", "0.420"), ("PET-SD", "0.600"), ("MB-SL", "0.000"), ("MB-UV", "0.000")]],
+           [("PET-BR", "0.575"), ("PET-SD", "0.450"), ("MB-SL", "0.000"), ("MB-UV", "0.000")]],
     "L4": [[("PET-BR", "0.830"), ("PET-CO", "0.175"), ("MB-WH", "0.015"), ("MB-UV", "0.010")],
            [("PET-BR", "0.800"), ("PET-CO", "0.200"), ("MB-WH", "0.020"), ("MB-UV", "0.010")],
            [("PET-BR", "0.855"), ("PET-CO", "0.145"), ("MB-WH", "0.020"), ("MB-UV", "0.010")],
@@ -132,18 +132,20 @@ BUNKER_POLICY = {
     "MB-NS": (16000, 1800, (2,), 3800, 8, 2800),
 }
 BUNKER_POLICY_OVERRIDE = {
+    # L3 PET-BR keeps a larger buffer for the PET-BR-heavy thick film
+    "BNK-L3-1": (250000, 45000, (0, 1, 2, 3, 4, 5), 95000, 4, 115000),
     # L1 PET-SD is the shared PET-SD buffer for L1 and L3 (route R-01), delivered on Mondays
     "BNK-L1-2": (150000, 6000, (0,), 60000, 2, 55000),
     # L3 PET-SD is called off once a week and delivered on Fridays
     "BNK-L3-2": (150000, 12000, (4,), 22000, 5, 20000),
 }
 OPENING = {  # level read by PVSS at 2026-09-30 23:00
-    "BNK-L1-1": 152000, "BNK-L1-2": 72000, "BNK-L1-3": 10500, "BNK-L1-4": 7500,
-    "BNK-L2-1": 141000, "BNK-L2-2": 61000, "BNK-L2-3": 9500, "BNK-L2-4": 7200,
-    "BNK-L3-1": 146000, "BNK-L3-2": 30000, "BNK-L3-3": 10800, "BNK-L3-4": 6500,
-    "BNK-L4-1": 136000, "BNK-L4-2": 56000, "BNK-L4-3": 10200, "BNK-L4-4": 6300,
-    "BNK-L5-1": 91000, "BNK-L5-2": 36000, "BNK-L5-3": 6300, "BNK-L5-4": 5400,
-    "BNK-L6-1": 86000, "BNK-L6-2": 34000, "BNK-L6-3": 6100, "BNK-L6-4": 5300,
+    "BNK-L1-1": 152340, "BNK-L1-2": 71860, "BNK-L1-3": 10470, "BNK-L1-4": 7530,
+    "BNK-L2-1": 140720, "BNK-L2-2": 61290, "BNK-L2-3": 9460, "BNK-L2-4": 7180,
+    "BNK-L3-1": 146410, "BNK-L3-2": 30370, "BNK-L3-3": 10830, "BNK-L3-4": 6470,
+    "BNK-L4-1": 135860, "BNK-L4-2": 56240, "BNK-L4-3": 10190, "BNK-L4-4": 6320,
+    "BNK-L5-1": 91270, "BNK-L5-2": 35830, "BNK-L5-3": 6280, "BNK-L5-4": 5410,
+    "BNK-L6-1": 86140, "BNK-L6-2": 34260, "BNK-L6-3": 6130, "BNK-L6-4": 5290,
 }
 ROUTES = [  # from bunker, to bunker, max kg per day, lead time days, cost KRW per kg
     ("BNK-L1-2", "BNK-L3-2", 40000, 1, 25), ("BNK-L3-2", "BNK-L1-2", 35000, 1, 25),
@@ -421,7 +423,7 @@ def usage_factors(lots, consumption):
     used = defaultdict(int)
     for c in consumption:
         used[(product_of[c["lot_id"]], c["material_id"])] += int(c["consumed_kg"])
-    return {k: Decimal(v) / Decimal(output[k[0]]) for k, v in used.items()}
+    return {k: (Decimal(v) / Decimal(output[k[0]])).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP) for k, v in used.items()}
 
 
 def rounded_delays(receipts):
