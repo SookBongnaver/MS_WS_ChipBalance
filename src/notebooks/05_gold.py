@@ -69,8 +69,9 @@ for table, query in dimension_tables.items():
 # MAGIC `실제 소요량 = 원료 사용량 합계 ÷ 생산량 합계` (소수 6자리 반올림)
 # MAGIC
 # MAGIC 레시피 기준보다 실제 소요량이 1~4% 많습니다. 공정 손실이 있기 때문입니다. Balance는 실제 소요량으로 계산합니다.
+# MAGIC 아래 결과는 L3 제품의 PET-SD만 보여 줍니다. 테이블에는 제품·원료 118개 조합이 모두 들어 있습니다.
 # MAGIC
-# MAGIC **예상 결과:** L3 제품 18행. `P-L3-05`의 PET-SD 실제 소요량은 `0.463237`로 레시피 기준 `0.450000`보다 2.94% 많습니다.
+# MAGIC **예상 결과:** 5행. `P-L3-05`의 PET-SD 실제 소요량은 `0.463237`로 레시피 기준 `0.450000`보다 2.94% 많습니다.
 
 # COMMAND ----------
 spark.sql("""
@@ -99,7 +100,10 @@ SELECT concat(date_format(l.start_ts, 'yyyy-MM'), '|', c.bunker_id) AS monthly_u
 FROM silver_material_consumption c JOIN silver_production_lot l ON l.lot_id = c.lot_id
 GROUP BY ALL
 """)
-display(spark.table("gold_fact_usage_factor").filter("product_id LIKE 'P-L3-%'").orderBy("product_id", "material_id"))
+display(spark.table("gold_fact_usage_factor")
+        .filter("product_id LIKE 'P-L3-%' AND material_id = 'PET-SD'")
+        .select("product_id", "material_id", "std_kg_per_kg", "actual_kg_per_kg", "loss_pct", "consumed_kg", "output_kg")
+        .orderBy("product_id"))
 
 # COMMAND ----------
 # MAGIC %md
@@ -241,8 +245,10 @@ display(spark.table("gold_fact_balance")
 # MAGIC ## 8. Bunker 위험 요약
 # MAGIC Bunker마다 4분기 동안 안전재고 아래로 내려가는 날이 있는지 요약합니다.
 # MAGIC `required_topup_kg`는 가장 낮은 재고를 안전재고까지 올리는 데 필요한 양입니다.
+# MAGIC 아래 결과는 가장 낮은 재고와 안전재고의 차이(`margin_kg`)가 작은 Bunker부터 보여 줍니다.
 # MAGIC
-# MAGIC **예상 결과:** 24행. 모든 Bunker의 `below_safety_days`가 0이고 `required_topup_kg`도 0입니다. 현재 계획으로는 모든 Bunker가 안전재고를 지킵니다.
+# MAGIC **예상 결과:** 24행. 여유가 가장 작은 `BNK-L5-4`도 안전재고보다 1,002kg 많습니다.
+# MAGIC 모든 Bunker의 `below_safety_days`와 `required_topup_kg`가 0입니다. 현재 계획으로는 모든 Bunker가 안전재고를 지킵니다.
 
 # COMMAND ----------
 spark.sql("""
@@ -257,7 +263,12 @@ SELECT concat(f.scenario_id, '|', f.bunker_id) AS summary_key, f.scenario_id, f.
 FROM gold_fact_balance f JOIN gold_dim_bunker b ON b.bunker_id = f.bunker_id
 GROUP BY f.scenario_id, f.bunker_id, b.line_id, b.material_id
 """)
-display(spark.table("gold_fact_bunker_summary").orderBy("bunker_id"))
+display(spark.sql("""
+SELECT s.bunker_id, s.material_id, s.below_safety_days, s.min_closing_kg, b.safety_stock_kg,
+       s.min_closing_kg - b.safety_stock_kg AS margin_kg, s.min_closing_date, s.required_topup_kg
+FROM gold_fact_bunker_summary s JOIN gold_dim_bunker b ON b.bunker_id = s.bunker_id
+ORDER BY margin_kg, s.bunker_id
+"""))
 
 # COMMAND ----------
 # MAGIC %md

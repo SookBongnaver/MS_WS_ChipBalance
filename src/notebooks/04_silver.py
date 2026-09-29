@@ -134,6 +134,7 @@ WHERE reason IS NULL
 # COMMAND ----------
 display(spark.table("silver_purchase_order_open")
         .filter("bunker_id = 'BNK-L3-2' AND promised_date < '2026-11-01'")
+        .select("purchase_order_id", "po_line_no", "supplier_id", "promised_date", "source_quantity", "source_unit", "quantity_kg")
         .orderBy("promised_date"))
 
 # COMMAND ----------

@@ -63,7 +63,7 @@ UNION ALL
 SELECT * FROM urgent_order
 """)
 display(spark.sql("""
-SELECT u.sales_order_id, u.order_date, u.customer_id, c.customer_name, u.product_id, p.product_name, u.order_qty_kg, u.due_date, u.priority
+SELECT u.sales_order_id, u.order_date, c.customer_name, u.product_id, p.product_name, u.order_qty_kg, u.due_date, u.priority
 FROM urgent_order u JOIN gold_dim_customer c USING (customer_id) JOIN gold_dim_product p USING (product_id)
 """))
 
@@ -194,7 +194,7 @@ FROM emergency_case_balance
 """)
 display(spark.table("emergency_balance")
         .filter("bunker_id = 'BNK-L3-2' AND balance_date <= '2026-10-12'")
-        .select("balance_date", "opening_kg", "receipt_kg", "requirement_kg", "closing_kg", "safety_stock_kg", "below_safety", "shortage")
+        .select("balance_date", "receipt_kg", "requirement_kg", "closing_kg", "safety_stock_kg", "below_safety", "shortage")
         .orderBy("balance_date"))
 
 # COMMAND ----------
@@ -203,8 +203,8 @@ display(spark.table("emergency_balance")
 # MAGIC 05 Gold **8. Bunker 위험 요약**과 같은 방식으로 요약하고, 현재 계획과 비교합니다.
 # MAGIC
 # MAGIC **예상 결과:** 1행. 긴급 오더로 안전재고 아래로 내려가는 Bunker는 `BNK-L3-2`뿐입니다.
-# MAGIC 현재 계획에서는 0일이던 안전재고 미달이 57일로 늘고, 10월 6일부터 미달, 10월 7일부터 부족합니다.
-# MAGIC 가장 낮은 재고는 11월 26일 -23,630kg이며, 필요 보충량(`required_topup_kg`)은 35,630kg입니다.
+# MAGIC 안전재고 미달 일수가 현재 계획 0일에서 57일로 늘고, 10월 6일부터 미달, 10월 7일부터 부족합니다.
+# MAGIC 가장 낮은 재고는 11월 26일 -23,630kg이며, 필요 보충량은 35,630kg입니다.
 
 # COMMAND ----------
 spark.sql("""
@@ -220,8 +220,9 @@ FROM emergency_balance f JOIN gold_dim_bunker b ON b.bunker_id = f.bunker_id
 GROUP BY f.bunker_id, b.line_id, b.material_id
 """)
 display(spark.sql("""
-SELECT e.bunker_id, e.line_id, e.material_id, b.below_safety_days AS baseline_below_safety_days, e.below_safety_days,
-       e.first_below_safety_date, e.first_shortage_date, e.min_closing_kg, e.min_closing_date, e.required_topup_kg
+SELECT e.bunker_id, e.material_id, b.below_safety_days AS `현재 계획 미달일`, e.below_safety_days AS `긴급 오더 미달일`,
+       e.first_below_safety_date AS `첫 미달일`, e.first_shortage_date AS `첫 부족일`, e.min_closing_kg AS `최저 재고(kg)`,
+       e.min_closing_date AS `최저 재고일`, e.required_topup_kg AS `필요 보충량(kg)`
 FROM emergency_summary e JOIN gold_fact_bunker_summary b ON b.bunker_id = e.bunker_id AND b.scenario_id = 'baseline'
 WHERE e.below_safety_days > 0
 ORDER BY e.first_below_safety_date, e.bunker_id
@@ -337,7 +338,7 @@ options = [
 spark.createDataFrame(options, "option_id string, option_name string, source_bunker_id string, route_id string, "
                                "purchase_order_id string, supplier_id string, qty_kg bigint, first_arrival_date date, "
                                "added_cost_krw bigint, action_detail string").createOrReplaceTempView("option_input")
-display(spark.sql("SELECT option_id, option_name, action_detail, qty_kg, first_arrival_date, added_cost_krw FROM option_input ORDER BY option_id"))
+display(spark.sql("SELECT option_id, option_name, qty_kg, first_arrival_date, added_cost_krw, action_detail FROM option_input ORDER BY option_id"))
 
 # COMMAND ----------
 # MAGIC %md
@@ -440,8 +441,8 @@ SELECT option_id, option_name, scenario_id, target_bunker_id, source_bunker_id, 
 FROM option_checked
 """)
 display(spark.sql("""
-SELECT option_id, option_name, c1_safety_pass, c2_capacity_pass, c3_due_date_pass, c4_route_limit_pass, meets_all,
-       recommendation_rank, added_cost_krw, result_note
+SELECT option_id AS `대응안`, option_name AS `이름`, c1_safety_pass AS C1, c2_capacity_pass AS C2, c3_due_date_pass AS C3,
+       c4_route_limit_pass AS C4, recommendation_rank AS `추천 순위`, added_cost_krw AS `추가 비용(원)`, result_note AS `판단`
 FROM response_option ORDER BY option_id
 """))
 
@@ -491,7 +492,8 @@ SELECT concat('EVT-', date_format(DATE'{today}', 'yyyyMMdd'), '-001') AS event_i
 FROM emergency_summary s CROSS JOIN response_option o
 WHERE s.bunker_id = '{target.bunker_id}' AND o.recommendation_rank = 1
 """)
-display(spark.table("risk_event"))
+display(spark.table("risk_event").select("event_id", "detected_at", "sales_order_id", "bunker_id", "required_topup_kg",
+                                         "recommended_option_id", "status"))
 
 # COMMAND ----------
 # MAGIC %md

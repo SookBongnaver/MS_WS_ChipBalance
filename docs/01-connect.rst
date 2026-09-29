@@ -1,9 +1,9 @@
 01. Databricks 접속과 설정
 ==================================
 
-`목차 <../README.rst>`_ | 이전: `00. 시나리오와 실습 순서 <00-scenario.rst>`_ | 다음: `02. 원천 데이터 올리기 <02-source-data.rst>`_
+`목차 <../README.rst>`_ | 이전: `00. 시나리오와 실습 순서 <00-scenario.rst>`_ | 다음: `02. 원천 데이터 만들기 <02-source-data.rst>`_
 
-Notebook 5개를 Databricks로 가져오고, ``01_setup``\ 에 참가자 번호를 입력해 Unity Catalog와 OneLake 연결을 확인합니다.
+Notebook을 Databricks로 가져오고, ``01_setup``\ 에 참가자 번호를 입력해 Unity Catalog와 OneLake 연결을 확인합니다.
 OneLake에 저장할 때는 관리 ID(Managed Identity)를 씁니다. 비밀번호나 키는 입력하지 않습니다.
 
 관리자에게 받을 값은 세 가지입니다.
@@ -35,22 +35,49 @@ OneLake에 저장할 때는 관리 ID(Managed Identity)를 씁니다. 비밀번�
 #. **Import**\ 를 누릅니다.
 
    .. image:: ../assets/screenshots/d01-import-dialog.png
-      :alt: Import 창. Import from은 File, 가운데에 ChipBalance.zip 14.2 KB가 선택되어 있고 오른쪽 아래에 Import 버튼이 있습니다.
+      :alt: Import 창. Import from은 File, 가운데에 ChipBalance.zip 45.6 KB가 선택되어 있고 오른쪽 아래에 Import 버튼이 있습니다.
       :width: 500
 
-**예상 결과:** 홈 폴더에 ``ChipBalance`` 폴더가 생깁니다. 폴더를 열면 Notebook 5개가 있습니다.
+**예상 결과:** 오른쪽 위에 **Successful import**\ 가 잠깐 보이고, 홈 폴더에 ``ChipBalance`` 폴더가 생깁니다. 폴더를 열면 Notebook 8개가 있습니다.
 
 .. image:: ../assets/screenshots/d01-folder.png
-   :alt: ChipBalance 폴더. 01_setup, 02_source_data, 03_bronze_silver, 04_gold_baseline, 05_emergency_order Notebook 5개가 보입니다.
+   :alt: ChipBalance 폴더. 01_setup, 02_source_data, 03_bronze, 04_silver, 05_gold, 06_emergency_order, 07_unity_catalog, source_systems Notebook 8개가 보입니다.
    :width: 800
 
-02~05 Notebook은 첫 코드 셀 ``%run ./01_setup``\ 으로 설정값을 불러오므로 5개를 같은 폴더에 둡니다.
+.. list-table::
+   :header-rows: 1
+   :widths: 30 20 50
+
+   * - Notebook
+     - 장
+     - 하는 일
+   * - ``01_setup``
+     - 01
+     - 설정값과 OneLake 저장 함수. 다른 Notebook이 첫 코드 셀 ``%run ./01_setup``\ 으로 불러옵니다.
+   * - ``02_source_data``
+     - 02
+     - SAP·FPIMS·PVSS 원천 파일 14개 만들기
+   * - ``03_bronze``, ``04_silver``, ``05_gold``
+     - 03~05
+     - 메달리온 아키텍처: Bronze → Silver → Gold, Gold를 OneLake에 저장
+   * - ``06_emergency_order``
+     - 06
+     - 긴급 오더와 대응안 계산
+   * - ``07_unity_catalog``
+     - 07
+     - Unity Catalog 설명 확인, Genie 질문의 정답
+   * - ``source_systems``
+     - 02
+     - 원천 데이터 생성 함수. ``02_source_data``\ 가 불러오며 직접 실행하지 않습니다.
+
+Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니다.
 
 3. Compute 연결
 ------------------
 
 #. ``ChipBalance`` 폴더에서 ``01_setup``\ 을 엽니다.
 #. 오른쪽 위 Compute 목록(처음에는 **Serverless**)을 누르고 **More…**\ 를 누릅니다.
+   배정받은 Compute가 **Recent resources**\ 에 보이면 바로 골라도 됩니다.
 #. **Attach to an existing compute resource** 창에서 **General compute**\ 를 선택하고, 목록에서 배정받은 Compute를 고릅니다.
 #. 오른쪽 **Summary**\ 에서 Runtime이 **16.4 LTS**\ 인지 확인하고 **Attach**\ 를 누릅니다.
 
@@ -78,12 +105,12 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
    * - 이름
      - 값 (``p001``\ 일 때)
      - 용도
-   * - ``schema``
-     - ``lab_factory.chipbalance_p001``
-     - Bronze·Silver 테이블 위치 (Unity Catalog)
+   * - ``catalog``, ``schema``
+     - ``lab_factory``, ``chipbalance_p001``
+     - Bronze·Silver·Gold 테이블 위치 (Unity Catalog)
    * - ``raw_volume``
      - ``/Volumes/lab_factory/chipbalance_p001/raw``
-     - 02장에서 원천 파일을 올리는 곳
+     - 02장에서 원천 파일을 만드는 곳
    * - ``fabric_workspace``, ``fabric_lakehouse``
      - ``chipbalance-p001``, ``lh_chipbalance_p001``
      - Gold를 저장하는 Fabric 작업 영역과 Lakehouse
@@ -106,16 +133,16 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 
 #. **3. Unity Catalog 확인**
 
-   **예상 결과:** 스키마 ``lab_factory.chipbalance_p001``\ 과 Volume 경로가 표시됩니다. 원천 파일은 02장에서 올리므로 ``파일 0개``\ 입니다.
+   **예상 결과:** 스키마 ``lab_factory.chipbalance_p001``\ 과 Volume 경로 ``/Volumes/lab_factory/chipbalance_p001/raw``\ 가 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-uc.png
-      :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory.chipbalance_p001과 원천 파일 Volume: /Volumes/lab_factory/chipbalance_p001/raw (파일 0개)가 표시됩니다.
+      :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory.chipbalance_p001과 원천 파일 Volume: /Volumes/lab_factory/chipbalance_p001/raw가 표시됩니다.
       :width: 900
 
 #. **4. OneLake 저장 함수**
 
    결과는 출력되지 않습니다. 오류 없이 끝나면 됩니다.
-   이 셀은 04·05장에서 Gold를 저장할 함수를 만듭니다. 저장할 때마다 service credential ``chipbalance_onelake``\ 에서
+   이 셀은 05·06장에서 Gold를 저장할 함수를 만듭니다. 저장할 때마다 service credential ``chipbalance_onelake``\ 에서
    관리 ID 토큰을 받아 씁니다.
 
 #. **5. OneLake 연결 확인**
@@ -160,4 +187,4 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 다음 단계
 ------------
 
-`02. 원천 데이터 올리기 <02-source-data.rst>`_
+`02. 원천 데이터 만들기 <02-source-data.rst>`_

@@ -92,6 +92,7 @@ print(f"합계: {sum(rows for _, _, rows in loaded):,}행")
 # COMMAND ----------
 display(spark.table("bronze_sap_purchase_order_open")
         .filter("bunker_id = 'BNK-L3-2' AND promised_date < '20261101'")
+        .select("purchase_order_id", "po_line_no", "promised_date", "quantity", "unit", "_source_row", "_ingested_at")
         .orderBy("_source_row"))
 
 # COMMAND ----------

@@ -52,6 +52,15 @@ display(spark.sql("DESCRIBE TABLE gold_fact_balance"))
 # MAGIC 07장에서 Genie에 물어볼 질문 6개의 정답을 Gold 테이블로 계산합니다. Genie 답과 이 표를 비교합니다.
 # MAGIC 같은 질문을 09장에서 Fabric Data agent에도 합니다.
 # MAGIC
+# MAGIC | 번호 | 질문 |
+# MAGIC |---|---|
+# MAGIC | Q1 | 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어? |
+# MAGIC | Q2 | 긴급 오더를 반영하면 어느 Bunker가 언제부터 안전재고 아래로 내려가고, 얼마나 부족해? |
+# MAGIC | Q3 | 긴급 오더 때문에 미뤄진 생산의 판매오더는 납기를 지켜? |
+# MAGIC | Q4 | BNK-L3-2로 PET-SD를 보낼 수 있는 Bunker는 어디고, 보내도 그 Bunker는 괜찮아? |
+# MAGIC | Q5 | BNK-L3-2에 10월 6일 뒤 처음 들어오는 PET-SD 입고는 언제, 어느 공급사에서, 몇 kg이야? |
+# MAGIC | Q6 | 대응안 4개 가운데 판단 기준을 모두 만족하는 안과 추천안은? |
+# MAGIC
 # MAGIC **예상 결과:** 6행
 # MAGIC
 # MAGIC | 번호 | 정답 | 근거 |
@@ -116,4 +125,4 @@ answers = [
      q6[0].option_id,
      "; ".join(f"{r.option_id} {r.option_name} ({r.recommendation_rank}순위, {r.added_cost_krw:,}원)" for r in q6)),
 ]
-display(spark.createDataFrame(answers, "`번호` string, `질문` string, `정답` string, `근거` string"))
+display(spark.createDataFrame([(n, a, b) for n, _, a, b in answers], "`번호` string, `정답` string, `근거` string"))
