@@ -28,8 +28,8 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 * `04. Silver <docs/04-silver.rst>`_ — 형식·단위를 맞추고 중복·공란·미등록 코드·센서 이상값을 격리합니다.
 * `05. Gold와 OneLake <docs/05-gold-onelake.rst>`_ — 실제 소요량과 4분기 날짜별 재고를 계산해 Fabric Lakehouse에 저장합니다.
 * `06. 긴급 오더와 대응안 <docs/06-emergency-order.rst>`_ — 긴급 오더를 반영하고, 대응안 4개를 판단 기준으로 확인해 추천안을 정합니다.
-* `07. Unity Catalog 설명과 Genie <docs/07-genie.rst>`_ — Genie Code로 테이블·열 설명을 넣고, Genie에 한국어로 질문해 정답과 비교합니다. (작성 중)
-* `08. Ontology <docs/08-ontology.rst>`_ — Ontology agent 프롬프트로 라인·Bunker·원료·생산계획의 관계를 만들고 점검합니다. (작성 중)
+* `07. Unity Catalog 설명과 Genie <docs/07-genie.rst>`_ — Genie Code로 테이블·열 설명을 넣고, Genie에 한국어로 질문해 정답과 비교합니다.
+* `08. Ontology <docs/08-ontology.rst>`_ — Ontology agent 프롬프트로 라인·Bunker·원료·생산계획의 관계를 만들고 점검한 뒤 Graph를 만듭니다.
 * `09. Data agent <docs/09-data-agent.rst>`_ — Ontology를 근거로 답하는 Data agent를 만들고 답을 검증합니다. (작성 중)
 * `10. Power BI 보고서 <docs/10-power-bi.rst>`_ — Semantic model과 원료 수급 보고서를 만듭니다. (작성 중)
 * `11. Operations agent <docs/11-operations-agent.rst>`_ — Operations agent가 대응안을 Teams로 제안하고, 승인하면 Notebook이 승인 기록을 남깁니다. (작성 중)

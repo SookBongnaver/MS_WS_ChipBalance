@@ -28,8 +28,7 @@ CHAPTERS = [
 ]
 # Chapters that are still being written. While such a file is missing, the existence check and
 # links pointing to it are reported as skipped. Empty this set once all chapters are written.
-PENDING_CHAPTERS = {"03-bronze.rst", "04-silver.rst", "05-gold-onelake.rst", "06-emergency-order.rst", "07-genie.rst",
-                    "08-ontology.rst", "09-data-agent.rst", "10-power-bi.rst", "11-operations-agent.rst", "12-finish.rst"}
+PENDING_CHAPTERS = {"09-data-agent.rst", "10-power-bi.rst", "11-operations-agent.rst", "12-finish.rst"}
 
 FORBIDDEN_WORDS = ["강사 승인", "승인 후", "approved_", "기본 실습", "확장 실습", "리허설", "워크숍"]
 # The material describes only what to do now, never how it used to be.
