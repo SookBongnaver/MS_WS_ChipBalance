@@ -22,6 +22,8 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
      - 카탈로그 ``lab_factory``, 참가자별 스키마 ``chipbalance_pNNN``, 스키마 안의 Volume ``raw``
    * - Compute
      - 참가자별 Classic Compute (Dedicated), DBR 16.4 LTS, 20분 자동 종료, 라이브러리 ``deltalake==1.6.6``
+   * - SQL warehouse
+     - Pro SQL warehouse ``chipbalance-pro`` (2X-Small, 15분 자동 종료). 07장 Genie Agent가 사용
    * - 관리 ID
      - Access Connector for Azure Databricks ``ac-chipbalance-onelake``, Unity Catalog service credential ``chipbalance_onelake``
    * - Microsoft Fabric
@@ -37,15 +39,16 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 .. code-block:: sql
 
    CREATE CATALOG IF NOT EXISTS lab_factory;
-   CREATE SCHEMA IF NOT EXISTS lab_factory.chipbalance_p001;
+   CREATE SCHEMA IF NOT EXISTS lab_factory.chipbalance_p001
+     COMMENT '원료 Chip Balance Workshop 참가자 p001: 원천 파일 Volume raw와 Bronze·Silver·Gold 테이블';
    CREATE VOLUME IF NOT EXISTS lab_factory.chipbalance_p001.raw;
 
    GRANT USE CATALOG ON CATALOG lab_factory TO `p001@contoso.com`;
-   GRANT USE SCHEMA, CREATE TABLE ON SCHEMA lab_factory.chipbalance_p001 TO `p001@contoso.com`;
+   GRANT USE SCHEMA, CREATE TABLE, MODIFY, SELECT ON SCHEMA lab_factory.chipbalance_p001 TO `p001@contoso.com`;
    GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory.chipbalance_p001.raw TO `p001@contoso.com`;
 
 * 메타스토어에 기본 저장소가 없으면 ``CREATE CATALOG``\ 에 ``MANAGED LOCATION``\ 을 지정합니다.
-* Bronze·Silver 테이블은 참가자가 03 Notebook에서 만듭니다.
+* Bronze·Silver·Gold 테이블은 참가자가 03~06 Notebook에서 만듭니다. 07장에서 Genie Code가 Gold 테이블에 설명을 넣으므로 참가자가 테이블 소유자이거나 ``MODIFY`` 권한이 있어야 합니다.
 
 참가자마다 Classic Compute를 하나씩 만듭니다. Serverless는 사용하지 않습니다.
 
@@ -55,6 +58,15 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 * 자동 종료: 20분
 * **Libraries** > **Install new** > **PyPI**\ 에서 ``deltalake==1.6.6``\ 을 설치합니다. Gold를 OneLake에 쓸 때 사용합니다.
 * 권한: 해당 참가자에게 **Can Restart** (자동 종료된 Compute를 다시 시작할 수 있음)
+
+SQL warehouse를 하나 만들어 모든 참가자가 함께 씁니다. 07장 Genie Agent가 이 warehouse로 SQL을 실행합니다.
+
+* **SQL Warehouses** > **Create SQL warehouse**: 이름 ``chipbalance-pro``, Type **Pro**, Cluster size **2X-Small**, Auto stop 15분
+* **Permissions**\ 에서 참가자에게 **Can use**\ 를 줍니다.
+* Unity Catalog 저장소를 private endpoint로 연결한 환경에서는 Serverless warehouse가 저장소에 접근하지 못합니다. Pro 또는 Classic warehouse를 씁니다.
+* Genie Code와 Genie Agent는 **Partner-powered AI features**\ 가 켜져 있어야 합니다(계정 콘솔 **Settings** > **Feature enablement**).
+  데이터 처리 지역 제한(**Enforce data processing within workspace Geography for AI features**)이 켜져 있으면 Genie Code를 쓸 수 없는 지역이 있습니다.
+  참가자에게는 Databricks SQL 사용 권한(**Databricks SQL access** entitlement)이 필요합니다.
 
 2. 관리 ID와 service credential
 ----------------------------------
@@ -151,7 +163,7 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
 6. 종료 후 정리
 ------------------
 
-#. 참가자 Compute를 모두 **Terminate**\ 합니다.
+#. 참가자 Compute를 모두 **Terminate**\ 하고, SQL warehouse ``chipbalance-pro``\ 를 **Stop**\ 합니다.
 #. (선택) 실습 데이터를 지웁니다. Fabric 항목은 용량을 일시 중지하기 전에 지웁니다.
 
    - Unity Catalog 스키마 ``lab_factory.chipbalance_pNNN``\ 과 Volume ``raw``

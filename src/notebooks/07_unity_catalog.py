@@ -57,7 +57,7 @@ display(spark.sql("DESCRIBE TABLE gold_fact_balance"))
 # MAGIC | Q1 | 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어? |
 # MAGIC | Q2 | 긴급 오더를 반영하면 어느 Bunker가 언제부터 안전재고 아래로 내려가고, 얼마나 부족해? |
 # MAGIC | Q3 | 긴급 오더 때문에 미뤄진 생산의 판매오더는 납기를 지켜? |
-# MAGIC | Q4 | BNK-L3-2로 PET-SD를 보낼 수 있는 Bunker는 어디고, 보내도 그 Bunker는 괜찮아? |
+# MAGIC | Q4 | BNK-L3-2로 PET-SD를 보내 줄 수 있는 Bunker는 어디야? 이송 대응안대로 보내면 보내는 Bunker의 재고는 괜찮아? |
 # MAGIC | Q5 | BNK-L3-2에 10월 6일 뒤 처음 들어오는 PET-SD 입고는 언제, 어느 공급사에서, 몇 kg이야? |
 # MAGIC | Q6 | 대응안 4개 가운데 판단 기준을 모두 만족하는 안과 추천안은? |
 # MAGIC
@@ -114,7 +114,7 @@ answers = [
     ("Q3", "긴급 오더 때문에 미뤄진 생산의 판매오더는 납기를 지켜?",
      "모두 준수" if all(r.on_time for r in q3) else "지연 있음",
      "; ".join(f"{r.sales_order_id} {r.finish_date:%m/%d} 완료 (납기 {r.due_date:%m/%d})" for r in q3)),
-    ("Q4", "BNK-L3-2로 PET-SD를 보낼 수 있는 Bunker는 어디고, 보내도 그 Bunker는 괜찮아?",
+    ("Q4", "BNK-L3-2로 PET-SD를 보내 줄 수 있는 Bunker는 어디야? 이송 대응안대로 보내면 보내는 Bunker의 재고는 괜찮아?",
      ", ".join(r.from_bunker_id for r in q4),
      "; ".join(f"{r.from_bunker_id} ({r.route_id}, 하루 {kg(r.max_kg_per_day)}, {r.lead_time_days}일, {r.cost_krw_per_kg}원/kg). "
                f"이송 후 최저 {kg(r.min_closing_kg)}, 안전재고 {kg(r.safety_stock_kg)}" for r in q4)),
