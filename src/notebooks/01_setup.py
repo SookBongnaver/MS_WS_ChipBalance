@@ -85,7 +85,7 @@ print("원천 파일 Volume:", raw_volume)
 # MAGIC |---|---|
 # MAGIC | `onelake_options` | 관리 ID 토큰을 받아 OneLake 접속 옵션을 만듭니다. |
 # MAGIC | `write_delta` | Spark DataFrame을 OneLake 경로에 Delta 형식으로 덮어써서 저장하고, 저장된 행 수를 돌려줍니다. |
-# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. `05_gold`와 `10_emergency_order`에서 씁니다. 소수(`DECIMAL`) 열은 `DOUBLE`로 바꿔 저장합니다. Fabric Ontology가 `DECIMAL`을 읽지 못하기 때문입니다. |
+# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. `05_gold`와 `06_emergency_order`에서 씁니다. 소수(`DECIMAL`) 열은 `DOUBLE`로 바꿔 저장합니다. Fabric Ontology가 `DECIMAL`을 읽지 못하기 때문입니다. |
 
 # COMMAND ----------
 from zoneinfo import ZoneInfo

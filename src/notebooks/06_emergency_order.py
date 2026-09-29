@@ -1,6 +1,6 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # 10. 긴급 오더와 대응안
+# MAGIC # 06. 긴급 오더와 대응안
 # MAGIC 10월 1일에 접수된 긴급 오더를 생산계획에 넣고, Bunker별·날짜별 재고를 다시 계산합니다.
 # MAGIC 안전재고 아래로 내려가는 Bunker를 찾고, 대응안 4개를 같은 판단 기준으로 확인해 추천안을 정합니다.
 # MAGIC
@@ -15,7 +15,7 @@
 # MAGIC 긴급 오더를 반영한 결과는 시나리오 `emergency`로 저장합니다. 05에서 만든 현재 계획(`baseline`) 행은 그대로 남습니다.
 # MAGIC
 # MAGIC 1. 위에서부터 셀을 하나씩 실행합니다. (**Shift+Enter**)
-# MAGIC 2. 마지막 셀까지 확인하면 교재 10장으로 돌아가 Fabric에서 결과를 확인합니다.
+# MAGIC 2. 마지막 셀까지 확인하면 교재 06장으로 돌아갑니다.
 
 # COMMAND ----------
 # MAGIC %md

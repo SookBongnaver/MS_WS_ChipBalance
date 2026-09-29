@@ -132,8 +132,8 @@ def architecture():
     d.text(45, 78, "Azure Databricks에서 정제·계산한 Gold를 Microsoft Fabric에서 활용합니다. "
                    "담당자는 Teams에서 대응안을 승인하고, Copilot 채팅으로 데이터를 질문합니다", 20, 1700)
 
-    steps = [("① 현재 계산", "Databricks 05·10 계산 · Power BI 현황"),
-             ("② 판단 기준", "Databricks 10 · 대응안별 기준 충족 여부"),
+    steps = [("① 현재 계산", "Databricks 05·06 계산 · Power BI 현황"),
+             ("② 판단 기준", "Databricks 06 · 대응안별 기준 충족 여부"),
              ("③ Agent 제안", "Fabric Operations agent → Teams로 제안"),
              ("④ 사람 승인", "Teams에서 Yes/No · 승인 기록 저장")]
     xs = [45, 480, 915, 1350]
@@ -157,9 +157,9 @@ def architecture():
     d.arrow([(490, 560), (490, 630)])
     d.text(505, 582, "업무 계산", 16, 110)
     d.card(360, 630, 260, 250, "Gold / 계산",
-           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n10 긴급 오더·대응안 4개\nGold를 OneLake에 저장",
+           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n06 긴급 오더·대응안 4개\nGold를 OneLake에 저장",
            "databricks.svg")
-    d.card(70, 630, 240, 130, "Genie", "06 테이블·열 설명 작성\n자연어 질문 → SQL", "databricks.svg")
+    d.card(70, 630, 240, 130, "Genie", "07 테이블·열 설명 작성\n자연어 질문 → SQL", "databricks.svg")
     d.arrow([(360, 695), (310, 695)])
     d.text(75, 782, "① 현재 계산", 18, 270, True)
     d.text(75, 812, "소요량 = 계획 × 실제 소요량\n마감 = 전일 + 입고 ± 이송 − 소요", 16, 270)

@@ -12,7 +12,7 @@
 # MAGIC | 5 | 생산계획 × 실제 소요량 → 날짜별 Bunker 사용량, 날짜별 재고 | `gold_fact_balance` |
 # MAGIC | 6 | Bunker별 위험 요약, 판매오더 납기 | `gold_fact_bunker_summary`, `gold_fact_order_fulfillment` |
 # MAGIC
-# MAGIC 이 Notebook은 **현재 계획**(`baseline`)만 계산합니다. 긴급 오더는 10장에서 같은 방식으로 다시 계산합니다.
+# MAGIC 이 Notebook은 **현재 계획**(`baseline`)만 계산합니다. 긴급 오더는 06장에서 같은 방식으로 다시 계산합니다.
 # MAGIC
 # MAGIC 1. 위에서부터 셀을 하나씩 실행합니다. (**Shift+Enter**)
 # MAGIC 2. 마지막 셀까지 확인하면 교재 05장으로 돌아가 Fabric에서 결과를 확인합니다.
@@ -262,7 +262,7 @@ display(spark.table("gold_fact_bunker_summary").orderBy("bunker_id"))
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 9. Gold 테이블 확인
-# MAGIC Unity Catalog에 만든 Gold 테이블 18개의 행 수입니다. 06장에서 Genie가 이 테이블로 질문에 답합니다.
+# MAGIC Unity Catalog에 만든 Gold 테이블 18개의 행 수입니다. 07장에서 Genie가 이 테이블로 질문에 답합니다.
 # MAGIC
 # MAGIC **예상 결과:** 18행. `gold_fact_balance` 2,208행 (Bunker 24개 × 92일)
 
