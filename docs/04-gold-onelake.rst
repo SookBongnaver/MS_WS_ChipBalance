@@ -171,7 +171,7 @@ B. Fabric에서 확인하기
 #. 왼쪽 **Explorer**\ 에서 **Tables** > ``gold``\ 를 펼칩니다.
 
    **예상 결과:** ``chip_``\ 으로 시작하는 테이블 9개가 보입니다. 이름이 길면 뒷부분이 잘려 보입니다.
-   같은 Lakehouse에 다른 테이블이 있어도 이 Workshop에서는 ``chip_`` 테이블만 사용합니다.
+   같은 ``gold`` 스키마에 다른 테이블이 함께 보이면 ``chip_``\ 으로 시작하는 테이블만 봅니다.
 
    .. image:: ../assets/screenshots/f04-lakehouse-tables.png
       :alt: Lakehouse Explorer. lh_factory_p001 > Tables > gold 아래에 chip_dim_bunker, chip_dim_date, chip_dim_material, chip_dim_scenario, chip_fact_balance, chip_fact_plan, chip_response_option, chip_scenario_comparison, chip_scenario_summary 테이블 9개가 보입니다.

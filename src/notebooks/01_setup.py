@@ -186,7 +186,7 @@ def september_days():
 # MAGIC | `summarize` | 처음 안전재고 미만이 되는 날, 처음 0 미만이 되는 날, 월말·최저 재고, 필요한 추가 확보량을 구합니다. |
 # MAGIC | `build_gold` | 위 결과를 Gold 테이블 9개 형식으로 만듭니다. |
 # MAGIC
-# MAGIC 입고는 그날 생산 전에 쓸 수 있다고 가정합니다. 마감 재고가 음수이면 계획대로 생산할 때 모자라는 양입니다.
+# MAGIC 그날 들어온 입고는 그날 생산에 바로 씁니다. 마감 재고가 음수이면 계획대로 생산할 때 모자라는 양입니다.
 
 # COMMAND ----------
 def scenario(scenario_id, scenario_name, change_date=None, product_id=None, increase_pct=0):

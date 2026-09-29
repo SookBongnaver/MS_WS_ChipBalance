@@ -14,7 +14,7 @@
   `Icons.zip <https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/Icons.zip>`_ v6.1.0
 * `Microsoft Power Platform icons <https://learn.microsoft.com/en-us/power-platform/guidance/icons>`_ — 공식 SVG 아이콘 묶음
 
-세 페이지 모두 아키텍처 그림, 교육 자료, 문서에서 아이콘을 쓰도록 허용합니다.
+세 페이지 모두 아키텍처 그림과 문서에서 아이콘을 쓰도록 허용합니다.
 아이콘은 원본 SVG를 그대로 쓰며 자르기·뒤집기·색 변경·비율 변경을 하지 않습니다.
 Ontology는 공식 아이콘 묶음에 없어서 일반 상자로 표시합니다.
 

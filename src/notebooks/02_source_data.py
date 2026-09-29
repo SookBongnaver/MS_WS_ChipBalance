@@ -1,8 +1,8 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # 02. 원본 데이터 만들기
-# MAGIC 실제 FPIMS·PVSS·SAP에 연결하지 않고, 이 Notebook에서 2026년 9월 교육용 데이터를 만듭니다.
-# MAGIC 만든 데이터는 Unity Catalog Volume에 JSON 파일로 저장하고, 다음 `03_bronze_silver`에서 읽습니다.
+# MAGIC 2026년 9월 한 달 치 원본 데이터 6종을 만들어 Unity Catalog Volume에 JSON 파일로 저장합니다.
+# MAGIC 실제 업무에서는 FPIMS·PVSS·SAP에서 추출한 데이터가 이 자리에 들어갑니다. 다음 `03_bronze_silver`에서 이 파일을 읽습니다.
 # MAGIC
 # MAGIC | 원본 | 내용 | 행 수 |
 # MAGIC |---|---|---|
@@ -11,7 +11,7 @@
 # MAGIC | opening | 9월 1일 시작 재고 | 2 |
 # MAGIC | recipes | 제품 1kg 생산에 필요한 Chip kg | 2 |
 # MAGIC | plans | 일별 제품 생산계획 | 60 |
-# MAGIC | receipts | 원료 입고예정 (정제 연습용 오류 포함) | 5 |
+# MAGIC | receipts | 원료 입고예정 (중복 1건, 수량 누락 1건 포함) | 5 |
 
 # COMMAND ----------
 # MAGIC %run ./01_setup
@@ -67,9 +67,9 @@ display(spark.createDataFrame(plans).filter("business_date IN ('2026-09-01', '20
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 3. 입고예정 — 오류 두 건 포함
+# MAGIC ## 3. 입고예정 — 중복·결측 확인
 # MAGIC 정상 입고는 CHIP-A 9/12·9/22, CHIP-B 9/15에 각각 1,000kg입니다.
-# MAGIC 실제 시스템 데이터처럼 오류 두 건을 넣었습니다. 03 Notebook에서 정리합니다.
+# MAGIC 받은 입고예정에는 정리할 행이 두 건 있습니다. 03 Notebook에서 정리합니다.
 # MAGIC * `R-A-12`가 두 번 들어 있습니다. (중복)
 # MAGIC * `R-A-08`은 수량이 비어 있습니다. (결측)
 # MAGIC
