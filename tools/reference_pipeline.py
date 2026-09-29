@@ -428,7 +428,8 @@ def check_options(s, ctx, affected, orders, emg_plan):
     for opt in options:
         rows = balance(opt["option_id"], opt["plan"], opt["inbound"], ctx["opening"], s["bunker"], ctx["factors"], opt["transfers"], opt["extra"])
         touched = {target} | {t["from_bunker_id"] for t in opt["transfers"]}
-        option_balance += [dict(r, option_id=opt["option_id"], option_balance_key=r["balance_key"]) for r in rows if r["bunker_id"] in touched]
+        option_balance += [{"option_balance_key": r["balance_key"], "option_id": opt["option_id"], **{k: v for k, v in r.items() if k not in ("balance_key", "scenario_id")}}
+                           for r in rows if r["bunker_id"] in touched]
         below = [r for r in rows if r["below_safety"]]
         over = [r for r in rows if r["over_capacity"]]
         finish = {}
@@ -453,10 +454,10 @@ def check_options(s, ctx, affected, orders, emg_plan):
                             "supplier_id": opt["supplier_id"], "qty_kg": opt["qty_kg"], "first_arrival_date": opt["first_arrival_date"],
                             "added_cost_krw": opt["added_cost_krw"], "c1_safety_pass": c1, "c2_capacity_pass": c2, "c3_due_date_pass": c3,
                             "c4_route_limit_pass": c4, "meets_all": c1 and c2 and c3 and c4, "below_safety_days": len(below),
-                            "late_order_count": len(late), "rank": None, "action_detail": opt["action_detail"], "result_note": "; ".join(reasons) or "모든 기준 충족"})
+                            "late_order_count": len(late), "recommendation_rank": None, "action_detail": opt["action_detail"], "result_note": "; ".join(reasons) or "모든 기준 충족"})
     passing = sorted((r for r in option_rows if r["meets_all"]), key=lambda r: (r["added_cost_krw"], r["option_id"]))
     for i, r in enumerate(passing, 1):
-        r["rank"] = i
+        r["recommendation_rank"] = i
     return option_rows, option_balance, next_in
 
 
@@ -473,7 +474,7 @@ def gold_emergency(s, gold, ctx, detected_at=None):
                    key=lambda r: (r["first_below_safety_date"], r["bunker_id"]))
     affected = newly[0]
     options, option_balance, next_in = check_options(s, ctx, affected, orders, plan)
-    best = next(r for r in options if r["rank"] == 1)
+    best = next(r for r in options if r["recommendation_rank"] == 1)
     risk = {"event_id": f"EVT-{TODAY:%Y%m%d}-001", "detected_at": detected_at, "scenario_id": "emergency", "sales_order_id": so_id,
             "bunker_id": affected["bunker_id"], "line_id": affected["line_id"], "material_id": affected["material_id"],
             "first_below_safety_date": affected["first_below_safety_date"], "first_shortage_date": affected["first_shortage_date"],

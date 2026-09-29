@@ -279,7 +279,7 @@ display(spark.createDataFrame([(f"gold_{t}", spark.table(f"gold_{t}").count()) f
 # MAGIC ## 10. OneLake에 저장
 # MAGIC Gold 테이블 18개를 Fabric Lakehouse `lh_chipbalance_<참가자 번호>`의 `gold` 스키마에 저장합니다.
 # MAGIC 이름에서 `gold_`를 뺍니다. 예를 들어 `gold_fact_balance`는 Lakehouse의 `gold.fact_balance`가 됩니다.
-# MAGIC 관리 ID로 저장하며, 다시 실행하면 덮어씁니다.
+# MAGIC 관리 ID로 저장하며, 다시 실행하면 덮어씁니다. 소수 열(`actual_kg_per_kg` 등)은 `DOUBLE`로 저장됩니다.
 # MAGIC
 # MAGIC **예상 결과:** 18행. `Unity Catalog 행 수`와 `OneLake 행 수`가 모두 같습니다. (2~3분)
 

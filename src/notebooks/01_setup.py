@@ -85,12 +85,13 @@ print("원천 파일 Volume:", raw_volume)
 # MAGIC |---|---|
 # MAGIC | `onelake_options` | 관리 ID 토큰을 받아 OneLake 접속 옵션을 만듭니다. |
 # MAGIC | `write_delta` | Spark DataFrame을 OneLake 경로에 Delta 형식으로 덮어써서 저장하고, 저장된 행 수를 돌려줍니다. |
-# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. 05_gold와 긴급 오더 Notebook에서 씁니다. |
+# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. `05_gold`와 `10_emergency_order`에서 씁니다. 소수(`DECIMAL`) 열은 `DOUBLE`로 바꿔 저장합니다. Fabric Ontology가 `DECIMAL`을 읽지 못하기 때문입니다. |
 
 # COMMAND ----------
 from zoneinfo import ZoneInfo
 
 import pyarrow as pa
+from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
 try:
@@ -113,16 +114,9 @@ def onelake_options():
     return {"bearer_token": token, "use_fabric_endpoint": "true"}
 
 
-def arrow_type(data_type):
-    if isinstance(data_type, T.DecimalType):
-        return pa.decimal128(data_type.precision, data_type.scale)
-    return ARROW_TYPES[type(data_type)]
-
-
 def to_arrow(df):
     fields = df.schema.fields
-    unsupported = [f"{f.name} {f.dataType.simpleString()}" for f in fields
-                   if type(f.dataType) not in ARROW_TYPES and not isinstance(f.dataType, T.DecimalType)]
+    unsupported = [f"{f.name} {f.dataType.simpleString()}" for f in fields if type(f.dataType) not in ARROW_TYPES]
     if unsupported:
         raise TypeError("OneLake에 저장할 수 없는 형식입니다: " + ", ".join(unsupported))
     zone = ZoneInfo(spark.conf.get("spark.sql.session.timeZone"))
@@ -132,7 +126,7 @@ def to_arrow(df):
             for row in rows:
                 if row[field.name] is not None:
                     row[field.name] = row[field.name].replace(tzinfo=zone)
-    schema = pa.schema([pa.field(f.name, arrow_type(f.dataType)) for f in fields])
+    schema = pa.schema([pa.field(f.name, ARROW_TYPES[type(f.dataType)]) for f in fields])
     return pa.Table.from_pylist(rows, schema=schema)
 
 
@@ -142,6 +136,8 @@ def write_delta(df, path):
 
 
 def write_gold(df, table):
+    df = df.select([F.col(f.name).cast("double") if isinstance(f.dataType, T.DecimalType) else F.col(f.name)
+                    for f in df.schema.fields])
     return write_delta(df, f"{ONELAKE_ROOT}/Tables/gold/{table}")
 
 # COMMAND ----------

@@ -231,6 +231,9 @@ class GoldTests(Base):
         donor = [r for r in self.e["fact_option_balance"] if r["option_id"] == "OPT-2" and r["bunker_id"] == "BNK-L1-2"]
         self.assertEqual(92, len(donor))
         self.assertGreaterEqual(min(r["closing_kg"] for r in donor), 6000)
+        lowest = {b: min(r["closing_kg"] for r in self.e["fact_option_balance"] if r["option_id"] == "OPT-2" and r["bunker_id"] == b)
+                  for b in ("BNK-L1-2", "BNK-L3-2")}
+        self.assertEqual({"BNK-L1-2": 16763, "BNK-L3-2": 16370}, lowest)
 
     def test_v5_next_pet_sd_receipt(self):
         key = self.e["fact_risk_event"][0]["next_inbound_key"]
@@ -239,7 +242,7 @@ class GoldTests(Base):
                          (inbound["purchase_order_id"], inbound["po_line_no"], inbound["supplier_id"], inbound["expected_date"], inbound["quantity_kg"]))
 
     def test_v6_options_and_recommendation(self):
-        result = {o["option_id"]: (o["c1_safety_pass"], o["c2_capacity_pass"], o["c3_due_date_pass"], o["c4_route_limit_pass"], o["rank"], o["added_cost_krw"])
+        result = {o["option_id"]: (o["c1_safety_pass"], o["c2_capacity_pass"], o["c3_due_date_pass"], o["c4_route_limit_pass"], o["recommendation_rank"], o["added_cost_krw"])
                   for o in self.e["fact_response_option"]}
         self.assertEqual({
             "OPT-1": (False, True, True, True, None, 500000),
