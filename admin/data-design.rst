@@ -4,7 +4,7 @@
 개요
 ----
 
-SAP, FPIMS, PVSS 추출 파일을 Bronze로 적재한 뒤 Silver 품질 규칙을 적용하고 Gold 테이블을 계산합니다. Gold는 Fabric workspace ``chipbalance-p001`` 의 Lakehouse ``lh_chipbalance_p001`` 내 ``gold`` 스키마에 적재됩니다. 원천 파일은 Unity Catalog ``lab_factory.chipbalance_p001`` 의 Volume ``raw`` 에 업로드됩니다. Fabric은 SQL analytics endpoint, Power BI Direct Lake, Fabric IQ Ontology/Graph, Operations agent에서 Gold를 사용합니다. 승인된 의사결정은 Fabric Notebook이 ``dbo.chip_decision_log`` 에 기록하며 Databricks는 이 테이블을 쓰지 않습니다.
+SAP, FPIMS, PVSS 추출 파일을 Bronze로 적재한 뒤 Silver 품질 규칙을 적용하고 Gold 테이블을 계산합니다. Gold는 Fabric workspace ``chipbalance-p001`` 의 Lakehouse ``lh_chipbalance_p001`` 내 ``gold`` 스키마에 적재됩니다. 원천 파일은 Unity Catalog ``lab_factory.chipbalance_p001`` 의 Volume ``raw`` 에 업로드됩니다. Fabric은 SQL analytics endpoint, Power BI Direct Lake, Fabric IQ Ontology, Data agent, Operations agent에서 Gold를 사용합니다. 승인된 의사결정은 Fabric Notebook이 ``dbo.chip_decision_log`` 에 기록하며 Databricks는 이 테이블을 쓰지 않습니다.
 
 원천 파일
 ---------

@@ -13,8 +13,10 @@
 * `Microsoft Fabric icons <https://learn.microsoft.com/en-us/fabric/fundamentals/icons>`_ — 공식 페이지의
   `Icons.zip <https://raw.githubusercontent.com/microsoft/fabric-samples/main/docs-samples/Icons.zip>`_ v6.1.0
 * `Microsoft Power Platform icons <https://learn.microsoft.com/en-us/power-platform/guidance/icons>`_ — 공식 SVG 아이콘 묶음
+* Microsoft Teams 아이콘 — Microsoft Fluent UI의 Office 제품 아이콘
+  (``https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/teams_48x1.svg``)
 
-세 페이지 모두 아키텍처 그림과 문서에서 아이콘을 쓰도록 허용합니다.
+Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문서에서 아이콘을 쓰도록 허용합니다. 제품 아이콘은 해당 제품을 가리키는 용도로만 씁니다.
 아이콘은 원본 SVG를 그대로 쓰며 자르기·뒤집기·색 변경·비율 변경을 하지 않습니다.
 Ontology는 공식 아이콘 묶음에 없어서 일반 상자로 표시합니다.
 
@@ -27,8 +29,10 @@ Ontology는 공식 아이콘 묶음에 없어서 일반 상자로 표시합니�
      - Azure v24 ``10787-icon-service-Azure-Databricks.svg``
    * - ``storage.svg``
      - Azure v24 ``10086-icon-service-Storage-Accounts.svg``
-   * - ``users.svg``
-     - Azure v24 ``10230-icon-service-Users.svg``
+   * - ``teams.svg``
+     - Microsoft 365 제품 아이콘 ``teams_48x1.svg`` (Fluent UI)
+   * - ``copilot.svg``
+     - Fabric ``copilot_48_color.svg``
    * - ``fabric.svg``
      - Fabric ``fabric_48_color.svg``
    * - ``lakehouse.svg``

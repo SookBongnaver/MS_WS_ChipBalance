@@ -100,12 +100,12 @@ SAP, FPIMS, PVSS에서 추출한 파일 14개를 씁니다. 모두 41,412행입�
 --------------
 
 .. image:: ../assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Operations agent가 Microsoft Teams로 대응안을 제안하면 담당자가 승인합니다.
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent와 Operations agent가 Ontology를 근거로 동작합니다. 담당자는 Microsoft Teams에서 Operations agent의 제안을 승인하고, Microsoft 365 Copilot 채팅으로 Data agent에 질문합니다.
    :width: 1000
 
 * **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 17개를 OneLake에 저장합니다.
-* **Microsoft Fabric** — Gold로 Power BI 보고서와 Ontology를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Operations agent가 대응안을 제안합니다.
-* **Microsoft Teams** — 담당자가 Operations agent의 제안을 받고 승인합니다.
+* **Microsoft Fabric** — Gold로 Power BI 보고서와 Ontology를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Operations agent는 대응안을 제안하고, Data agent는 질문에 답합니다.
+* **Microsoft 365** — 담당자가 Teams에서 Operations agent의 제안을 받고 승인합니다. Microsoft 365 Copilot 채팅으로 Data agent에 질문합니다.
 
 의사결정 흐름
 ----------------
@@ -118,7 +118,7 @@ SAP, FPIMS, PVSS에서 추출한 파일 14개를 씁니다. 모두 41,412행입�
 실습 순서
 ------------
 
-전체 약 6시간입니다.
+전체 약 6시간 15분입니다.
 
 * 00\. 시나리오와 실습 순서 — 15분 (이 문서)
 * `01. Databricks 접속과 설정 <01-connect.rst>`_ — Databricks, 30분
@@ -126,7 +126,7 @@ SAP, FPIMS, PVSS에서 추출한 파일 14개를 씁니다. 모두 41,412행입�
 * `03. Bronze와 Silver <03-bronze-silver.rst>`_ — Databricks, 45분
 * `04. Gold 계산과 OneLake 저장 <04-gold-onelake.rst>`_ — Databricks → Fabric, 45분
 * `05. Power BI 보고서 <05-power-bi.rst>`_ — Fabric, 60분
-* `06. Fabric IQ Ontology <06-ontology.rst>`_ — Fabric, 45분
+* `06. Ontology와 Data agent <06-ontology.rst>`_ — Fabric → Microsoft 365, 60분
 * `07. 긴급 오더와 Operations agent <07-emergency-decision.rst>`_ — Databricks → Fabric → Teams, 60분
 * `08. 마무리 <08-finish.rst>`_ — 15분
 
