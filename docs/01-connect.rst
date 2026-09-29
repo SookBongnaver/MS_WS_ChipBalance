@@ -146,6 +146,7 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 * 이 관리 ID를 Unity Catalog service credential ``chipbalance_onelake``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
 * Fabric 작업 영역 ``chipbalance-p001``\ 에는 이 관리 ID를 Contributor로 추가했습니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider``\ 로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.
+* 관리자가 설정한 화면은 `관리자 준비 가이드 <../admin/README.rst>`_\ 의 "2. 관리 ID와 service credential"에 있습니다.
 
 문제가 생기면
 ----------------

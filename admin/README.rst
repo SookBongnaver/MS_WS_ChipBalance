@@ -72,14 +72,28 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
    * Credential name: ``chipbalance_onelake``
    * Access connector ID: Access Connector의 Resource ID (``/subscriptions/…/providers/Microsoft.Databricks/accessConnectors/ac-chipbalance-onelake``)
 
+   **예상 결과:** ``chipbalance_onelake``\ 의 **Overview**\ 에 Credential Type **Managed Identity**, Purpose **SERVICE**\ 와 Access Connector의 Resource ID가 보입니다.
+
+   .. image:: ../assets/screenshots/admin-service-credential.png
+      :alt: Catalog Explorer > Credentials > chipbalance_onelake 화면. Credential Type은 Managed Identity, Purpose는 SERVICE, Connector Id는 ac-chipbalance-onelake Access Connector의 Resource ID입니다.
+      :width: 800
+
 #. 참가자에게 service credential 사용 권한을 줍니다.
 
    .. code-block:: sql
 
       GRANT ACCESS ON SERVICE CREDENTIAL `chipbalance_onelake` TO `p001@contoso.com`;
 
+   credential을 만든 소유자는 GRANT 없이 쓸 수 있습니다. 부여한 권한은 **Permissions** 탭에서 확인합니다.
+
 #. Fabric 작업 영역의 **Manage access**\ 에서 ``ac-chipbalance-onelake``\ 를 검색해 **Contributor**\ 로 추가합니다.
    Access Connector의 관리 ID가 이 이름으로 보입니다.
+
+   **예상 결과:** 목록에 ``ac-chipbalance-onelake`` (Service Principal)가 **Contributor**\ 로 보입니다.
+
+   .. image:: ../assets/screenshots/admin-fabric-access.png
+      :alt: chipbalance-p001 작업 영역의 Manage access 창. MOD Administrator는 Admin, ac-chipbalance-onelake (Service Principal)는 Contributor입니다.
+      :width: 340
 
 * service credential 하나를 모든 참가자가 함께 쓰면, 이 관리 ID가 Contributor로 추가된 모든 작업 영역에 쓸 수 있습니다.
   참가자별로 권한을 나누려면 참가자마다 Access Connector와 service credential을 따로 만듭니다.
