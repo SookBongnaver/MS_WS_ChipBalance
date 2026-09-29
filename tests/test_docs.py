@@ -28,6 +28,10 @@ PENDING_CHAPTERS = {"03-bronze-silver.rst", "04-gold-onelake.rst", "05-power-bi.
                     "06-ontology.rst", "07-emergency-decision.rst", "08-finish.rst"}
 
 FORBIDDEN_WORDS = ["강사 승인", "승인 후", "approved_", "기본 실습", "확장 실습", "리허설", "워크숍"]
+# The material describes only what to do now, never how it used to be.
+HISTORY_PHRASES = ["기존 교재", "이전 교재", "이전 버전", "기존 방식", "이전 방식", "예전", "더 이상", "업로드하지",
+                   "올리지 않", "업로드 대신", "올리는 대신", "바뀌었", "바꿨", "변경되었", "변경됐", "달라졌",
+                   "재설계", "새로 바뀐", "새 방식"]
 
 LINK = re.compile(r"(?<!`)`[^`<>]*<([^<>`]+)>`__?")
 IMAGE = re.compile(r"^[ \t]*\.\.[ \t]+(?:image|figure)[ \t]?::[ \t]*(\S+)", re.MULTILINE)
@@ -105,6 +109,18 @@ class DocumentTests(unittest.TestCase):
             for word in FORBIDDEN_WORDS:
                 with self.subTest(document=rel(path), word=word):
                     self.assertNotIn(word, text)
+
+    def test_no_history_phrases(self):
+        texts = {rel(path): path.read_text(encoding="utf-8")
+                 for path in [*rst_files(), *sorted((ROOT / "admin").glob("*.rst")), ROOT / "assets" / "architecture.svg"]
+                 if path.is_file()}
+        for source in sorted(SOURCES.glob("*.py")):
+            texts[rel(source)] = "\n".join(line for line in source.read_text(encoding="utf-8").splitlines()
+                                           if line.startswith("# MAGIC"))
+        for name, text in texts.items():
+            for phrase in HISTORY_PHRASES:
+                with self.subTest(document=name, phrase=phrase):
+                    self.assertNotIn(phrase, text)
 
 
 class NotebookTests(unittest.TestCase):

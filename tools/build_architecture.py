@@ -132,8 +132,8 @@ def architecture():
     d.text(45, 78, "Azure Databricks에서 정제·계산한 Gold를 Microsoft Fabric에서 활용합니다. "
                    "담당자는 Teams에서 대응안을 승인하고, Copilot 채팅으로 데이터를 질문합니다", 20, 1700)
 
-    steps = [("① 현재 계산", "Databricks 04·05 계산 · Power BI 현황"),
-             ("② 판단 기준", "Databricks 05 · 대응안별 기준 충족 여부"),
+    steps = [("① 현재 계산", "Databricks 05·10 계산 · Power BI 현황"),
+             ("② 판단 기준", "Databricks 10 · 대응안별 기준 충족 여부"),
              ("③ Agent 제안", "Fabric Operations agent → Teams로 제안"),
              ("④ 사람 승인", "Teams에서 Yes/No · 승인 기록 저장")]
     xs = [45, 480, 915, 1350]
@@ -149,21 +149,22 @@ def architecture():
     d.rect(40, 222, 600, 790, GRAY, True)
     d.icon("databricks.svg", 60, 242)
     d.text(122, 248, "Azure Databricks | 데이터 정제·계산", 23, 500, True)
-    d.text(70, 304, "Classic compute · Notebook 01~05 · Spark / Delta\n원천·Bronze·Silver는 Unity Catalog에 저장", 17, 550)
-    d.card(70, 380, 240, 180, "원천 → Bronze", "02 원천 파일 14개 업로드\nSAP · FPIMS · PVSS\n03 원천 그대로 적재", "storage.svg")
+    d.text(70, 304, "Classic compute · Notebook · Spark / Delta\n원천 Volume과 Bronze·Silver·Gold는 Unity Catalog에 저장", 17, 550)
+    d.card(70, 380, 240, 180, "원천 → Bronze", "02 원천 파일 14개 생성\nSAP · FPIMS · PVSS\n03 파일 그대로 적재", "storage.svg")
     d.arrow([(310, 470), (360, 470)])
     d.text(316, 437, "정제", 15, 40)
-    d.card(360, 380, 260, 180, "Silver / 정제", "날짜·단위 형식 맞춤 · 중복 제거\n수량 누락·센서 이상값 격리\n정제 테이블 + 격리 테이블", "storage.svg")
+    d.card(360, 380, 260, 180, "Silver / 정제", "04 날짜·단위 형식 맞춤\n중복·공란·미등록 코드 격리\n센서 이상값 격리", "storage.svg")
     d.arrow([(490, 560), (490, 630)])
     d.text(505, 582, "업무 계산", 16, 110)
     d.card(360, 630, 260, 250, "Gold / 계산",
-           "04 실제 소요량·시작 재고\n04 4분기 날짜별 재고\n05 긴급 오더·대응안 4개\nGold 17개 OneLake 저장",
+           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n10 긴급 오더·대응안 4개\nGold를 OneLake에 저장",
            "databricks.svg")
-    d.text(75, 632, "① 현재 계산 · ② 판단 기준", 19, 270, True)
-    d.text(75, 674, "소요량 = 계획 × 실제 소요량 기준\n마감 = 전일 + 입고 ± 이송 − 소요", 16, 270)
-    d.text(75, 748, "판단 기준 (대응안마다)", 17, 270, True)
-    d.text(75, 780, "· 모든 Bunker 매일 안전재고 이상\n· 입고 후 재고 ≤ Bunker 용량\n· 모든 판매오더 납기 준수\n· 이송량 ≤ 경로 하루 한도", 16, 270)
-    d.text(70, 930, "Bronze·Silver: Unity Catalog lab_factory.chipbalance_p001\nOneLake 저장: 관리 ID (Unity Catalog service credential)", 16, 550)
+    d.card(70, 630, 240, 130, "Genie", "06 테이블·열 설명 작성\n자연어 질문 → SQL", "databricks.svg")
+    d.arrow([(360, 695), (310, 695)])
+    d.text(75, 782, "① 현재 계산", 18, 270, True)
+    d.text(75, 812, "소요량 = 계획 × 실제 소요량\n마감 = 전일 + 입고 ± 이송 − 소요", 16, 270)
+    d.text(75, 870, "② 판단 기준 (대응안마다)", 18, 270, True)
+    d.text(75, 900, "· 모든 Bunker 매일 안전재고 이상\n· 입고 후 재고 ≤ Bunker 용량\n· 모든 판매오더 납기 준수\n· 이송량 ≤ 경로 하루 한도", 16, 270)
 
     # Microsoft Fabric
     d.rect(720, 222, 690, 790, GRAY, True)
@@ -171,17 +172,17 @@ def architecture():
     d.text(802, 248, "Microsoft Fabric | 현황 파악·대응안 제안", 23, 590, True)
     d.text(750, 304, "Gold로 현황을 파악하고, Agent가 대응안을 제안하고 질문에 답합니다", 17, 640)
     d.arrow([(620, 700), (680, 700), (680, 460), (750, 460)])
-    d.text(646, 708, "직접 저장", 15, 70)
+    d.text(644, 712, "관리 ID\n저장", 15, 70)
     d.card(750, 360, 270, 200, "OneLake Gold",
-           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블 17개\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
+           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
            "lakehouse.svg")
-    d.card(750, 590, 270, 140, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 관계", "ontology.svg")
-    d.card(750, 800, 270, 180, "Notebook · 승인 기록", "승인 후 자동 실행\n승인한 대응안 저장\ndbo.chip_decision_log", "notebook.svg")
+    d.card(750, 590, 270, 140, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안", "ontology.svg")
+    d.card(750, 800, 270, 180, "Notebook · 승인 기록", "승인하면 실행\n승인한 대응안 저장\ndbo.chip_decision_log", "notebook.svg")
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
-    d.card(1060, 470, 330, 135, "Power BI 보고서", "① 원료 수급 · 긴급 오더 비교\n대응안 검토", "power-bi.svg")
+    d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 오더 비교\n대응안 검토", "power-bi.svg")
     d.card(1060, 630, 330, 135, "Data agent", "Ontology를 근거로 질문에 답변\n읽기 전용", "data-agent.svg")
-    d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology를 5분마다 확인\n위험 이벤트에 맞는 대응안을 제안",
+    d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology를 5분마다 확인\n위험 이벤트에 맞는 대응안 제안",
            "operations-agent.svg")
     d.arrow([(1020, 395), (1060, 395)])
     d.arrow([(885, 560), (885, 590)])
@@ -208,7 +209,7 @@ def architecture():
     # Operational extension
     d.rect(40, 1045, 1720, 250, GRAY, True)
     d.text(65, 1058, "운영에 적용할 때 연결", 20, 400, True)
-    d.card(70, 1105, 540, 160, "원천 시스템 연계", "SAP · FPIMS · PVSS 정기 추출\n파일 업로드 대신 Bronze로 자동 적재", dashed=True)
+    d.card(70, 1105, 540, 160, "원천 시스템 연계", "SAP · FPIMS · PVSS 추출 파일을\n정해진 시각에 Volume raw로 전송", dashed=True)
     d.rect(700, 1090, 1045, 190, GRAY, True)
     d.text(720, 1100, "Power Platform", 18, 300, True)
     d.card(720, 1140, 480, 125, "Power Apps", "승인 이력 조회 화면 (선택)\n승인은 Teams에서 끝나며 앱이 없어도 됩니다",
@@ -216,7 +217,7 @@ def architecture():
     d.card(1240, 1140, 485, 125, "Power Automate", "승인한 조치를 업무 시스템에 연결\n예: 구매 요청 작성 · 공급사 메일",
            "power-automate.svg", dashed=True)
     d.arrow([(340, 1105), (340, 1014)], True, GRAY)
-    d.text(352, 1062, "Bronze로 적재", 15, 150)
+    d.text(352, 1062, "03 Bronze로 적재", 15, 150)
     d.arrow([(885, 980), (885, 1140)], True, GRAY)
     d.text(897, 1104, "승인 이력", 15, 120)
     d.arrow([(1300, 930), (1300, 1140)], True, GRAY)
