@@ -6,21 +6,22 @@
 이번 Workshop에서 할 일
 --------------------------
 
-* Azure Databricks에서 교육용 원본 데이터를 만들고 Bronze → Silver → Gold 순서로 정리·계산합니다.
-* 계산 결과(Gold)를 Microsoft Fabric OneLake의 Lakehouse에 저장합니다.
-* Fabric에서 SQL, Power BI 보고서, Fabric IQ Ontology로 같은 결과를 확인합니다.
-* 긴급 오더가 들어왔을 때 대응안을 정하는 의사결정 흐름을 따라 해 봅니다.
+* Azure Databricks에서 교육용 원본 데이터를 만들고, Bronze → Silver로 정제한 뒤 날짜별 원료 재고를 계산해 Gold를 만듭니다.
+* Gold를 Microsoft Fabric OneLake의 Lakehouse에 저장합니다.
+* Fabric에서 Gold로 Power BI 보고서와 Fabric IQ Ontology를 만들어 원료 수급 현황과 부족 지점을 파악합니다.
+* 긴급 오더가 들어오면 Fabric Data agent가 Gold를 근거로 대응안을 제안하고, 담당자가 확인해 결정합니다.
 
 문제 상황
 ------------
 
-필름 생산 담당자가 9월 생산계획대로 생산할 때 원료 Chip이 충분한지 확인하려고 합니다.
-그런데 9월 5일 FILM-A 생산량을 100kg에서 120kg으로 늘려 달라는 긴급 오더가 들어왔습니다.
+필름 생산 담당자는 9월 생산계획에 맞춰 원료 Chip이 날짜별로 충분한지 관리합니다.
+9월 5일 FILM-A 생산량을 100kg에서 120kg으로 늘리는 긴급 오더가 접수되었습니다.
+담당자는 원료가 언제부터 부족해지는지 다시 계산하고, 대응안을 정해야 합니다.
 
-이번 Workshop에서 답할 질문은 세 가지입니다.
+Workshop에서 확인할 질문은 세 가지입니다.
 
-#. 기준 계획대로 생산하면 Chip 재고가 언제 안전재고 아래로 내려가는가?
-#. 긴급 오더를 받으면 부족해지는 날과 추가로 확보할 양이 어떻게 달라지는가?
+#. 기준 계획대로 생산하면 Chip 재고는 언제 안전재고 아래로 내려가는가?
+#. 긴급 오더를 반영하면 부족해지는 날과 추가로 확보할 양은 어떻게 달라지는가?
 #. 어떤 대응안이 판단 기준을 만족하는가?
 
 데이터와 관계
@@ -91,17 +92,19 @@
           │  Gold 테이블 9개를 OneLake에 직접 저장
           ▼
    [Microsoft Fabric] Lakehouse lh_factory_p001 / gold 스키마
-          ├─▶ SQL analytics endpoint: 결과 확인
-          ├─▶ Power BI (Direct Lake): 보고서
-          └─▶ Fabric IQ Ontology: 관계 탐색과 질문
+          ├─▶ SQL analytics endpoint: 저장 결과 확인
+          ├─▶ Semantic model → Power BI 보고서: 원료 수급 현황
+          ├─▶ Fabric IQ Ontology: 원료·Bunker·생산계획·대응안 관계 탐색
+          └─▶ Fabric Data agent: 대응안 제안 (읽기 전용)
 
-계산과 저장은 Databricks가 합니다. Fabric은 저장된 Gold 테이블을 읽어서 사용합니다.
+정제와 계산은 Databricks가 합니다. Fabric은 저장된 Gold를 읽어 현황 파악과 의사결정에 사용합니다.
 Bronze·Silver 테이블은 Databricks의 Unity Catalog(``lab_factory.lab_p001``)에 남습니다.
+전체 구성은 `구성도 <../assets/architecture.png>`_\ 에서 볼 수 있습니다.
 
 의사결정 흐름
 ----------------
 
-긴급 오더 대응은 네 단계로 진행합니다.
+긴급 오더에는 네 단계로 대응합니다.
 
 .. list-table::
    :header-rows: 1

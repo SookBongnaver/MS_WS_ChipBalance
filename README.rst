@@ -1,20 +1,23 @@
 Workshop: 원료 Chip Balance와 긴급 오더 대응
 ============================================================
 
-필름 공장의 원료 Chip 재고를 예로, 생산계획대로 생산할 때 Chip이 언제 부족해지는지 계산하는 hands-on Workshop입니다.
-Azure Databricks에서 데이터를 만들고 계산해 Microsoft Fabric OneLake에 저장하고,
-Fabric에서 Power BI 보고서와 Fabric IQ Ontology로 결과를 활용합니다.
-마지막으로 긴급 오더가 들어왔을 때 대응안을 정하는 의사결정 흐름을 직접 따라 해 봅니다.
+필름 공장의 원료 Chip 재고를 주제로 한 hands-on Workshop입니다.
 
-.. code-block:: text
+* **Azure Databricks:** 원본 데이터를 Bronze → Silver로 정제하고, 날짜별 원료 재고를 계산해 Gold를 만듭니다. Gold는 Microsoft Fabric OneLake에 저장합니다.
+* **Microsoft Fabric:** Gold로 Power BI 보고서와 Fabric IQ Ontology를 만들어 원료 수급 현황과 부족 지점을 파악합니다.
+* **의사결정:** 긴급 오더가 들어오면 Fabric Data agent가 Gold를 근거로 대응안을 제안하고, 담당자가 확인해 결정합니다.
 
-   [Azure Databricks]
-     02 원본 데이터 → 03 Bronze·Silver → 04·05 Gold 계산
-           │
-           │  Gold 테이블 9개를 OneLake에 직접 저장
-           ▼
-   [Microsoft Fabric]
-     Lakehouse gold → SQL 확인 → Power BI → Ontology → 긴급 오더 의사결정
+전체 구성
+------------
+
+.. image:: assets/architecture.svg
+   :alt: 전체 구성. Azure Databricks가 원본을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology, Data agent를 만들고 담당자가 결정합니다. 업무에 적용할 때는 Operations agent, Power Apps, Power Automate를 연결합니다.
+   :width: 1000
+
+`그림 크게 보기 <assets/architecture.png>`_
+
+* 실선은 이 Workshop에서 실제로 만들고 실행하는 흐름입니다.
+* 점선의 Operations agent, Power Apps, Power Automate는 업무에 적용할 때 연결하는 부분으로, 이 Workshop에서는 만들지 않습니다.
 
 실습 순서
 ------------
@@ -26,7 +29,7 @@ Fabric에서 Power BI 보고서와 Fabric IQ Ontology로 결과를 활용합니�
 * `04. Gold 계산과 OneLake 저장 <docs/04-gold-onelake.rst>`_ — 날짜별 원료 재고를 계산해 Fabric Lakehouse에 저장하고 확인합니다.
 * `05. Power BI 보고서 <docs/05-power-bi.rst>`_ — Gold 테이블로 원료 재고 보고서를 만듭니다. (작성 중)
 * `06. Fabric IQ Ontology <docs/06-ontology.rst>`_ — 원료·Bunker·생산계획의 관계를 Ontology로 만들고 탐색합니다. (작성 중)
-* `07. 긴급 오더와 의사결정 <docs/07-emergency-decision.rst>`_ — 긴급 오더를 계산해 비교하고, Agent 제안과 사람 승인으로 대응안을 정합니다. (작성 중)
+* `07. 긴급 오더와 의사결정 <docs/07-emergency-decision.rst>`_ — 긴급 오더를 반영해 다시 계산하고, Data agent 제안을 참고해 담당자가 대응안을 결정합니다. (작성 중)
 * `08. 마무리 <docs/08-finish.rst>`_ — 결과를 정리하고 Workshop을 마칩니다. (작성 중)
 
 참가자 파일
@@ -54,3 +57,4 @@ Fabric에서 Power BI 보고서와 Fabric IQ Ontology로 결과를 활용합니�
 -----------
 
 * `관리자 준비 가이드 <admin/README.rst>`_ — 환경 준비와 종료 후 정리 방법입니다. 참가자는 보지 않아도 됩니다.
+* `구성도 아이콘 출처 <assets/icon-attribution.rst>`_ — 구성도에 쓴 공식 아이콘과 그림을 다시 만드는 방법입니다.
