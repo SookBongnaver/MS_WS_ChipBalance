@@ -17,7 +17,7 @@ Workshop: 원료 칩 Balance와 긴급 수주 대응
 
 `그림 크게 보기 <assets/architecture.png>`_
 
-09장은 Ontology agent로, 11장은 Eventhouse ``eh_chipbalance``\ 를 거쳐 구성도와 같은 흐름을 실습합니다.
+09장은 Ontology agent로, 11장은 Eventhouse ``eh_chipbalance``\ 를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 Work IQ(Outlook 메일·Teams)와 Teams Copilot에서 Data agent와 대화하는 연결은 운영에 적용할 때 붙입니다.
 
 실선은 실습에서 만들고 실행하는 흐름입니다. 점선의 원천 시스템 연계, Power Apps, Power Automate는 운영에 적용할 때 연결합니다. 승인은 Teams에서 끝나므로 Power Apps가 없어도 됩니다.
 

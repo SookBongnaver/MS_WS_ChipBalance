@@ -194,22 +194,28 @@ def architecture():
     d.text(1024, 912, "Yes", 14, 34)
 
     # Microsoft Foundry
-    d.rect(1450, 222, 310, 430, GRAY, True)
+    d.rect(1450, 222, 310, 338, GRAY, True)
     d.icon("foundry.svg", 1470, 242)
     d.text(1532, 248, "Microsoft Foundry", 23, 220, True)
     d.text(1470, 304, "담당자가 승인하기 전에\n대응안의 근거를 묻습니다", 17, 280)
-    d.card(1470, 440, 270, 190, "Foundry agent", "12 fa-chipbalance\nFabric IQ 도구로\nOntology를 근거로 답변",
+    d.card(1470, 370, 270, 170, "Foundry agent", "12 fa-chipbalance\nFabric IQ 도구로\nOntology를 근거로 답변",
            "foundry-agent.svg")
-    d.arrow([(1470, 617), (1020, 617)])
-    d.text(1400, 590, "Fabric IQ", 14, 70)
+    d.arrow([(1470, 500), (1430, 500), (1430, 617), (1020, 617)])
+    d.text(1396, 622, "Fabric IQ", 14, 70)
 
     # Microsoft 365
-    d.rect(1450, 672, 310, 340, GRAY, True)
-    d.text(1470, 690, "Microsoft 365", 23, 270, True)
-    d.text(1470, 730, "담당자가 Teams에서 대응안 제안을\n받고 승인합니다", 16, 280)
+    d.rect(1450, 580, 310, 432, GRAY, True)
+    d.text(1470, 596, "Microsoft 365", 23, 270, True)
+    d.text(1470, 634, "담당자의 업무 공간", 16, 280)
+    d.card(1470, 670, 270, 100, "Outlook 메일", "공급사·고객 메일", "outlook.svg", dashed=True)
     d.card(1470, 790, 270, 180, "Microsoft Teams", "④ 채팅으로 제안 수신\n보고서 수치와 대조 후\nYes / No 승인", "teams.svg")
+    d.arrow([(1640, 540), (1640, 670)], True, GRAY)
+    d.text(1650, 585, "Work IQ", 14, 80)
+    d.arrow([(1740, 455), (1752, 455), (1752, 880), (1740, 880)], True, GRAY)
+    d.arrow([(1470, 800), (1430, 800), (1430, 700), (1390, 700)], True, GRAY)
+    d.text(1396, 676, "Copilot", 14, 60)
     d.arrow([(1390, 830), (1470, 830)])
-    d.text(1414, 798, "제안", 15, 34)
+    d.text(1414, 808, "제안", 15, 34)
     d.arrow([(1470, 905), (1390, 905)])
     d.text(1414, 912, "승인", 15, 34)
 

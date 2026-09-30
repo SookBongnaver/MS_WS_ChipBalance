@@ -36,63 +36,46 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 예상 비용
 ------------
 
-Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준입니다. 계약 할인은 반영하지 않았고, Microsoft 365·Power BI 라이선스 비용은 뺐습니다.
-
-**Microsoft Fabric** — 참가자마다 F16 용량 하나를 하루(24시간) 켠다고 보고 계산합니다.
-F16은 16 CU × CU·시간당 $0.19 = 시간당 $3.04, 하루 $72.96입니다.
+실습 하루(약 7시간) 기준입니다. 참가자는 최대 10명이고, 강사 1명이 참가자 5명을 맡습니다.
+Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이며, 계약 할인과 Microsoft 365·Power BI 라이선스 비용은 뺐습니다.
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 35 35
-
-   * - 참가자 수
-     - F16 하루 (24시간)
-     - F16 8시간
-   * - 1명
-     - $72.96
-     - $24.32
-   * - 10명
-     - $729.60
-     - $243.20
-   * - 20명
-     - $1,459.20
-     - $486.40
-   * - 30명
-     - $2,188.80
-     - $729.60
-
-실습이 끝나면 바로 용량을 일시 중지합니다. 일시 중지한 동안에는 용량 비용이 나오지 않고 OneLake 저장 비용(GB·월당 약 $0.02)만 나옵니다.
-한국 중부(Korea Central)는 CU·시간당 $0.21이라 F16 하루가 $80.64입니다.
-
-**Fabric 밖의 Azure 리소스** — 참가자 1명 환경을 1주일 운영한 실제 비용입니다(Azure Cost Management).
-
-.. list-table::
-   :header-rows: 1
-   :widths: 55 20 25
+   :widths: 40 30 15 15
 
    * - 항목
-     - 1주일
-     - 참가자 수가 늘면
-   * - Azure Databricks (Classic Compute DBU, SQL warehouse ``chipbalance-pro``)
-     - $24.48
-     - Compute는 참가자 수만큼
-   * - Databricks Compute VM·디스크 (관리 리소스 그룹)
-     - $7.50
-     - 참가자 수만큼
-   * - NAT Gateway, Virtual Network
-     - $10.98
-     - 같음
-   * - Microsoft Defender for Cloud
-     - $5.00
-     - 구독 설정에 따름
-   * - Storage (Unity Catalog 저장소)
-     - $0.09
-     - 데이터 양만큼
-   * - 합계
-     - $48.05
+     - 계산
+     - 참가자 5명 (강사 1명)
+     - 참가자 10명 (강사 2명)
+   * - Microsoft Fabric 용량
+     - 참가자마다 F16 하루(24시간): 16 CU × $0.19 × 24 = $72.96
+     - $364.80
+     - $729.60
+   * - Databricks Classic Compute (DBU, VM, 디스크)
+     - 참가자 1명이 02~07장을 실행한 날의 실제 비용 약 $20
+     - $100
+     - $200
+   * - Databricks SQL warehouse ``chipbalance-pro``
+     - 07장 Genie에서만 켜짐, 2X-Small Pro, 15분 자동 종료. 1명 실행한 날 약 $3.3
+     - $5
+     - $10
+   * - Microsoft Foundry (``gpt-5`` 토큰)
+     - 12장 질문 몇 개, 참가자당 $1 미만
+     - $5
+     - $10
+   * - Storage (Unity Catalog, OneLake)
+     - GB·월당 약 $0.02
+     - $1 미만
+     - $1 미만
+   * - **하루 합계**
      -
+     - **약 $475**
+     - **약 $950**
 
-**Microsoft Foundry** — 12장 에이전트는 질문할 때만 ``gpt-5`` 토큰 비용이 나옵니다. 질문 몇 개면 참가자당 $1 미만입니다(예상). App Insights는 만들지 않습니다.
+* Fabric 용량이 합계의 약 77%입니다. 실습이 끝나면 바로 일시 중지합니다. 일시 중지한 동안에는 용량 비용이 나오지 않습니다. 8시간만 켜면 F16 한 개가 $24.32이므로 참가자 10명의 하루 합계는 약 $460입니다.
+* 강사 환경은 참가자 환경 하나를 함께 보는 것으로 보고 따로 더하지 않았습니다. 강사도 용량을 따로 쓰면 강사 1명당 약 $95를 더합니다.
+* 한국 중부(Korea Central)는 CU·시간당 $0.21이라 F16 하루가 $80.64입니다.
+* Databricks 비용은 02~07장을 여러 번 다시 실행한 날의 값이라 넉넉하게 잡은 값입니다. Microsoft Defender for Cloud처럼 구독 설정에 따라 붙는 비용은 넣지 않았습니다.
 
 1. Unity Catalog와 Compute
 -----------------------------
