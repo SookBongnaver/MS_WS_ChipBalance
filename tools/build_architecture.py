@@ -128,7 +128,7 @@ class Diagram:
 
 def architecture():
     d = Diagram("architecture", 1800, 1360)
-    d.text(45, 26, "원료 칩 Balance와 긴급 수주 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
+    d.text(45, 26, "원료 칩 수급과 긴급 수주 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
     d.text(45, 78, "Databricks에서 정제·계산한 Gold를 Fabric에서 활용합니다. "
                    "Data agent와 Foundry agent는 Ontology를 근거로 답하고, Operations agent는 Ontology를 감시해 Teams로 대응안을 제안합니다", 20, 1700)
 

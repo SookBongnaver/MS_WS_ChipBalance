@@ -88,7 +88,7 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 
    CREATE CATALOG IF NOT EXISTS lab_factory;
    CREATE SCHEMA IF NOT EXISTS lab_factory.chipbalance_p001
-     COMMENT '원료 Chip Balance Workshop 참가자 p001: 원천 파일 Volume raw와 Bronze·Silver·Gold 테이블';
+     COMMENT '원료 칩 수급 Workshop 참가자 p001: 원천 파일 Volume raw와 Bronze·Silver·Gold 테이블';
    CREATE VOLUME IF NOT EXISTS lab_factory.chipbalance_p001.raw;
 
    GRANT USE CATALOG ON CATALOG lab_factory TO `p001@contoso.com`;
