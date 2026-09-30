@@ -1,11 +1,11 @@
 08. Ontology
 =============
 
-`목차 <../README.rst>`_ | 이전: `07. Unity Catalog 설명과 Genie <07-genie.rst>`_ | 다음: `09. Data agent <09-data-agent.rst>`_
+`목차 <../README.rst>`_ | 이전: `07. Unity Catalog 설명과 Genie <07-genie.rst>`_ | 다음: `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_
 
 Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관계를 정의하고, 각 개념을 Lakehouse 테이블에 연결(데이터 바인딩)한 모델입니다.
 이 장에서는 Ontology agent에 프롬프트를 주어 Gold 테이블로 엔터티 타입 17개와 관계 26개를 만들고, 설명·키·바인딩·관계를 점검합니다.
-09장의 Data agent와 11장의 Operations agent가 이 Ontology로 질문에 답하고 상황을 감시합니다.
+09장의 Ontology agent와 11장의 Operations agent가 이 Ontology로 질문에 답하고 상황을 감시합니다.
 
 .. list-table::
    :header-rows: 1
@@ -172,7 +172,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 4. 엔터티 타입과 관계 점검
 -----------------------------
 
-09장의 Data agent와 11장의 Operations agent는 엔터티 타입과 관계의 설명·동의어를 읽고 질문의 단어를 엔터티에 연결합니다. 키, 데이터 바인딩, 설명이 제대로 들어갔는지 확인합니다.
+09장의 Ontology agent와 11장의 Operations agent는 엔터티 타입과 관계의 설명·동의어를 읽고 질문의 단어를 엔터티에 연결합니다. 키, 데이터 바인딩, 설명이 제대로 들어갔는지 확인합니다.
 
 #. 오른쪽 위 **X**\ 를 눌러 에이전트 창을 닫습니다.
 #. 왼쪽 **Explorer**\ 에서 **Bunker**\ 를 누르고, 리본의 **View Entity Type details**\ 를 누릅니다. 안내 풍선이 나오면 **X**\ 로 닫습니다.
@@ -206,7 +206,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 5. Graph 만들기
 ------------------
 
-Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여러 단계의 관계를 따라가며 조회하게 합니다. 09장의 Data agent가 이 Graph로 질문에 답합니다.
+Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여러 단계의 관계를 따라가며 조회하게 합니다. 리본의 **Explore graph**\ 에서 Graph를 조회할 수 있습니다.
 
 #. 리본의 **Manage graph**\ 를 누릅니다. **Choose what to project** 화면이 열립니다.
 #. **Entities** 표에서 **Line** 왼쪽 **>**\ 를 눌러 펼칩니다.
@@ -239,4 +239,4 @@ Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여�
 다음 단계
 ------------
 
-`09. Data agent <09-data-agent.rst>`_
+`09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_

@@ -130,7 +130,7 @@ def architecture():
     d = Diagram("architecture", 1800, 1360)
     d.text(45, 26, "원료 Chip Balance와 긴급 오더 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
     d.text(45, 78, "Azure Databricks에서 정제·계산한 Gold를 Microsoft Fabric에서 활용합니다. "
-                   "담당자는 Teams에서 대응안을 승인하고, Copilot 채팅으로 데이터를 질문합니다", 20, 1700)
+                   "Agent가 Ontology를 근거로 질문에 답하고 대응안을 제안하면, 담당자가 Teams에서 승인합니다", 20, 1700)
 
     steps = [("① 현재 계산", "Databricks 05·06 계산 · Power BI 현황"),
              ("② 판단 기준", "Databricks 06 · 대응안별 기준 충족 여부"),
@@ -181,7 +181,7 @@ def architecture():
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
     d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 오더 비교\n대응안 검토", "power-bi.svg")
-    d.card(1060, 630, 330, 135, "Data agent", "Ontology를 근거로 질문에 답변\n읽기 전용", "data-agent.svg")
+    d.card(1060, 630, 330, 135, "Ontology agent", "09 Ontology를 근거로 질문에 답변\nPlan 모드는 조회만", "copilot.svg")
     d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology를 5분마다 확인\n위험 이벤트에 맞는 대응안 제안",
            "operations-agent.svg")
     d.arrow([(1020, 395), (1060, 395)])
@@ -194,13 +194,8 @@ def architecture():
     # Microsoft 365
     d.rect(1450, 222, 310, 790, GRAY, True)
     d.text(1470, 248, "Microsoft 365", 23, 270, True)
-    d.text(1470, 304, "담당자가 Teams에서 승인하고\nCopilot 채팅으로 질문합니다", 17, 280)
-    d.card(1470, 630, 270, 135, "Copilot 채팅", "Microsoft 365 Copilot에서\nData agent에 질문", "copilot.svg")
+    d.text(1470, 304, "담당자가 Teams에서\n대응안 제안을 받고 승인합니다", 17, 280)
     d.card(1470, 790, 270, 180, "Microsoft Teams", "④ 채팅으로 제안 수신\n보고서 수치와 대조 후\nYes / No 승인", "teams.svg")
-    d.arrow([(1470, 675), (1390, 675)])
-    d.text(1414, 643, "질문", 15, 34)
-    d.arrow([(1390, 725), (1470, 725)])
-    d.text(1414, 733, "답변", 15, 34)
     d.arrow([(1390, 830), (1470, 830)])
     d.text(1414, 798, "제안", 15, 34)
     d.arrow([(1470, 905), (1390, 905)])

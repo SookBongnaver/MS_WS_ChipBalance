@@ -138,7 +138,7 @@ Genie Code의 답은 매번 조금씩 다를 수 있습니다. 설명이 모두 
      - 질문
      - 정답 (Notebook **4. Genie 질문의 정답**)
    * - Q1
-     - 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어?
+     - 긴급 오더를 반영하지 않은 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어?
      - 없음
    * - Q2
      - 긴급 오더를 반영하면 어느 Bunker가 언제부터 안전재고 아래로 내려가고, 얼마나 부족해?
@@ -183,7 +183,7 @@ Q6은 판단 기준 C1~C4 충족 여부를 표로 보여 주고 추천안을 답
 
 나머지 답 화면: `Q1 <../assets/screenshots/d07-genie-q1.png>`_ · `Q3 <../assets/screenshots/d07-genie-q3.png>`_ · `Q5 <../assets/screenshots/d07-genie-q5.png>`_
 
-같은 6개 질문을 09장에서 Fabric Data agent에도 합니다.
+같은 6개 질문을 09장에서 Fabric의 Ontology agent에도 합니다.
 
 문제가 생기면
 ----------------

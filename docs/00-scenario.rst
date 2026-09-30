@@ -101,12 +101,12 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 --------------
 
 .. image:: ../assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent와 Operations agent가 Ontology를 근거로 동작합니다. 담당자는 Microsoft Teams에서 Operations agent의 제안을 승인하고, Microsoft 365 Copilot 채팅으로 Data agent에 질문합니다.
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent와 Operations agent가 Ontology를 근거로 동작합니다. 담당자는 Microsoft Teams에서 Operations agent의 제안을 받고 승인합니다.
    :width: 1000
 
 * **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다.
-* **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Operations agent는 대응안을 제안하고, Data agent는 질문에 답합니다.
-* **Microsoft 365** — 담당자가 Teams에서 Operations agent의 제안을 받고 승인합니다. Microsoft 365 Copilot 채팅으로 Data agent에 질문합니다.
+* **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 대응안을 제안합니다.
+* **Microsoft 365** — 담당자가 Teams에서 Operations agent의 제안을 받고 승인합니다.
 
 의사결정 흐름
 ----------------
@@ -130,7 +130,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 * `06. 긴급 오더와 대응안 <06-emergency-order.rst>`_ — Databricks → Fabric, 30분
 * `07. Unity Catalog 설명과 Genie <07-genie.rst>`_ — Databricks, 40분
 * `08. Ontology <08-ontology.rst>`_ — Fabric, 45분
-* `09. Data agent <09-data-agent.rst>`_ — Fabric → Microsoft 365, 30분
+* `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_ — Fabric, 30분
 * `10. Power BI 보고서 <10-power-bi.rst>`_ — Fabric, 45분
 * `11. Operations agent <11-operations-agent.rst>`_ — Fabric → Teams, 45분
 * `12. 마무리 <12-finish.rst>`_ — 10분

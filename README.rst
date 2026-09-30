@@ -4,14 +4,14 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 필름 공장의 원료 Chip 재고와 긴급 오더 대응을 주제로 한 hands-on Workshop입니다.
 
 * **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 관리 ID로 Microsoft Fabric OneLake에 저장합니다. Genie Code로 Unity Catalog에 테이블·열 설명을 넣고, Genie에 한국어로 질문합니다.
-* **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Data agent가 Ontology를 근거로 질문에 답합니다.
+* **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent가 Ontology를 근거로 질문에 답합니다.
 * **의사결정:** Fabric IQ Operations agent가 Ontology를 확인해 대응안을 Microsoft Teams로 제안하고, 담당자가 Teams에서 승인합니다.
 
 전체 구성
 ------------
 
 .. image:: assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent와 Operations agent가 Ontology를 근거로 동작합니다. 담당자는 Microsoft Teams에서 Operations agent의 제안을 승인하고, Microsoft 365 Copilot 채팅으로 Data agent에 질문합니다.
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent와 Operations agent가 Ontology를 근거로 동작합니다. 담당자는 Microsoft Teams에서 Operations agent의 제안을 받고 승인합니다.
    :width: 1000
 
 `그림 크게 보기 <assets/architecture.png>`_
@@ -30,7 +30,7 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 * `06. 긴급 오더와 대응안 <docs/06-emergency-order.rst>`_ — 긴급 오더를 반영하고, 대응안 4개를 판단 기준으로 확인해 추천안을 정합니다.
 * `07. Unity Catalog 설명과 Genie <docs/07-genie.rst>`_ — Genie Code로 테이블·열 설명을 넣고, Genie에 한국어로 질문해 정답과 비교합니다.
 * `08. Ontology <docs/08-ontology.rst>`_ — Ontology agent 프롬프트로 라인·Bunker·원료·생산계획의 관계를 만들고 점검한 뒤 Graph를 만듭니다.
-* `09. Data agent <docs/09-data-agent.rst>`_ — Ontology를 근거로 답하는 Data agent를 만들고 답을 검증합니다. (작성 중)
+* `09. Ontology agent에 질문하기 <docs/09-ontology-agent.rst>`_ — 업무 규칙을 Ontology 설명에 넣고, Genie와 같은 질문을 Ontology agent에 해 정답과 비교합니다.
 * `10. Power BI 보고서 <docs/10-power-bi.rst>`_ — Semantic model과 원료 수급 보고서를 만듭니다. (작성 중)
 * `11. Operations agent <docs/11-operations-agent.rst>`_ — Operations agent가 대응안을 Teams로 제안하고, 승인하면 Notebook이 승인 기록을 남깁니다. (작성 중)
 * `12. 마무리 <docs/12-finish.rst>`_ — 결과를 정리하고 Workshop을 마칩니다. (작성 중)

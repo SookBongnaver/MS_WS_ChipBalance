@@ -137,7 +137,7 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
    * - Users can create Ontology items
      - Fabric IQ Ontology
    * - Users can use Copilot, AI Agents and other AI experiences powered by Azure OpenAI
-     - Operations agent, Data agent
+     - Ontology agent, Operations agent
    * - Data sent to Azure OpenAI can be processed / stored outside your capacity's geographic region
      - 용량이 미국·EU 밖에 있을 때 Operations agent 사용
 

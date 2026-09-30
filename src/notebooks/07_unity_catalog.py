@@ -50,11 +50,11 @@ display(spark.sql("DESCRIBE TABLE gold_fact_balance"))
 # MAGIC %md
 # MAGIC ## 4. Genie 질문의 정답
 # MAGIC 07장에서 Genie에 물어볼 질문 6개의 정답을 Gold 테이블로 계산합니다. Genie 답과 이 표를 비교합니다.
-# MAGIC 같은 질문을 09장에서 Fabric Data agent에도 합니다.
+# MAGIC 같은 질문을 09장에서 Fabric의 Ontology agent에도 합니다.
 # MAGIC
 # MAGIC | 번호 | 질문 |
 # MAGIC |---|---|
-# MAGIC | Q1 | 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어? |
+# MAGIC | Q1 | 긴급 오더를 반영하지 않은 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어? |
 # MAGIC | Q2 | 긴급 오더를 반영하면 어느 Bunker가 언제부터 안전재고 아래로 내려가고, 얼마나 부족해? |
 # MAGIC | Q3 | 긴급 오더 때문에 미뤄진 생산의 판매오더는 납기를 지켜? |
 # MAGIC | Q4 | BNK-L3-2로 PET-SD를 보내 줄 수 있는 Bunker는 어디야? 이송 대응안대로 보내면 보내는 Bunker의 재고는 괜찮아? |
@@ -105,7 +105,7 @@ q6 = spark.sql("SELECT option_id, option_name, recommendation_rank, added_cost_k
 
 kg = lambda v: f"{v:,} kg"
 answers = [
-    ("Q1", "현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어?",
+    ("Q1", "긴급 오더를 반영하지 않은 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어?",
      "없음" if q1.bunkers == 0 else f"{q1.bunkers}개", f"{q1.total}개 Bunker 중 {q1.bunkers}개"),
     ("Q2", "긴급 오더를 반영하면 어느 Bunker가 언제부터 안전재고 아래로 내려가고, 얼마나 부족해?",
      ", ".join(r.bunker_id for r in q2),

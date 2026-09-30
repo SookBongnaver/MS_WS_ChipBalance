@@ -41,8 +41,6 @@ Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문�
      - Fabric ``semantic_model_64_item.svg``
    * - ``power-bi.svg``
      - Fabric ``power_bi_48_color.svg``
-   * - ``data-agent.svg``
-     - Fabric ``data_agent_64_item.svg``
    * - ``operations-agent.svg``
      - Fabric ``operations_agent_64_item.svg``
    * - ``ontology.svg``
