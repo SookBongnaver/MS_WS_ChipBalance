@@ -119,7 +119,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 실습 순서
 ------------
 
-전체 약 6시간 10분입니다.
+전체 약 6시간 50분입니다.
 
 * 00\. 시나리오와 실습 순서 — 15분 (이 문서)
 * `01. Databricks 접속과 설정 <01-connect.rst>`_ — Databricks, 20분
@@ -133,7 +133,8 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 * `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_ — Fabric, 30분
 * `10. Power BI 보고서 <10-power-bi.rst>`_ — Fabric, 45분
 * `11. Operations agent <11-operations-agent.rst>`_ — Fabric → Teams, 45분
-* `12. 마무리 <12-finish.rst>`_ — 10분
+* `12. Foundry agent <12-foundry-agent.rst>`_ — Foundry → Fabric·Microsoft 365, 40분
+* `13. 마무리 <13-finish.rst>`_ — 10분
 
 실습 파일 내려받기
 ---------------------

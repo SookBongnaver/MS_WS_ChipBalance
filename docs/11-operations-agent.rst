@@ -1,7 +1,7 @@
 11. Operations agent
 =====================
 
-`목차 <../README.rst>`_ | 이전: `10. Power BI 보고서 <10-power-bi.rst>`_ | 다음: `12. 마무리 <12-finish.rst>`_
+`목차 <../README.rst>`_ | 이전: `10. Power BI 보고서 <10-power-bi.rst>`_ | 다음: `12. Foundry agent <12-foundry-agent.rst>`_
 
 06장에서 만든 위험 이벤트(``gold.fact_risk_event``)를 Operations agent가 감시하게 합니다.
 위험 이벤트가 ``open``\ 이 되면 Operations agent가 Teams로 담당자에게 알리고, 추천 대응안 ``OPT-2``\ 의 승인을 요청합니다.
@@ -349,4 +349,4 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 다음 단계
 ------------
 
-`12. 마무리 <12-finish.rst>`_
+`12. Foundry agent <12-foundry-agent.rst>`_
