@@ -3,8 +3,8 @@ Workshop: 원료 칩 수급과 긴급 수주 대응
 
 필름 공장의 원료 칩 재고와 긴급 수주 대응을 주제로 한 hands-on Workshop입니다.
 
-* **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 관리 ID로 Microsoft Fabric OneLake에 저장합니다. Genie Code로 Unity Catalog에 테이블·열 설명을 넣고, Genie에 한국어로 질문합니다.
-* **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent가 Ontology를 근거로 질문에 답합니다.
+* **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 관리 ID로 Microsoft Fabric OneLake에 저장합니다. Genie Code를 통해 Unity Catalog에 테이블·열 설명을 넣습니다. Genie agent 에게 다양한 질문들을 합니다.
+* **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. data agent가 Ontology를 근거로 질문에 답합니다.
 * **의사결정:** Fabric Operations agent가 Eventhouse에 들어온 위험 이벤트를 감시해 대응안을 Microsoft Teams로 제안하고, 담당자가 Teams에서 승인하면 Notebook이 승인 기록을 남깁니다.
 * **Microsoft Foundry:** Foundry agent에 Fabric IQ 도구로 Ontology를 연결해, 담당자가 승인하기 전에 대응안의 근거를 묻습니다.
 
