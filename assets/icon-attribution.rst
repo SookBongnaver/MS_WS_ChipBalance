@@ -16,6 +16,8 @@
 * `Microsoft Power Platform icons <https://learn.microsoft.com/en-us/power-platform/guidance/icons>`_ — 공식 SVG 아이콘 묶음
 * Microsoft Teams 아이콘 — Microsoft Fluent UI의 Office 제품 아이콘
   (``https://res-1.cdn.office.net/files/fabric-cdn-prod_20230815.002/assets/brand-icons/product/svg/teams_48x1.svg``)
+* Databricks 아이콘 — databricks.com 공식 웹사이트가 제품 소개에 쓰는 SVG를 그대로 받았습니다(아래 표의 주소).
+  로고 사용 조건은 `Databricks Brand Guidelines <https://brand.databricks.com/>`_\ 를 따릅니다.
 
 Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문서에서 아이콘을 쓰도록 허용합니다. 제품 아이콘은 해당 제품을 가리키는 용도로만 씁니다.
 아이콘은 원본 SVG를 그대로 쓰며 자르기·뒤집기·색 변경·비율 변경을 하지 않습니다.
@@ -26,9 +28,11 @@ Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문�
    * - 파일 (``icons/``)
      - 공식 배포 파일
    * - ``databricks.svg``
-     - Azure v24 ``10787-icon-service-Azure-Databricks.svg``
-   * - ``storage.svg``
-     - Azure v24 ``10086-icon-service-Storage-Accounts.svg``
+     - Databricks ``https://www.databricks.com/sites/default/files/2026-05/Databricks-Logo-Icon.svg``
+   * - ``delta-table.svg``
+     - Databricks ``https://www.databricks.com/sites/default/files/2023-02/icon-orange-Delta-Table.svg``
+   * - ``genie.svg``
+     - Databricks ``https://www.databricks.com/sites/default/files/2026-05/icon-genie.svg``
    * - ``foundry.svg``
      - Azure v24 ``035746832-icon-service-AI-Foundry.svg``
    * - ``foundry-agent.svg``
