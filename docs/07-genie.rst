@@ -1,4 +1,4 @@
-07. Unity Catalog 설명과 Genie
+07. Unity Catalog 업데이트 및 Genie 로 인사이트 얻기
 =================================
 
 `목차 <../README.rst>`_ | 이전: `06. 긴급 수주와 대응안 <06-emergency-order.rst>`_ | 다음: `08. Ontology <08-ontology.rst>`_
