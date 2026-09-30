@@ -145,7 +145,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 #. 파일 목록 위의 **Code** > **Download ZIP**\ 을 누릅니다.
 #. 내려받은 ZIP 파일의 압축을 풉니다.
 
-**예상 결과:** 압축을 푼 폴더에 ``notebooks\ChipBalance.zip``\ 이 있습니다. 01장에서 Databricks로 가져오는 Notebook 8개입니다.
+**예상 결과:** 압축을 푼 폴더에 ``notebooks\ChipBalance.zip``\ 과 ``fabric`` 폴더가 있습니다. ``ChipBalance.zip``\ 은 01장에서 Databricks로 가져오는 Notebook 8개이고, ``fabric`` 폴더의 파일은 10장에서 씁니다.
 
 다음 단계
 ------------

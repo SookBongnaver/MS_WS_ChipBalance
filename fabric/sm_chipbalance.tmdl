@@ -1,0 +1,89 @@
+createOrReplace
+
+	relationship fact_balance_scenario
+		fromColumn: fact_balance.scenario_id
+		toColumn: dim_scenario.scenario_id
+
+	relationship fact_balance_bunker
+		fromColumn: fact_balance.bunker_id
+		toColumn: dim_bunker.bunker_id
+
+	relationship fact_balance_date
+		fromColumn: fact_balance.balance_date
+		toColumn: dim_date.date_key
+
+	relationship fact_bunker_summary_scenario
+		fromColumn: fact_bunker_summary.scenario_id
+		toColumn: dim_scenario.scenario_id
+
+	relationship fact_bunker_summary_bunker
+		fromColumn: fact_bunker_summary.bunker_id
+		toColumn: dim_bunker.bunker_id
+
+	relationship fact_option_balance_option
+		fromColumn: fact_option_balance.option_id
+		toColumn: fact_response_option.option_id
+
+	relationship fact_option_balance_bunker
+		fromColumn: fact_option_balance.bunker_id
+		toColumn: dim_bunker.bunker_id
+
+	relationship fact_option_balance_date
+		fromColumn: fact_option_balance.balance_date
+		toColumn: dim_date.date_key
+
+	ref table fact_balance
+
+		measure '현재 계획 재고 (kg)' = CALCULATE(SUM(fact_balance[closing_kg]), dim_scenario[scenario_id] = "baseline")
+			formatString: #,0
+
+		measure '긴급 오더 재고 (kg)' = CALCULATE(SUM(fact_balance[closing_kg]), dim_scenario[scenario_id] = "emergency")
+			formatString: #,0
+
+		measure '안전재고 (kg)' = IF(NOT ISBLANK(SUM(fact_balance[closing_kg])), SUM(dim_bunker[safety_stock_kg]))
+			formatString: #,0
+
+	ref table fact_bunker_summary
+
+		measure '미달 Bunker 수 (현재 계획)' = CALCULATE(COUNTROWS(fact_bunker_summary), fact_bunker_summary[below_safety_days] > 0, dim_scenario[scenario_id] = "baseline", REMOVEFILTERS(dim_bunker)) + 0
+			formatString: 0
+
+		measure '미달 Bunker 수 (긴급 오더)' = CALCULATE(COUNTROWS(fact_bunker_summary), fact_bunker_summary[below_safety_days] > 0, dim_scenario[scenario_id] = "emergency", REMOVEFILTERS(dim_bunker)) + 0
+			formatString: 0
+
+		measure '첫 미달일 (긴급 오더)' = CALCULATE(MIN(fact_bunker_summary[first_below_safety_date]), dim_scenario[scenario_id] = "emergency", REMOVEFILTERS(dim_bunker))
+			formatString: yyyy-mm-dd
+
+		measure '필요 보충량 (kg)' = FORMAT(CALCULATE(SUM(fact_bunker_summary[required_topup_kg]), dim_scenario[scenario_id] = "emergency", REMOVEFILTERS(dim_bunker)), "#,0")
+
+	ref table fact_option_balance
+
+		measure '추천안 적용 후 재고 (kg)' = CALCULATE(SUM(fact_option_balance[closing_kg]), fact_response_option[recommendation_rank] = 1)
+			formatString: #,0
+
+	ref table fact_response_option
+
+		measure '기준 충족 대응안 수' = CALCULATE(COUNTROWS(fact_response_option), fact_response_option[meets_all] = TRUE())
+			formatString: 0
+
+		measure '추천안' = CALCULATE(SELECTEDVALUE(fact_response_option[option_id]) & " " & SELECTEDVALUE(fact_response_option[option_name]), fact_response_option[recommendation_rank] = 1)
+
+		measure '추천안 추가 비용 (원)' = FORMAT(CALCULATE(SUM(fact_response_option[added_cost_krw]), fact_response_option[recommendation_rank] = 1), "#,0")
+
+		measure 'C1 안전재고' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), IF(SELECTEDVALUE(fact_response_option[c1_safety_pass]), "✅", "❌"))
+
+		measure 'C2 용량' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), IF(SELECTEDVALUE(fact_response_option[c2_capacity_pass]), "✅", "❌"))
+
+		measure 'C3 납기' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), IF(SELECTEDVALUE(fact_response_option[c3_due_date_pass]), "✅", "❌"))
+
+		measure 'C4 이송 한도' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), IF(SELECTEDVALUE(fact_response_option[c4_route_limit_pass]), "✅", "❌"))
+
+		measure '추천 순위' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), SWITCH(SELECTEDVALUE(fact_response_option[recommendation_rank]), 1, "1순위 (추천)", 2, "2순위", "-"))
+
+		measure '추가 비용 (원)' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), SUM(fact_response_option[added_cost_krw]))
+			formatString: #,0
+
+		measure '첫 도착일' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), MIN(fact_response_option[first_arrival_date]))
+			formatString: yyyy-mm-dd
+
+		measure '판단' = IF(NOT ISBLANK(SELECTEDVALUE(fact_response_option[option_id])), SUBSTITUTE(SELECTEDVALUE(fact_response_option[result_note]), "; ", UNICHAR(10)))

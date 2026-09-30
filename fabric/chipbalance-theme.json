@@ -1,0 +1,47 @@
+{
+  "name": "Chip Balance",
+  "dataColors": ["#0078D4", "#D13438", "#8A8886", "#107C10", "#FFB900", "#5C2D91", "#008575", "#E3008C"],
+  "background": "#FFFFFF",
+  "foreground": "#252423",
+  "tableAccent": "#0078D4",
+  "good": "#107C10",
+  "neutral": "#FFB900",
+  "bad": "#D13438",
+  "maximum": "#0078D4",
+  "center": "#FFB900",
+  "minimum": "#D13438",
+  "textClasses": {
+    "callout": { "fontSize": 40, "fontFace": "Segoe UI Semibold", "color": "#252423" },
+    "title": { "fontSize": 18, "fontFace": "Segoe UI Semibold", "color": "#252423" },
+    "header": { "fontSize": 16, "fontFace": "Segoe UI Semibold", "color": "#252423" },
+    "label": { "fontSize": 14, "fontFace": "Segoe UI", "color": "#605E5C" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+        "border": [{ "show": true, "color": { "solid": { "color": "#E1DFDD" } }, "radius": 8 }],
+        "dropShadow": [{ "show": false }],
+        "padding": [{ "top": 8, "bottom": 8, "left": 12, "right": 12 }]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#F3F2F1" } }, "transparency": 0 }]
+      }
+    },
+    "lineChart": {
+      "*": {
+        "lineStyles": [{ "strokeWidth": 3 }],
+        "legend": [{ "show": true, "position": "Top" }]
+      }
+    },
+    "tableEx": {
+      "*": {
+        "columnHeaders": [{ "fontColor": { "solid": { "color": "#FFFFFF" } }, "backColor": { "solid": { "color": "#0078D4" } } }],
+        "grid": [{ "rowPadding": 8, "textSize": 14 }],
+        "values": [{ "fontSize": 14 }]
+      }
+    }
+  }
+}

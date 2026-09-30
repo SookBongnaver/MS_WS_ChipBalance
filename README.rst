@@ -31,7 +31,7 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 * `07. Unity Catalog 설명과 Genie <docs/07-genie.rst>`_ — Genie Code로 테이블·열 설명을 넣고, Genie에 한국어로 질문해 정답과 비교합니다.
 * `08. Ontology <docs/08-ontology.rst>`_ — Ontology agent 프롬프트로 라인·Bunker·원료·생산계획의 관계를 만들고 점검한 뒤 Graph를 만듭니다.
 * `09. Ontology agent에 질문하기 <docs/09-ontology-agent.rst>`_ — 업무 규칙을 Ontology 설명에 넣고, Genie와 같은 질문을 Ontology agent에 해 정답과 비교합니다.
-* `10. Power BI 보고서 <docs/10-power-bi.rst>`_ — Semantic model과 원료 수급 보고서를 만듭니다. (작성 중)
+* `10. Power BI 보고서 <docs/10-power-bi.rst>`_ — Direct Lake semantic model에 관계와 측정값을 넣고, 원료 수급 현황과 긴급 오더 대응안 보고서를 만듭니다.
 * `11. Operations agent <docs/11-operations-agent.rst>`_ — Operations agent가 대응안을 Teams로 제안하고, 승인하면 Notebook이 승인 기록을 남깁니다. (작성 중)
 * `12. 마무리 <docs/12-finish.rst>`_ — 결과를 정리하고 Workshop을 마칩니다. (작성 중)
 
@@ -40,6 +40,7 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 
 ``notebooks/ChipBalance.zip``\ 은 Databricks로 한 번에 가져오는 Notebook 8개입니다. 같은 내용을 ``notebooks/*.ipynb``\ 로도 볼 수 있습니다.
 원천 데이터는 02장에서 Notebook을 실행해 만듭니다.
+``fabric`` 폴더에는 10장의 semantic model 스크립트(``sm_chipbalance.tmdl``)와 보고서 테마(``chipbalance-theme.json``)가 있습니다.
 
 관리자에게 받을 값은 Databricks 주소, 참가자 번호(예: ``p001``), 배정받은 Compute 이름입니다.
 
