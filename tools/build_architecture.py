@@ -128,9 +128,9 @@ class Diagram:
 
 def architecture():
     d = Diagram("architecture", 1800, 1360)
-    d.text(45, 26, "원료 Chip Balance와 긴급 오더 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
+    d.text(45, 26, "원료 칩 Balance와 긴급 수주 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
     d.text(45, 78, "Databricks에서 정제·계산한 Gold를 Fabric에서 활용합니다. "
-                   "Ontology agent와 Foundry agent는 Ontology를 근거로 답하고, Operations agent는 Teams로 대응안을 제안합니다", 20, 1700)
+                   "Data agent와 Foundry agent는 Ontology를 근거로 답하고, Operations agent는 Ontology를 감시해 Teams로 대응안을 제안합니다", 20, 1700)
 
     steps = [("① 현재 계산", "Databricks 05·06 계산 · Power BI 현황"),
              ("② 판단 기준", "Databricks 06 · 대응안별 기준 충족 여부"),
@@ -157,7 +157,7 @@ def architecture():
     d.arrow([(490, 560), (490, 630)])
     d.text(505, 582, "업무 계산", 16, 110)
     d.card(360, 630, 260, 250, "Gold / 계산",
-           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n06 긴급 오더·대응안 4개\nGold를 OneLake에 저장",
+           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n06 긴급 수주·대응안 4개\nGold를 OneLake에 저장",
            "databricks.svg")
     d.card(70, 630, 240, 130, "Genie", "07 테이블·열 설명 작성\n자연어 질문 → SQL", "databricks.svg")
     d.arrow([(360, 695), (310, 695)])
@@ -176,21 +176,20 @@ def architecture():
     d.card(750, 360, 270, 180, "OneLake Gold",
            "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
            "lakehouse.svg")
-    d.card(750, 565, 270, 120, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안", "ontology.svg")
-    d.card(750, 705, 270, 120, "Eventhouse", "RiskEventStatus\n위험 이벤트 open · approved", "eventhouse.svg")
-    d.card(750, 845, 270, 140, "Notebook · 승인 기록", "승인하면 실행 · approved 추가\ndbo.chip_decision_log", "notebook.svg")
+    d.card(750, 565, 270, 160, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안\n위험 이벤트 (RiskEvent)", "ontology.svg")
+    d.card(750, 790, 270, 150, "Notebook · 승인 기록", "승인하면 실행\n위험 이벤트 approved로 변경\ndbo.chip_decision_log", "notebook.svg")
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
-    d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 오더 비교\n대응안 검토", "power-bi.svg")
-    d.card(1060, 630, 330, 135, "Ontology agent", "09 Ontology를 근거로 질문에 답변\nPlan 모드는 조회만", "copilot.svg")
-    d.card(1060, 790, 330, 140, "Operations agent", "③ Eventhouse를 5분마다 조회\nopen이 되면 대응안 제안",
+    d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 수주 비교\n대응안 검토", "power-bi.svg")
+    d.card(1060, 630, 330, 135, "Data agent", "09 Ontology를 데이터 원본으로\n자연어 질문에 답변", "data-agent.svg")
+    d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology의 위험 이벤트 감시\nopen이 되면 대응안 제안",
            "operations-agent.svg")
     d.arrow([(1020, 395), (1060, 395)])
     d.arrow([(885, 540), (885, 565)])
-    d.arrow([(750, 500), (735, 500), (735, 765), (750, 765)])
+    d.arrow([(750, 860), (735, 860), (735, 500), (750, 500)])
+    d.text(690, 790, "기록", 15, 40)
     d.arrow([(1020, 660), (1060, 660)])
-    d.arrow([(1020, 808), (1060, 808)])
-    d.arrow([(885, 845), (885, 825)])
+    d.arrow([(1020, 705), (1040, 705), (1040, 830), (1060, 830)])
     d.arrow([(1060, 905), (1020, 905)])
     d.text(1024, 912, "Yes", 14, 34)
 
@@ -226,7 +225,7 @@ def architecture():
            "power-automate.svg", dashed=True)
     d.arrow([(340, 1105), (340, 1014)], True, GRAY)
     d.text(352, 1062, "03 Bronze로 적재", 15, 150)
-    d.arrow([(885, 985), (885, 1140)], True, GRAY)
+    d.arrow([(885, 940), (885, 1140)], True, GRAY)
     d.text(897, 1104, "승인 이력", 15, 120)
     d.arrow([(1300, 930), (1300, 1140)], True, GRAY)
     d.text(1312, 1104, "승인 후 조치", 15, 150)

@@ -22,7 +22,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
      - Bunker 간 이송 경로. 보내는 Bunker와 받는 Bunker
    * - Scenario
      - ``gold.dim_scenario`` (``scenario_id``)
-     - ``baseline``\ (현재 계획), ``emergency``\ (긴급 오더 반영)
+     - ``baseline``\ (현재 계획), ``emergency``\ (긴급 수주 반영)
    * - SalesOrder, OrderFulfillment
      - ``gold.fact_sales_order``, ``gold.fact_order_fulfillment``
      - 판매오더, 시나리오별 납기 준수 여부
@@ -40,7 +40,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
      - 입고 예정 한 건
    * - ResponseOption, OptionBalance
      - ``gold.fact_response_option``, ``gold.fact_option_balance``
-     - 긴급 오더 대응안 4개와 대응안별 Bunker 재고
+     - 긴급 수주 대응안 4개와 대응안별 Bunker 재고
    * - RiskEvent
      - ``gold.fact_risk_event`` (``event_id``)
      - 06장에서 감지한 부족 이벤트와 추천 대응안

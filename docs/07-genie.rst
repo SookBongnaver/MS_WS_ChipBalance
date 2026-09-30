@@ -1,7 +1,7 @@
 07. Unity Catalog 설명과 Genie
 =================================
 
-`목차 <../README.rst>`_ | 이전: `06. 긴급 오더와 대응안 <06-emergency-order.rst>`_ | 다음: `08. Ontology <08-ontology.rst>`_
+`목차 <../README.rst>`_ | 이전: `06. 긴급 수주와 대응안 <06-emergency-order.rst>`_ | 다음: `08. Ontology <08-ontology.rst>`_
 
 Genie는 자연어 질문을 SQL로 바꿔 답합니다(LLM to SQL). 이때 Unity Catalog의 테이블 설명과 열 설명을 읽고 어떤 테이블과 열을 쓸지 정합니다.
 이 장에서는 Genie Code에 프롬프트를 주어 Gold 테이블을 분석하고 설명을 넣게 한 뒤, Genie Agent를 만들어 한국어로 질문하고 정답과 비교합니다.

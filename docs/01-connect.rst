@@ -62,7 +62,7 @@ OneLake에 저장할 때는 관리 ID(Managed Identity)를 씁니다. 비밀번�
      - 메달리온 아키텍처: Bronze → Silver → Gold, Gold를 OneLake에 저장
    * - ``06_emergency_order``
      - 06
-     - 긴급 오더와 대응안 계산
+     - 긴급 수주와 대응안 계산
    * - ``07_unity_catalog``
      - 07
      - Unity Catalog 설명 확인, Genie 질문의 정답

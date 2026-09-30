@@ -35,8 +35,8 @@ Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문�
      - Azure v24 ``038470523-icon-service-Foundry-Agent-Service.svg``
    * - ``teams.svg``
      - Microsoft 365 제품 아이콘 ``teams_48x1.svg`` (Fluent UI)
-   * - ``copilot.svg``
-     - Fabric ``copilot_48_color.svg``
+   * - ``data-agent.svg``
+     - Fabric ``data_agent_64_item.svg``
    * - ``fabric.svg``
      - Fabric ``fabric_48_color.svg``
    * - ``lakehouse.svg``
@@ -47,8 +47,6 @@ Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문�
      - Fabric ``power_bi_48_color.svg``
    * - ``operations-agent.svg``
      - Fabric ``operations_agent_64_item.svg``
-   * - ``eventhouse.svg``
-     - Fabric ``event_house_64_item.svg``
    * - ``ontology.svg``
      - Fabric ``ontology_64_item.svg`` (npm 8.2.0)
    * - ``power-apps.svg``

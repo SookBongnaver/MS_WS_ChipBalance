@@ -1,7 +1,7 @@
 05. Gold와 OneLake
 =====================
 
-`목차 <../README.rst>`_ | 이전: `04. Silver <04-silver.rst>`_ | 다음: `06. 긴급 오더와 대응안 <06-emergency-order.rst>`_
+`목차 <../README.rst>`_ | 이전: `04. Silver <04-silver.rst>`_ | 다음: `06. 긴급 수주와 대응안 <06-emergency-order.rst>`_
 
 ``05_gold``\ 로 Silver 테이블에서 Bunker별·날짜별 원료 Balance를 계산해 Gold 테이블 18개를 만들고, Fabric Lakehouse(OneLake)에 저장합니다.
 Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 06장의 위험 이벤트로 대응안을 제안합니다.
@@ -32,7 +32,7 @@ Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agen
      - Bunker별 위험 요약, 판매오더 납기
      - ``gold_fact_bunker_summary``, ``gold_fact_order_fulfillment``
 
-이 장에서는 **현재 계획**\ (시나리오 ``baseline``)만 계산합니다. 긴급 오더는 06장에서 같은 방식으로 계산합니다.
+이 장에서는 **현재 계획**\ (시나리오 ``baseline``)만 계산합니다. 긴급 수주는 06장에서 같은 방식으로 계산합니다.
 
 1. Notebook 열고 실행
 ------------------------
@@ -189,4 +189,4 @@ Databricks가 저장한 Gold를 Fabric에서 그대로 읽습니다.
 다음 단계
 ------------
 
-`06. 긴급 오더와 대응안 <06-emergency-order.rst>`_
+`06. 긴급 수주와 대응안 <06-emergency-order.rst>`_

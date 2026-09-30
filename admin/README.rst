@@ -33,6 +33,67 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
    * - Microsoft Foundry
      - 참가자가 Foundry 리소스·프로젝트를 만들 Azure 리소스 그룹 (12장)
 
+예상 비용
+------------
+
+Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준입니다. 계약 할인은 반영하지 않았고, Microsoft 365·Power BI 라이선스 비용은 뺐습니다.
+
+**Microsoft Fabric** — 참가자마다 F16 용량 하나를 하루(24시간) 켠다고 보고 계산합니다.
+F16은 16 CU × CU·시간당 $0.19 = 시간당 $3.04, 하루 $72.96입니다.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 35 35
+
+   * - 참가자 수
+     - F16 하루 (24시간)
+     - F16 8시간
+   * - 1명
+     - $72.96
+     - $24.32
+   * - 10명
+     - $729.60
+     - $243.20
+   * - 20명
+     - $1,459.20
+     - $486.40
+   * - 30명
+     - $2,188.80
+     - $729.60
+
+실습이 끝나면 바로 용량을 일시 중지합니다. 일시 중지한 동안에는 용량 비용이 나오지 않고 OneLake 저장 비용(GB·월당 약 $0.02)만 나옵니다.
+한국 중부(Korea Central)는 CU·시간당 $0.21이라 F16 하루가 $80.64입니다.
+
+**Fabric 밖의 Azure 리소스** — 참가자 1명 환경을 1주일 운영한 실제 비용입니다(Azure Cost Management).
+
+.. list-table::
+   :header-rows: 1
+   :widths: 55 20 25
+
+   * - 항목
+     - 1주일
+     - 참가자 수가 늘면
+   * - Azure Databricks (Classic Compute DBU, SQL warehouse ``chipbalance-pro``)
+     - $24.48
+     - Compute는 참가자 수만큼
+   * - Databricks Compute VM·디스크 (관리 리소스 그룹)
+     - $7.50
+     - 참가자 수만큼
+   * - NAT Gateway, Virtual Network
+     - $10.98
+     - 같음
+   * - Microsoft Defender for Cloud
+     - $5.00
+     - 구독 설정에 따름
+   * - Storage (Unity Catalog 저장소)
+     - $0.09
+     - 데이터 양만큼
+   * - 합계
+     - $48.05
+     -
+
+**Microsoft Foundry** — 12장 에이전트는 질문할 때만 ``gpt-5`` 토큰 비용이 나옵니다. 질문 몇 개면 참가자당 $1 미만입니다(예상). App Insights는 만들지 않습니다.
+
 1. Unity Catalog와 Compute
 -----------------------------
 
@@ -119,7 +180,7 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
 3. Microsoft Fabric
 ----------------------
 
-#. Fabric 용량을 만듭니다. F2 이상이면 됩니다. 이 환경은 F2로 준비했고 최대 F64까지 늘릴 수 있습니다.
+#. Fabric 용량을 만듭니다. 참가자마다 F16 하나를 기준으로 합니다(위 "예상 비용"). F2 이상이면 실습할 수 있습니다.
 #. 참가자마다 작업 영역 ``chipbalance-p001``\ 을 만들고 위 용량에 할당합니다.
 #. 작업 영역의 **Manage access**\ 에서 참가자를 **Contributor**\ 로 추가합니다.
 #. **New item** > **Lakehouse**\ 에서 ``lh_chipbalance_p001``\ 을 만듭니다. **Lakehouse schemas** 옵션을 켭니다.
@@ -220,3 +281,11 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
 
 * 화면이 바뀌면 ``assets/screenshots``\ 의 같은 이름 파일을 교체합니다.
 * 구성도는 ``python tools/build_architecture.py``\ 로 다시 만듭니다. 아이콘 출처는 `구성도 아이콘 출처 <../assets/icon-attribution.rst>`_\ 에 있습니다.
+* Ontology 연결 확인: 새 Ontology 환경의 ``ont_chipbalance``\ 를 Operations agent, Data agent, Foundry agent가 데이터 값까지 읽을 수 있게 되면 아래를 Ontology 기준으로 고칩니다.
+
+  - 09장: Ontology agent 대신 Data agent를 만들고 데이터 원본으로 ``ont_chipbalance``\ 를 연결합니다.
+  - 11장: ``oa_chipbalance``\ 의 **Knowledge**\ 를 ``eh_chipbalance``\ 에서 ``ont_chipbalance``\ 로 바꾸고, 위험 이벤트(RiskEvent)를 Ontology에서 감시합니다. Eventhouse 만들기 단계를 지우고 ``nb_record_decision``\ 은 Lakehouse에만 기록하게 고칩니다.
+  - 12장: 5절 질문을 ``OPT-2``\ 를 반영한 BNK-L1-2의 최저 기말재고(16,763 kg)처럼 값을 묻는 질문으로 바꾸고, note를 지웁니다.
+  - 구성도: Eventhouse 카드를 지우고, Ontology에서 Operations agent와 Data agent로 바로 잇습니다.
+
+  확인 방법: Operations agent에서 **Knowledge**\ 를 ``ont_chipbalance``\ 로 두고 **Generate playbook**\ 이 성공하는지, Ontology 엔드포인트의 MCP ``tools/list``\ 에 값을 조회하는 도구(예: ``ask_ontology``)가 있고 호출이 성공하는지 봅니다.
