@@ -28,6 +28,10 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
      - Access Connector for Azure Databricks ``ac-chipbalance-onelake``, Unity Catalog service credential ``chipbalance_onelake``
    * - Microsoft Fabric
      - F 용량, 작업 영역 ``chipbalance-pNNN``, Lakehouse ``lh_chipbalance_pNNN`` (Lakehouse schemas 켬)
+   * - Microsoft Teams
+     - 참가자 계정에 Teams 라이선스, Teams 앱 **Fabric Operations Agent** 허용 (11장)
+   * - Microsoft Foundry
+     - 참가자가 Foundry 리소스·프로젝트를 만들 Azure 리소스 그룹 (12장)
 
 1. Unity Catalog와 Compute
 -----------------------------
@@ -141,7 +145,26 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
    * - Data sent to Azure OpenAI can be processed / stored outside your capacity's geographic region
      - 용량이 미국·EU 밖에 있을 때 Operations agent 사용
 
-4. 네트워크
+Teams 관리 센터의 **Teams 앱** > **앱 관리**\ 에서 **Fabric Operations Agent**\ 가 차단되어 있지 않은지 확인합니다.
+Operations agent는 이 앱의 **Fabric operations agent** 채팅으로 참가자에게 제안을 보냅니다.
+
+4. Microsoft Foundry
+-----------------------
+
+12장에서 참가자가 Foundry 프로젝트 ``chipbalance-pNNN``\ 과 에이전트 ``fa-chipbalance``\ 를 만들고, Fabric IQ 도구로 Ontology ``ont_chipbalance``\ 를 연결합니다.
+
+#. Fabric 용량과 같은 지역(이 환경: Sweden Central)에 리소스 그룹을 준비합니다. 이 환경은 Fabric 용량과 같은 ``rg-factory-onelake-lab-0922``\ 를 씁니다.
+#. 참가자에게 리소스 그룹의 **Contributor** 역할을 줍니다. 참가자가 Foundry 리소스 ``fdy-chipbalance-pNNN``\ 과 프로젝트를 직접 만듭니다.
+   관리자가 프로젝트를 미리 만들어 두려면 참가자에게 프로젝트의 **Foundry User**\ 와 **Foundry Project Manager** 역할을 줍니다. Fabric IQ 연결을 만들 때 **Foundry Project Manager**\ 가 필요합니다.
+#. 구독에 ``gpt-5`` 글로벌 표준 배포 할당량이 있는지 확인합니다. 에이전트를 만들면 ``gpt-5``\ 가 자동으로 배포됩니다.
+
+* Fabric IQ 도구는 로그인한 참가자의 Fabric 권한으로 Ontology를 읽습니다. 참가자는 작업 영역 ``chipbalance-pNNN``\ 의 **Contributor**\ 이면 됩니다.
+* 이 환경에서 Fabric IQ 도구가 Ontology(새 Ontology 환경)에 주는 기능은 ``list_ontology_entities``, ``list_ontology_rules``\ 입니다. 에이전트는 엔터티 정의와 업무 규칙 설명으로 답하고, 날짜별 값은 09장 Ontology agent에서 확인합니다.
+  Ontology 엔드포인트의 도구 목록은 ``https://api.fabric.microsoft.com/v1/mcp/dataPlane/workspaces/<작업 영역 ID>/items/<Ontology ID>/ontologyEndpoint``\ 에 MCP ``tools/list``\ 를 보내 확인할 수 있습니다.
+* 비용은 모델 토큰 사용량만큼 나옵니다. 프로젝트를 만들 때 권장 리소스(App Insights)를 끄므로 추적 저장 비용은 없습니다.
+* Work IQ 도구(Teams, Mail 등)는 Microsoft 365 Copilot 라이선스가 있는 사용자만 조회할 수 있습니다. 라이선스가 없으면 도구 호출이 ``WorkIQ license check failed``\ 로 실패하므로, 12장에서는 붙이는 화면만 보여 줍니다.
+
+5. 네트워크
 --------------
 
 Databricks Compute에서 아래 주소로 HTTPS(443) 연결이 되어야 합니다. 방화벽이나 프록시를 쓰면 허용합니다.
@@ -151,29 +174,38 @@ Databricks Compute에서 아래 주소로 HTTPS(443) 연결이 되어야 합니�
 
 Unity Catalog 저장소를 private endpoint로 연결했다면, Compute에서 저장소 주소가 사설 IP로 해석되도록 private DNS를 구성합니다.
 
-5. 참가자에게 알려 줄 값
+6. 참가자에게 알려 줄 값
 ---------------------------
 
 * Databricks 주소 (예: ``https://adb-<번호>.<번호>.azuredatabricks.net``)
 * 참가자 번호(예: ``p001``)와 배정한 Compute 이름
 * GitHub 저장소 접근 권한 또는 저장소 ZIP 파일
+* Foundry 프로젝트를 만들 구독과 리소스 그룹 (12장)
 
 Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이름은 참가자 번호로 정해지므로 따로 알려 주지 않습니다.
 
-6. 종료 후 정리
+7. 종료 후 정리
 ------------------
 
 #. 참가자 Compute를 모두 **Terminate**\ 하고, SQL warehouse ``chipbalance-pro``\ 를 **Stop**\ 합니다.
+#. 참가자마다 Operations agent ``oa_chipbalance``\ 가 **Stop** 상태인지 확인합니다. 시작 상태면 5분마다 조회하며 용량을 씁니다.
 #. (선택) 실습 데이터를 지웁니다. Fabric 항목은 용량을 일시 중지하기 전에 지웁니다.
 
    - Unity Catalog 스키마 ``lab_factory.chipbalance_pNNN``\ 과 Volume ``raw``
-   - Fabric 작업 영역 ``chipbalance-pNNN``
+   - Fabric 작업 영역 ``chipbalance-pNNN``: ``oa_chipbalance``, ``nb_record_decision``, ``eh_chipbalance``, ``rpt_chipbalance``, ``sm_chipbalance``, ``ont_chipbalance``\ (자동으로 만들어진 ``ont_chipbalance_eh_…``, ``ont_chipbalance_graph_…`` 포함), ``lh_chipbalance_pNNN``. 작업 영역을 지우면 한 번에 지워집니다.
+   - Foundry: Azure portal의 리소스 그룹에서 Foundry 리소스 ``fdy-chipbalance-pNNN``\ 을 삭제합니다. 프로젝트, 에이전트 ``fa-chipbalance``, 모델 배포, Fabric IQ 연결이 함께 지워집니다.
+     같은 이름으로 다시 만들려면 Azure portal에서 삭제된 Foundry 리소스를 제거(purge)합니다.
 
-#. Azure portal에서 Fabric 용량을 **Pause**\ 합니다.
+#. Azure portal에서 Fabric 용량을 **Pause**\ 합니다. Azure CLI로는 아래 명령을 씁니다.
+
+   .. code-block:: powershell
+
+      az resource invoke-action --action suspend --ids /subscriptions/<구독 ID>/resourceGroups/rg-factory-onelake-lab-0922/providers/Microsoft.Fabric/capacities/<용량 이름>
+
 #. Workshop 환경을 더 쓰지 않으면 Fabric 작업 영역 권한에서 ``ac-chipbalance-onelake``\ 를 빼고,
    service credential ``chipbalance_onelake``\ 와 Access Connector를 삭제합니다.
 
-7. 유지보수
+8. 유지보수
 --------------
 
 * Notebook 내용은 ``src/notebooks/*.py``\ 에서 고칩니다. ``notebooks/*.ipynb``\ 와 ``notebooks/ChipBalance.zip``\ 은 직접 고치지 않습니다.
@@ -187,3 +219,4 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
    python -m unittest discover tests
 
 * 화면이 바뀌면 ``assets/screenshots``\ 의 같은 이름 파일을 교체합니다.
+* 구성도는 ``python tools/build_architecture.py``\ 로 다시 만듭니다. 아이콘 출처는 `구성도 아이콘 출처 <../assets/icon-attribution.rst>`_\ 에 있습니다.

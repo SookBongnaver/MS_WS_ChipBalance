@@ -101,11 +101,12 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 --------------
 
 .. image:: ../assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 위험 이벤트를 5분마다 조회해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다.
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 위험 이벤트를 5분마다 조회해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답합니다.
    :width: 1000
 
 * **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다.
 * **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 Eventhouse의 위험 이벤트를 감시해 대응안을 제안합니다.
+* **Microsoft Foundry** — Foundry agent가 Fabric IQ 도구로 Ontology를 읽어, 승인하기 전에 대응안의 근거를 답합니다.
 * **Microsoft 365** — 담당자가 Teams에서 Operations agent의 제안을 받고 승인합니다.
 
 의사결정 흐름
@@ -119,7 +120,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 실습 순서
 ------------
 
-전체 약 6시간 50분입니다.
+전체 약 6시간 40분입니다.
 
 * 00\. 시나리오와 실습 순서 — 15분 (이 문서)
 * `01. Databricks 접속과 설정 <01-connect.rst>`_ — Databricks, 20분
@@ -133,7 +134,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 * `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_ — Fabric, 30분
 * `10. Power BI 보고서 <10-power-bi.rst>`_ — Fabric, 45분
 * `11. Operations agent <11-operations-agent.rst>`_ — Fabric → Teams, 45분
-* `12. Foundry agent <12-foundry-agent.rst>`_ — Foundry → Fabric·Microsoft 365, 40분
+* `12. Foundry agent <12-foundry-agent.rst>`_ — Foundry → Fabric, 30분
 * `13. 마무리 <13-finish.rst>`_ — 10분
 
 실습 파일 내려받기

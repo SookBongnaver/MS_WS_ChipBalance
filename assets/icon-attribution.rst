@@ -29,6 +29,10 @@ Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문�
      - Azure v24 ``10787-icon-service-Azure-Databricks.svg``
    * - ``storage.svg``
      - Azure v24 ``10086-icon-service-Storage-Accounts.svg``
+   * - ``foundry.svg``
+     - Azure v24 ``035746832-icon-service-AI-Foundry.svg``
+   * - ``foundry-agent.svg``
+     - Azure v24 ``038470523-icon-service-Foundry-Agent-Service.svg``
    * - ``teams.svg``
      - Microsoft 365 제품 아이콘 ``teams_48x1.svg`` (Fluent UI)
    * - ``copilot.svg``

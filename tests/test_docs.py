@@ -29,7 +29,7 @@ CHAPTERS = [
 ]
 # Chapters that are still being written. While such a file is missing, the existence check and
 # links pointing to it are reported as skipped. Empty this set once all chapters are written.
-PENDING_CHAPTERS = {"12-foundry-agent.rst", "13-finish.rst"}
+PENDING_CHAPTERS = set()
 
 FORBIDDEN_WORDS = ["강사 승인", "승인 후", "approved_", "기본 실습", "확장 실습", "리허설", "워크숍"]
 # The material describes only what to do now, never how it used to be.

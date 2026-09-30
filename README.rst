@@ -6,12 +6,13 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 * **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 관리 ID로 Microsoft Fabric OneLake에 저장합니다. Genie Code로 Unity Catalog에 테이블·열 설명을 넣고, Genie에 한국어로 질문합니다.
 * **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent가 Ontology를 근거로 질문에 답합니다.
 * **의사결정:** Fabric Operations agent가 Eventhouse에 들어온 위험 이벤트를 감시해 대응안을 Microsoft Teams로 제안하고, 담당자가 Teams에서 승인하면 Notebook이 승인 기록을 남깁니다.
+* **Microsoft Foundry:** Foundry agent에 Fabric IQ 도구로 Ontology를 연결해, 담당자가 승인하기 전에 대응안의 근거를 묻습니다.
 
 전체 구성
 ------------
 
 .. image:: assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 위험 이벤트를 5분마다 조회해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다.
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 위험 이벤트를 5분마다 조회해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답합니다.
    :width: 1000
 
 `그림 크게 보기 <assets/architecture.png>`_
@@ -33,8 +34,8 @@ Workshop: 원료 Chip Balance와 긴급 오더 대응
 * `09. Ontology agent에 질문하기 <docs/09-ontology-agent.rst>`_ — 업무 규칙을 Ontology 설명에 넣고, Genie와 같은 질문을 Ontology agent에 해 정답과 비교합니다.
 * `10. Power BI 보고서 <docs/10-power-bi.rst>`_ — Direct Lake semantic model에 관계와 측정값을 넣고, 원료 수급 현황과 긴급 오더 대응안 보고서를 만듭니다.
 * `11. Operations agent <docs/11-operations-agent.rst>`_ — Eventhouse에 위험 이벤트를 보내면 Operations agent가 대응안을 Teams로 제안하고, 승인하면 Notebook이 승인 기록을 남깁니다.
-* `12. Foundry agent <docs/12-foundry-agent.rst>`_ — Microsoft Foundry 에이전트에 Fabric IQ Ontology와 Work IQ를 연결해 원료 수급과 업무 맥락을 함께 묻습니다. (작성 중)
-* `13. 마무리 <docs/13-finish.rst>`_ — 결과를 정리하고 Workshop을 마칩니다. (작성 중)
+* `12. Foundry agent <docs/12-foundry-agent.rst>`_ — Microsoft Foundry 에이전트에 Fabric IQ 도구로 Ontology를 연결하고, 대응안을 검토할 때 볼 엔터티와 속성을 묻습니다.
+* `13. 마무리 <docs/13-finish.rst>`_ — 만든 결과를 확인하고, 에이전트를 멈추고 용량을 정리합니다.
 
 실습 파일
 ------------

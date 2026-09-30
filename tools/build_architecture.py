@@ -130,7 +130,7 @@ def architecture():
     d = Diagram("architecture", 1800, 1360)
     d.text(45, 26, "원료 Chip Balance와 긴급 오더 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
     d.text(45, 78, "Databricks에서 정제·계산한 Gold를 Fabric에서 활용합니다. "
-                   "Ontology agent는 질문에 답하고, Operations agent는 Teams로 대응안을 제안합니다", 20, 1700)
+                   "Ontology agent와 Foundry agent는 Ontology를 근거로 답하고, Operations agent는 Teams로 대응안을 제안합니다", 20, 1700)
 
     steps = [("① 현재 계산", "Databricks 05·06 계산 · Power BI 현황"),
              ("② 판단 기준", "Databricks 06 · 대응안별 기준 충족 여부"),
@@ -194,10 +194,20 @@ def architecture():
     d.arrow([(1060, 905), (1020, 905)])
     d.text(1024, 912, "Yes", 14, 34)
 
+    # Microsoft Foundry
+    d.rect(1450, 222, 310, 430, GRAY, True)
+    d.icon("foundry.svg", 1470, 242)
+    d.text(1532, 248, "Microsoft Foundry", 23, 220, True)
+    d.text(1470, 304, "담당자가 승인하기 전에\n대응안의 근거를 묻습니다", 17, 280)
+    d.card(1470, 440, 270, 190, "Foundry agent", "12 fa-chipbalance\nFabric IQ 도구로\nOntology를 근거로 답변",
+           "foundry-agent.svg")
+    d.arrow([(1470, 617), (1020, 617)])
+    d.text(1400, 590, "Fabric IQ", 14, 70)
+
     # Microsoft 365
-    d.rect(1450, 222, 310, 790, GRAY, True)
-    d.text(1470, 248, "Microsoft 365", 23, 270, True)
-    d.text(1470, 304, "담당자가 Teams에서\n대응안 제안을 받고 승인합니다", 17, 280)
+    d.rect(1450, 672, 310, 340, GRAY, True)
+    d.text(1470, 690, "Microsoft 365", 23, 270, True)
+    d.text(1470, 730, "담당자가 Teams에서 대응안 제안을\n받고 승인합니다", 16, 280)
     d.card(1470, 790, 270, 180, "Microsoft Teams", "④ 채팅으로 제안 수신\n보고서 수치와 대조 후\nYes / No 승인", "teams.svg")
     d.arrow([(1390, 830), (1470, 830)])
     d.text(1414, 798, "제안", 15, 34)
