@@ -153,33 +153,53 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
       :width: 1000
 
 #. 슬라이서의 드롭다운을 열고 ``BNK-L3-2``\ 를 고릅니다.
-#. **꺾은선형 차트** — 캔버스 빈 곳을 누르고 **Line chart**\ 를 누릅니다. 아래 필드를 차례로 체크합니다. **Y-axis**\ 에 넣은 순서대로 파랑, 빨강, 회색 선이 됩니다.
+#. **묶은 세로 막대형 차트** — 캔버스 빈 곳을 누르고 **Clustered column chart**\ 를 누릅니다. 아래 필드를 차례로 체크합니다. **Y-axis**\ 에 넣은 순서대로 파랑, 빨강 막대가 됩니다.
 
+   * ``fact_balance``\ 의 ``현재 계획 재고 (kg)``, ``긴급 오더 재고 (kg)`` → **Y-axis**
    * ``dim_date``\ 의 ``date_key`` → **X-axis**
-   * ``fact_balance``\ 의 ``현재 계획 재고 (kg)``, ``긴급 오더 재고 (kg)``, ``안전재고 (kg)`` → **Y-axis**
 
-   **Format visual** → **General** 탭 → **Title**\ 을 펼치고, **Title**\ 의 **Text**\ 에 아래 제목을 입력합니다. 그 아래 **Subtitle**\ 은 **Off**\ 로 둡니다.
+   **Format visual** → **General** 탭 → **Title**\ 을 펼치고, **Title**\ 의 **Text**\ 에 아래 제목을 입력합니다. 그 아래 **Subtitle**\ 은 **Off**\ 로 합니다.
 
    .. code-block:: text
 
-      선택한 Bunker의 기말 재고 (kg): 현재 계획 · 긴급 오더 · 안전재고
+      선택한 Bunker의 기말 재고 (kg): 현재 계획 · 긴급 오더 (점선: 안전재고)
 
    위치와 크기: Height ``736``, Width ``1856``, Horizontal ``32``, Vertical ``308``
 
    .. image:: ../assets/screenshots/d10-chart-title.png
-      :alt: 꺾은선형 차트의 Format visual General 탭. Title이 On이고, Title 아래 Text에 선택한 Bunker의 기말이 보입니다. Heading, Font, Text color, Background color, Horizontal alignment, Text wrap 아래에 Subtitle Off, Divider Off, Spacing이 있습니다.
+      :alt: 묶은 세로 막대형 차트의 Format visual General 탭. Title이 On이고, Title 아래 Text에 선택한 Bunker의 기말이 보입니다. Heading, Font, Text color, Background color, Horizontal alignment, Text wrap 아래에 Subtitle Off, Divider Off, Spacing이 있습니다.
       :width: 200
+
+   **Visual** 탭의 **Columns** → **Layout**\ 에서 **Space between categories**\ 를 ``10``\ 으로 합니다. 막대가 굵어집니다.
+
+#. **안전재고 점선** — 차트를 선택한 채로 **Visualizations** 창의 오른쪽 아이콘(**Analytics**)을 누릅니다.
+
+   * **Y-Axis Constant Line**\ 을 펼치고 **+ Add line**\ 을 누릅니다. 생긴 줄의 연필 아이콘을 눌러 이름을 ``안전재고``\ 로 바꿉니다.
+   * **Line**\ 의 **Value** 오른쪽 **fx**\ 를 누릅니다. **Format style**\ 은 **Field value**\ 로 두고, **What field should we base this on?**\ 에서 **All data** → ``fact_balance`` → ``안전재고 (kg)``\ 를 고른 뒤 **OK**\ 를 누릅니다.
+
+     .. image:: ../assets/screenshots/d10-refline-fx.png
+        :alt: Value - Apply settings to 창. Format style은 Field value, What field should we base this on?은 안전재고 (kg)이고, 오른쪽 아래에 OK와 Cancel 버튼이 있습니다.
+        :width: 600
+
+   * **Color**\ 는 검정, **Transparency**\ 는 ``0``\ 으로 합니다. **Line style**\ 은 **Dashed** 그대로 둡니다.
+   * **Data label**\ 을 **On**\ 으로 하고, 펼쳐서 **Horizontal position**\ 은 **Right**, **Style**\ 은 **Both**, **Color**\ 는 검정으로 합니다.
+
+   **예상 결과:** 차트에 검은 점선과 ``안전재고: 12,000``\ 이 보입니다. 슬라이서에서 고른 Bunker의 안전재고 높이에 선이 그어집니다.
+
+   .. image:: ../assets/screenshots/d10-p1-refline.png
+      :alt: 원료 수급 현황 페이지에서 묶은 세로 막대형 차트를 선택하고 Analytics 창을 연 화면. Y-Axis Constant Line (1) 아래 안전재고 줄이 있고, Line의 Value는 fx로 지정되어 있으며 Color 검정, Transparency 0 %, Line style Dashed, Data label On입니다. 차트에는 검은 점선이 0K 바로 위에 가로로 그어져 있습니다.
+      :width: 1000
 
 #. **제목** — 위쪽 도구 모음의 **Text box**\ 를 누르고 ``원료 Chip Balance 현황: 현재 계획과 긴급 오더``\ 를 입력합니다. 글자를 모두 선택하고, 텍스트 도구 모음에서 글꼴 크기를 ``28``\ 로 하고 **B**\ (굵게)를 누릅니다.
 
    텍스트 상자를 선택하면 오른쪽 창이 **Format text box**\ 가 됩니다. **General** → **Properties**\ 에 위치와 크기를 입력합니다: Height ``96``, Width ``1480``, Horizontal ``32``, Vertical ``12``
 
    .. image:: ../assets/screenshots/d10-textbox.png
-      :alt: 제목 텍스트 상자를 선택한 화면. 텍스트 도구 모음에 글꼴 Segoe UI, 크기 28, 굵게가 선택되어 있고, 오른쪽은 Format text box 창의 General 탭입니다. 캔버스에 제목, 슬라이서, 카드, 꺾은선형 차트가 있습니다.
+      :alt: 제목 텍스트 상자를 선택한 화면. 텍스트 도구 모음에 글꼴 Segoe UI, 크기 28, 굵게가 선택되어 있고, 오른쪽은 Format text box 창의 General 탭입니다. 캔버스에 제목, 슬라이서, 카드, 묶은 세로 막대형 차트가 있습니다.
       :width: 1000
 
 **예상 결과:** 카드에 ``0``, ``1``, ``2026-10-06``, ``35,630``\ 이 보입니다. 현재 계획에서는 안전재고 아래로 내려가는 Bunker가 없고, 긴급 수주를 반영하면 1개가 10월 6일부터 미달하며 35,630 kg이 더 필요합니다.
-차트에서 파란 선(현재 계획)은 회색 선(안전재고) 위에 있고, 빨간 선(긴급 수주)은 10월 6일부터 회색 선 아래로 내려갑니다.
+차트에서 파란 막대(현재 계획)는 모두 점선(안전재고) 위에 있고, 빨간 막대(긴급 수주)는 10월 6일부터 점선 아래로 내려가며 0 아래로 내려가는 날도 있습니다.
 
 시각적 개체를 누르면 **Build visual**\ 에 넣은 필드가 보입니다. 카드와 차트의 필드를 확인합니다.
 
@@ -188,7 +208,7 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
    :width: 1000
 
 .. image:: ../assets/screenshots/d10-p1-chart.png
-   :alt: 원료 수급 현황 페이지에서 꺾은선형 차트를 선택한 화면. X-axis에 date_key, Y-axis에 현재 계획 재고 (kg), 긴급 오더 재고 (kg), 안전재고 (kg)가 있습니다. 차트 제목은 선택한 Bunker의 기말 재고 (kg): 현재 계획 · 긴급 오더 · 안전재고이고, 파란 선은 회색 선 위에 있으며 빨간 선은 회색 선 아래로 내려갑니다.
+   :alt: 원료 수급 현황 페이지에서 묶은 세로 막대형 차트를 선택한 화면. X-axis에 date_key, Y-axis에 현재 계획 재고 (kg), 긴급 오더 재고 (kg)가 있습니다. 차트 제목은 선택한 Bunker의 기말 재고 (kg): 현재 계획 · 긴급 오더 (점선: 안전재고)이고, 날짜마다 파란 막대와 빨간 막대가 나란히 있으며 빨간 막대는 점선 아래나 0 아래로 내려가는 날이 많습니다.
    :width: 1000
 
 5. 저장
@@ -225,21 +245,23 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
       :alt: 긴급 오더 대응안 페이지에서 표를 선택한 화면. Build visual의 Columns에 option_id, option_name, C1 안전재고, C2 용량, C3 납기, C4 이송 한도, 추천 순위, 추가 비용 (원), 첫 도착일, 판단이 있습니다. 표 머리글은 파란색이고, OPT-1부터 OPT-4까지 4행에 ✅와 ❌, 1순위 (추천), 2순위, 추가 비용, 첫 도착일, 판단이 보입니다.
       :width: 1000
 
-#. **꺾은선형 차트** — **Line chart**\ 를 넣고 아래 필드를 차례로 체크합니다.
+#. **묶은 세로 막대형 차트** — **Clustered column chart**\ 를 넣고 아래 필드를 차례로 체크합니다.
 
+   * ``fact_option_balance``\ 의 ``추천안 적용 후 재고 (kg)``, ``fact_balance``\ 의 ``긴급 오더 재고 (kg)`` → **Y-axis**
    * ``dim_date``\ 의 ``date_key`` → **X-axis**
-   * ``fact_option_balance``\ 의 ``추천안 적용 후 재고 (kg)``, ``fact_balance``\ 의 ``긴급 오더 재고 (kg)``, ``안전재고 (kg)`` → **Y-axis**
 
-   **Title**\ 의 **Text**\ 에 아래 제목을 입력하고, **Subtitle**\ 은 **Off**\ 로 둡니다.
+   **Title**\ 의 **Text**\ 에 아래 제목을 입력하고, **Subtitle**\ 은 **Off**\ 로 합니다. **Columns** → **Layout**\ 의 **Space between categories**\ 는 ``10``\ 으로 합니다.
 
    .. code-block:: text
 
-      선택한 Bunker의 기말 재고 (kg): 추천안 적용 후 · 긴급 오더 · 안전재고
+      선택한 Bunker의 기말 재고 (kg): 추천안 적용 후 · 긴급 오더 (점선: 안전재고)
+
+   **Analytics**\ 에서 4단계와 같이 **Y-Axis Constant Line**\ 을 넣습니다. 이름 ``안전재고``, **Value**\ 의 **fx** → ``fact_balance``\ 의 ``안전재고 (kg)``, 검정, **Transparency** ``0``, **Data label** **On**\ (**Right**, **Both**, 검정)입니다.
 
    위치와 크기: Height ``384``, Width ``1856``, Horizontal ``32``, Vertical ``672``
 
    .. image:: ../assets/screenshots/d10-p2-chart.png
-      :alt: 긴급 오더 대응안 페이지에서 꺾은선형 차트를 선택한 화면. X-axis에 date_key, Y-axis에 추천안 적용 후 재고 (kg), 긴급 오더 재고 (kg), 안전재고 (kg)가 있습니다. 파란 선은 회색 선 위에 있고 빨간 선은 회색 선 아래로 내려갑니다.
+      :alt: 긴급 오더 대응안 페이지에서 묶은 세로 막대형 차트를 선택한 화면. X-axis에 date_key, Y-axis에 추천안 적용 후 재고 (kg), 긴급 오더 재고 (kg)가 있습니다. 파란 막대는 모두 검은 점선 위에 있고, 빨간 막대는 점선 아래나 0 아래로 내려가는 날이 있습니다.
       :width: 1000
 
 #. **Ctrl+S**\ 를 눌러 저장합니다.
@@ -252,32 +274,33 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
    **예상 결과:** 4단계의 예상 결과와 같은 숫자와 차트가 보입니다.
 
    .. image:: ../assets/screenshots/d10-report-p1.png
-      :alt: 읽기 보기의 원료 수급 현황 페이지. 제목 원료 Chip Balance 현황: 현재 계획과 긴급 오더, 오른쪽 위 슬라이서 BNK-L3-2, 카드 미달 Bunker 수 (현재 계획) 0, 미달 Bunker 수 (긴급 오더) 1, 첫 미달일 (긴급 오더) 2026-10-06, 필요 보충량 (kg) 35,630이 있고, 아래 차트에 파란 선, 빨간 선, 회색 선이 있습니다.
+      :alt: 읽기 보기의 원료 수급 현황 페이지. 제목 원료 Chip Balance 현황: 현재 계획과 긴급 오더, 오른쪽 위 슬라이서 BNK-L3-2, 카드 미달 Bunker 수 (현재 계획) 0, 미달 Bunker 수 (긴급 오더) 1, 첫 미달일 (긴급 오더) 2026-10-06, 필요 보충량 (kg) 35,630이 있고, 아래 차트에 날짜마다 파란 막대와 빨간 막대, 검은 점선(안전재고: 12,000)이 있습니다.
       :width: 1000
 
 #. **Pages**\ 에서 ``긴급 오더 대응안``\ 을 고릅니다.
 
    **예상 결과:** 카드에 ``2``, ``OPT-2 Bunker 간 이송``, ``1,000,000``\ 이 보입니다.
    표에서 ``OPT-2``\ 와 ``OPT-3``\ 은 C1~C4가 모두 ✅이고 추천 순위가 ``1순위 (추천)``, ``2순위``\ 입니다. ``OPT-1``\ 은 C1, ``OPT-4``\ 는 C1과 C3이 ❌입니다.
-   차트의 파란 선(추천안 적용 후)은 회색 선(안전재고) 위에 있습니다. 06장에서 계산한 결과와 같습니다.
+   차트의 파란 막대(추천안 적용 후)는 모두 점선(안전재고) 위에 있습니다. 06장에서 계산한 결과와 같습니다.
 
    .. image:: ../assets/screenshots/d10-report-p2.png
-      :alt: 읽기 보기의 긴급 오더 대응안 페이지. 카드 기준 충족 대응안 수 2, 추천안 OPT-2 Bunker 간 이송, 추천안 추가 비용 (원) 1,000,000이 있습니다. 표에서 OPT-1은 C1 ❌, OPT-2는 모두 ✅와 1순위 (추천), OPT-3은 모두 ✅와 2순위, OPT-4는 C1과 C3 ❌이고 판단에 C1 안전재고: BNK-L3-2 10/12부터 미달, C3 납기: SO-10322 완료 10/12, 납기 10/08이 두 줄로 보입니다. 아래 차트에서 파란 선은 회색 선 위에 있습니다.
+      :alt: 읽기 보기의 긴급 오더 대응안 페이지. 카드 기준 충족 대응안 수 2, 추천안 OPT-2 Bunker 간 이송, 추천안 추가 비용 (원) 1,000,000이 있습니다. 표에서 OPT-1은 C1 ❌, OPT-2는 모두 ✅와 1순위 (추천), OPT-3은 모두 ✅와 2순위, OPT-4는 C1과 C3 ❌이고 판단에 C1 안전재고: BNK-L3-2 10/12부터 미달, C3 납기: SO-10322 완료 10/12, 납기 10/08이 두 줄로 보입니다. 아래 차트에서 파란 막대는 모두 검은 점선 위에 있습니다.
       :width: 1000
 
 #. 슬라이서에서 추천안이 PET-SD를 보내는 ``BNK-L1-2``\ 를 고릅니다.
 
-   **예상 결과:** ``긴급 오더 대응안`` 페이지의 파란 선이 이송한 만큼 빨간 선보다 낮지만, 최저 16,763 kg으로 회색 선(안전재고 6,000 kg) 위에 있습니다. 확인한 뒤 ``BNK-L3-2``\ 로 되돌립니다.
+   **예상 결과:** ``긴급 오더 대응안`` 페이지의 파란 막대가 이송한 만큼 빨간 막대보다 낮지만, 최저 16,763 kg으로 점선(안전재고: 6,000) 위에 있습니다. 확인한 뒤 ``BNK-L3-2``\ 로 되돌립니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * **Apply** 뒤 오류가 나면 아래 **Problems** 탭에서 오류가 난 줄을 확인합니다. 테이블이 없다는 오류이면 **Model view** 리본의 **Edit tables**\ 에서 1단계의 테이블 7개가 모두 체크되어 있는지 확인하고 다시 **Apply**\ 를 누릅니다.
 * 시각적 개체에 관계를 다시 계산해야 한다는 오류가 보이면 2단계의 **Refresh** → **Data**\ 를 다시 실행하고, 1분 뒤 보고서 탭을 새로 고칩니다.
 * Semantic model이 **Viewing**\ 으로 열리면 오른쪽 위 **Viewing**\ 을 누르고 **Editing**\ 을 고릅니다.
 * TMDL 스크립트 탭은 창을 닫으면 사라집니다. **Apply**\ 로 적용한 관계와 측정값은 모델에 남습니다.
 * 슬라이서 목록에 **(Blank)**\ 가 보이면 4단계의 ``is not (Blank)`` 필터를 확인합니다.
-* 차트 선의 색이 다르면 **Y-axis**\ 의 필드 순서를 확인합니다. 필드를 끌어서 순서를 바꿀 수 있습니다.
+* 막대 색이 다르면 **Y-axis**\ 의 필드 순서를 확인합니다. 필드를 끌어서 순서를 바꿀 수 있습니다.
+* 점선이 0에 그어지면 **Y-Axis Constant Line**\ 의 **Value**\ 에 **fx**\ 로 ``안전재고 (kg)``\ 를 지정했는지 확인합니다.
 * 시각적 개체가 겹쳐 선택하기 어려우면 먼저 위치와 크기를 입력해 자리를 옮깁니다.
 
 다음 단계

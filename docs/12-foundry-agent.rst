@@ -169,8 +169,8 @@ Work IQ 도구는 Microsoft 365 Copilot 라이선스가 있는 사용자만 조�
 
 #. **취소**\ 를 누릅니다. **도구**\ 에는 **Fabric IQ (ontchipbalance)** 하나만 남깁니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * **프로젝트 만들기**\ 에서 권한 오류가 나면 관리자에게 리소스 그룹 권한을 확인합니다(`관리자 준비 가이드 <../admin/README.rst>`_\ 의 "4. Microsoft Foundry").
 * **에이전트 이름**\ 에 ``_``\ 를 넣으면 만들 수 없습니다. ``fa-chipbalance``\ 처럼 ``-``\ 를 씁니다.

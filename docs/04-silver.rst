@@ -127,8 +127,8 @@
       :alt: 9. Silver 정리 결과. Silver 테이블, 행 수 열이 있는 15행 표입니다. silver_purchase_order_open 719, silver_bunker_level 17267, silver_quarantine 23입니다.
       :width: 900
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * ``TABLE_OR_VIEW_NOT_FOUND`` 오류가 나면 03장 ``03_bronze``\ 를 먼저 실행합니다.
 * 격리 건수가 다르면 02장부터 다시 실행합니다. 02를 다시 실행하면 03, 04도 다시 실행합니다.

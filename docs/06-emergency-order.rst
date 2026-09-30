@@ -213,8 +213,8 @@
 
 추천은 계산 결과입니다. 11장에서 Operations agent가 이 추천을 Teams로 보내고, 담당자가 승인합니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * ``TABLE_OR_VIEW_NOT_FOUND`` 오류가 나면 05장 ``05_gold``\ 를 먼저 실행합니다.
 * 05장을 다시 실행하면 ``emergency`` 행이 지워집니다. 이 Notebook을 다시 실행합니다.

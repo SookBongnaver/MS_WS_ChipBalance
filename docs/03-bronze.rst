@@ -82,8 +82,8 @@ Silver나 Gold 결과가 이상하면 Bronze에서 원본 행을 찾아 비교�
 
 Bronze·Silver·Gold 테이블 목록은 05장 마지막에 Catalog에서 한 번에 확인합니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * ``PATH_NOT_FOUND``\ 처럼 파일을 찾지 못한다는 오류가 나면 02장 ``02_source_data``\ 를 다시 실행합니다.
 * 행 수가 다르면 02장 **2. 원천 파일 만들기**\ 부터 다시 실행한 뒤 이 Notebook을 다시 실행합니다.

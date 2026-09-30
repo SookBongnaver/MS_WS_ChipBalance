@@ -179,8 +179,8 @@ Databricks가 저장한 Gold를 Fabric에서 그대로 읽습니다.
    :alt: SQL analytics endpoint의 SQL query 1. 위에 SELECT 문이 있고, 아래 Results에 balance_date, opening_kg, receipt_kg, requirement_kg, closing_kg, below_safety 열이 있는 10행 표가 있습니다. 2026-10-01 opening 30370, closing 22898입니다.
    :width: 1000
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * **10. OneLake에 저장**\ 에서 ``service credential`` 오류가 나면 01장 **5. OneLake 연결 확인**\ 을 다시 실행하고, 오류 메시지를 관리자에게 알립니다.
 * Fabric에 ``gold`` 테이블이 보이지 않으면 Explorer의 **Tables** 옆 **…** > **Refresh**\ 를 누릅니다.

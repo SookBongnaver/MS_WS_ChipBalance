@@ -185,8 +185,8 @@ Q6은 판단 기준 C1~C4 충족 여부를 표로 보여 주고 추천안을 답
 
 같은 6개 질문을 09장에서 Fabric의 Ontology agent에도 합니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * Genie가 "스토리지 접근 권한 문제로 쿼리를 실행할 수 없다"고 답하면 4단계에서 **Default warehouse**\ 가 ``chipbalance-pro``\ 인지 확인합니다.
 * 답이 정답과 다르면 답 아래 **Show code**\ 로 SQL을 확인합니다. 시나리오(``baseline``/``emergency``) 조건이 빠졌으면 질문에 "긴급 오더를 반영하면"처럼 시나리오를 밝혀 다시 묻습니다.

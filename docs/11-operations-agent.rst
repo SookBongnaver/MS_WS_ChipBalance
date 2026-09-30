@@ -334,8 +334,8 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 #. Notebook은 Lakehouse에도 기록합니다. ``dbo.chip_decision_log``\ 에 ``EVT-20261001-001``, ``OPT-2``, ``approved`` 행이 생기고, ``gold.fact_risk_event``\ 의 ``status``\ 가 ``approved``\ 가 됩니다.
 #. ``oa_chipbalance``\ 로 돌아가 도구 모음의 **Stop**\ 을 누릅니다. 에이전트는 멈추기 전까지 5분마다 조회하며 용량을 씁니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * **Generate playbook** 뒤 **No playbook generated**\ 와 함께 데이터를 어디서 읽을지 알 수 없다는 안내가 보이면, 지침에 ``RiskEventStatus.event_status``\ 처럼 테이블 이름과 열 이름이 들어 있는지, **Knowledge**\ 가 ``eh_chipbalance``\ 인지 확인합니다. 저장한 뒤 다시 **Generate playbook**\ 을 누릅니다.
 * 데이터 원본이 요청을 제한하고 있다는 안내(rate-limiting)가 보이면 1~2분 뒤 다시 **Generate playbook**\ 을 누릅니다.

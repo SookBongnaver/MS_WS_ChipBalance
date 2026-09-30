@@ -175,8 +175,8 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider``\ 로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.
 * 관리자가 설정한 화면은 `관리자 준비 가이드 <../admin/README.rst>`_\ 의 "2. 관리 ID와 service credential"에 있습니다.
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * **1. Compute 확인**\ 에서 "배정받은 Classic Compute를 선택한 뒤 다시 실행하세요" 오류가 나면 3단계로 돌아갑니다.
 * "participant는 p001처럼 …" 오류가 나면 4단계에서 참가자 번호를 고치고 그 셀부터 다시 실행합니다.

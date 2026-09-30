@@ -226,8 +226,8 @@ Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여�
    :alt: Configure projection 화면. 오른쪽 위에 Creating graph model, This process may take a few minutes 알림이 있고, 위쪽 탭에 ont_chipbalance_graph_로 시작하는 Graph model이 열려 있습니다. Entities 표의 엔터티와 관계는 모두 Eligible입니다.
    :width: 1000
 
-문제가 생기면
-----------------
+Troubleshooting
+---------------
 
 * 초안에 엔터티 타입이 17개보다 적으면 답의 참고 내용에서 빠진 테이블을 확인합니다. 06장을 실행하고 Lakehouse에 ``fact_response_option``, ``fact_option_balance``, ``fact_risk_event``\ 가 있는지 확인한 뒤, "빠진 테이블을 lh_chipbalance_p001의 gold 스키마에서 다시 찾아서 초안에 추가해줘"라고 요청합니다.
 * **Manage graph**\ 에서 관계의 **Source**\ 가 **Not mapped**\ 이면 그 관계의 방향을 확인합니다. 연결 열이 있는 테이블의 엔터티가 **Origin entity type**\ 이어야 합니다.
