@@ -101,11 +101,11 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 --------------
 
 .. image:: ../assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent와 Operations agent가 Ontology를 근거로 동작합니다. 담당자는 Microsoft Teams에서 Operations agent의 제안을 받고 승인합니다.
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 위험 이벤트를 5분마다 조회해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다.
    :width: 1000
 
 * **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다.
-* **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 대응안을 제안합니다.
+* **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 Eventhouse의 위험 이벤트를 감시해 대응안을 제안합니다.
 * **Microsoft 365** — 담당자가 Teams에서 Operations agent의 제안을 받고 승인합니다.
 
 의사결정 흐름
