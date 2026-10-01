@@ -198,7 +198,7 @@ def architecture():
     d.icon("foundry.svg", 1470, 242)
     d.text(1532, 248, "Microsoft Foundry", 23, 220, True)
     d.text(1470, 304, "담당자가 승인하기 전에\n대응안의 근거를 묻습니다", 17, 280)
-    d.card(1470, 370, 270, 170, "Foundry agent", "12 fa-chipbalance\nFabric IQ 도구로\nOntology를 근거로 답변",
+    d.card(1470, 370, 270, 170, "Foundry agent", "12 fa-chipbalance\nFabric IQ → Ontology 근거\nWork IQ → Teams·메일 맥락",
            "foundry-agent.svg")
     d.arrow([(1470, 500), (1430, 500), (1430, 613), (1020, 613)])
     d.text(1394, 584, "Fabric IQ", 14, 70)
@@ -206,13 +206,13 @@ def architecture():
     # Microsoft 365
     d.rect(1450, 580, 310, 432, GRAY, True)
     d.text(1470, 596, "Microsoft 365", 23, 270, True)
-    d.card(1470, 632, 270, 100, "Copilot · Cowork", "Fabric IQ · Work IQ 플러그인", "copilot.svg", dashed=True)
+    d.card(1470, 628, 270, 125, "Copilot · Cowork", "Work IQ 기본 · 메일·Teams 맥락\n+ Fabric IQ 플러그인 → Ontology", "copilot.svg", dashed=True)
     d.arrow([(1470, 662), (1440, 662), (1440, 626), (1020, 626)], True, GRAY)
-    d.card(1470, 750, 270, 135, "Microsoft Teams", "④ 채팅으로 제안 수신\nYes / No 승인", "teams.svg")
+    d.card(1470, 765, 270, 125, "Microsoft Teams", "④ 채팅으로 제안 수신\nYes / No 승인", "teams.svg")
     d.arrow([(1470, 775), (1430, 775), (1430, 715), (1390, 715)], True, GRAY)
     d.text(1394, 728, "Agent\nStore", 14, 50)
     d.card(1470, 902, 270, 100, "Outlook 메일", "공급사·고객 메일", "outlook.svg", dashed=True)
-    d.text(1680, 598, "Work IQ", 14, 70)
+    d.text(1696, 560, "Work IQ", 14, 70)
     d.arrow([(1740, 455), (1752, 455), (1752, 952), (1740, 952)], True, GRAY)
     d.arrow([(1752, 818), (1740, 818)], True, GRAY)
     d.arrow([(1390, 830), (1470, 830)])
