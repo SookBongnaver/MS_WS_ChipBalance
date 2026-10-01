@@ -3,7 +3,7 @@ Workshop: 원료 칩 수급과 긴급 수주 대응
 
 필름 공장의 원료 칩 재고와 긴급 수주 대응을 주제로 한 hands-on Workshop입니다.
 
-* **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 관리 ID로 Microsoft Fabric OneLake에 저장합니다. Genie Code를 통해 Unity Catalog에 테이블·열 설명을 넣습니다. Genie agent 에게 다양한 질문들을 합니다.
+* **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 Microsoft Fabric OneLake에 저장합니다(인증 방식: Managed Identity). Genie Code를 통해 Unity Catalog에 테이블·열 설명을 넣습니다. Genie agent 에게 다양한 질문들을 합니다.
 * **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. data agent가 Ontology를 근거로 질문에 답합니다.
 * **의사결정:** Fabric Operations agent가 Eventhouse에 들어온 위험 이벤트를 감시해 대응안을 Microsoft Teams로 제안하고, 담당자가 Teams에서 승인하면 Notebook이 승인 기록을 남깁니다.
 * **Microsoft Foundry:** Foundry agent에 Fabric IQ 도구로 Ontology를 연결해, 담당자가 승인하기 전에 대응안의 근거를 묻습니다.
@@ -25,7 +25,7 @@ Workshop: 원료 칩 수급과 긴급 수주 대응
 ------------
 
 * `00. 시나리오와 실습 순서 <docs/00-scenario.rst>`_ — 업무 상황, 원천 데이터, 계산 방식을 확인하고 실습 파일을 내려받습니다.
-* `01. Databricks 접속과 설정 <docs/01-connect.rst>`_ — Notebook을 가져오고 Compute를 연결한 뒤, 관리 ID로 OneLake 연결을 확인합니다.
+* `01. Databricks 접속과 설정 <docs/01-connect.rst>`_ — Notebook을 가져오고 Compute를 연결한 뒤, OneLake 연결을 확인합니다(인증 방식: Managed Identity).
 * `02. 원천 데이터 만들기 <docs/02-source-data.rst>`_ — Notebook으로 SAP·FPIMS·PVSS 원천 파일 14개를 만들고, 원료·Bunker·생산계획의 관계를 확인합니다.
 * `03. Bronze <docs/03-bronze.rst>`_ — 원천 파일을 그대로 Bronze 테이블로 적재합니다.
 * `04. Silver <docs/04-silver.rst>`_ — 형식·단위를 맞추고 중복·공란·미등록 코드·센서 이상값을 격리합니다.
