@@ -181,7 +181,7 @@ def architecture():
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
     d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 수주 비교\n대응안 검토", "power-bi.svg")
-    d.card(1060, 630, 330, 135, "Data agent", "09 Ontology를 데이터 원본으로\n자연어 질문에 답변", "data-agent.svg")
+    d.card(1060, 640, 330, 125, "Data agent", "09 Ontology를 데이터 원본으로\n자연어 질문에 답변", "data-agent.svg")
     d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology의 위험 이벤트 감시\nopen이 되면 대응안 제안",
            "operations-agent.svg")
     d.arrow([(1020, 395), (1060, 395)])
@@ -200,16 +200,17 @@ def architecture():
     d.text(1470, 304, "담당자가 승인하기 전에\n대응안의 근거를 묻습니다", 17, 280)
     d.card(1470, 370, 270, 170, "Foundry agent", "12 fa-chipbalance\nFabric IQ 도구로\nOntology를 근거로 답변",
            "foundry-agent.svg")
-    d.arrow([(1470, 500), (1430, 500), (1430, 617), (1020, 617)])
-    d.text(1396, 622, "Fabric IQ", 14, 70)
+    d.arrow([(1470, 500), (1430, 500), (1430, 613), (1020, 613)])
+    d.text(1394, 584, "Fabric IQ", 14, 70)
 
     # Microsoft 365
     d.rect(1450, 580, 310, 432, GRAY, True)
     d.text(1470, 596, "Microsoft 365", 23, 270, True)
     d.card(1470, 632, 270, 100, "Copilot · Cowork", "Fabric IQ · Work IQ 플러그인", "copilot.svg", dashed=True)
-    d.arrow([(1470, 682), (1390, 682)], True, GRAY)
-    d.text(1396, 688, "Fabric IQ", 14, 70)
+    d.arrow([(1470, 662), (1440, 662), (1440, 626), (1020, 626)], True, GRAY)
     d.card(1470, 750, 270, 135, "Microsoft Teams", "④ 채팅으로 제안 수신\nYes / No 승인", "teams.svg")
+    d.arrow([(1470, 775), (1430, 775), (1430, 715), (1390, 715)], True, GRAY)
+    d.text(1394, 742, "Teams", 14, 50)
     d.card(1470, 902, 270, 100, "Outlook 메일", "공급사·고객 메일", "outlook.svg", dashed=True)
     d.text(1680, 598, "Work IQ", 14, 70)
     d.arrow([(1740, 455), (1752, 455), (1752, 952), (1740, 952)], True, GRAY)

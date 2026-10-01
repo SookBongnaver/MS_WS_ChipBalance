@@ -101,10 +101,10 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 --------------
 
 .. image:: ../assets/architecture.svg
-   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent가 Ontology를 데이터 원본으로 질문에 답합니다. Operations agent는 Ontology의 위험 이벤트를 감시해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답합니다. Microsoft 365 Copilot·Cowork는 플러그인으로 Data agent와 Teams·Outlook 메일을 함께 활용할 수 있습니다(점선).
+   :alt: 전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent가 Ontology를 데이터 원본으로 질문에 답합니다. Operations agent는 Ontology의 위험 이벤트를 감시해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답합니다. Microsoft 365 Copilot·Cowork는 Fabric IQ·Work IQ 플러그인으로 Ontology와 Teams·Outlook 메일을 함께 활용하고, Data agent는 Teams에서 대화할 수 있습니다(점선).
    :width: 1000
 
-09장은 Ontology agent로, 11장은 Eventhouse ``eh_chipbalance``\ 를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 Microsoft 365 Copilot·Cowork(Fabric IQ로 Data agent에, Work IQ로 Teams·Outlook 메일에 연결)와 Foundry agent의 Work IQ 연결은 운영에 적용할 때 붙입니다.
+09장은 Ontology agent로, 11장은 Eventhouse ``eh_chipbalance``\ 를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 Microsoft 365 Copilot·Cowork(Fabric IQ·Work IQ 플러그인으로 Ontology와 Teams·Outlook 메일을 함께 활용), Teams에서 Data agent와 대화하는 연결, Foundry agent의 Work IQ 연결은 운영에 적용할 때 붙입니다.
 
 * **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다.
 * **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 Eventhouse의 위험 이벤트를 감시해 대응안을 제안합니다.
