@@ -136,7 +136,7 @@ Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agen
 #. **10. OneLake에 저장**
 
    Gold 테이블 18개를 Fabric Lakehouse ``lh_chipbalance_p001``\ 의 ``gold`` 스키마에 저장합니다. 이름에서 ``gold_``\ 를 빼서 ``gold_fact_balance``\ 는 ``gold.fact_balance``\ 가 됩니다.
-   관리 ID로 저장하며, 다시 실행하면 덮어씁니다. 소수 열(``actual_kg_per_kg`` 등)은 ``DOUBLE``\ 로 저장됩니다.
+   Managed Identity로 저장하며, 다시 실행하면 덮어씁니다. 소수 열(``actual_kg_per_kg`` 등)은 ``DOUBLE``\ 로 저장됩니다.
 
    **예상 결과:** 18행. ``Unity Catalog 행 수``\ 와 ``OneLake 행 수``\ 가 모두 같고, 아래에 OneLake 경로가 표시됩니다.
 

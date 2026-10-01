@@ -24,7 +24,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
      - 참가자별 Classic Compute (Dedicated), DBR 16.4 LTS, 20분 자동 종료, 라이브러리 ``deltalake==1.6.6``
    * - SQL warehouse
      - Pro SQL warehouse ``chipbalance-pro`` (2X-Small, 15분 자동 종료). 07장 Genie Agent가 사용
-   * - 관리 ID
+   * - Managed Identity
      - Access Connector for Azure Databricks ``ac-chipbalance-onelake``, Unity Catalog service credential ``chipbalance_onelake``
    * - Microsoft Fabric
      - F 용량, 작업 영역 ``chipbalance-pNNN``, Lakehouse ``lh_chipbalance_pNNN`` (Lakehouse schemas 켬)
@@ -116,10 +116,10 @@ SQL warehouse를 하나 만들어 모든 참가자가 함께 씁니다. 07장 Ge
   데이터 처리 지역 제한(**Enforce data processing within workspace Geography for AI features**)이 켜져 있으면 Genie Code를 쓸 수 없는 지역이 있습니다.
   참가자에게는 Databricks SQL 사용 권한(**Databricks SQL access** entitlement)이 필요합니다.
 
-2. 관리 ID와 service credential
-----------------------------------
+2. Managed Identity와 service credential
+----------------------------------------
 
-Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client secret을 만들지 않습니다.
+Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 client secret을 만들지 않습니다.
 
 #. Azure portal에서 **Access Connector for Azure Databricks**\ 를 만듭니다.
 
@@ -147,7 +147,7 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
    credential을 만든 소유자는 GRANT 없이 쓸 수 있습니다. 부여한 권한은 **Permissions** 탭에서 확인합니다.
 
 #. Fabric 작업 영역의 **Manage access**\ 에서 ``ac-chipbalance-onelake``\ 를 검색해 **Contributor**\ 로 추가합니다.
-   Access Connector의 관리 ID가 이 이름으로 보입니다.
+   Access Connector의 Managed Identity가 이 이름으로 보입니다.
 
    **예상 결과:** 목록에 ``ac-chipbalance-onelake`` (Service Principal)가 **Contributor**\ 로 보입니다.
 
@@ -155,7 +155,7 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
       :alt: chipbalance-p001 작업 영역의 Manage access 창. MOD Administrator는 Admin, ac-chipbalance-onelake (Service Principal)는 Contributor입니다.
       :width: 340
 
-* service credential 하나를 모든 참가자가 함께 쓰면, 이 관리 ID가 Contributor로 추가된 모든 작업 영역에 쓸 수 있습니다.
+* service credential 하나를 모든 참가자가 함께 쓰면, 이 Managed Identity가 Contributor로 추가된 모든 작업 영역에 쓸 수 있습니다.
   참가자별로 권한을 나누려면 참가자마다 Access Connector와 service credential을 따로 만듭니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider("chipbalance_onelake")``\ 로 토큰을 받습니다.
   Databricks Runtime 16.2 이상이 필요합니다.
@@ -181,7 +181,7 @@ Databricks는 관리 ID로 OneLake에 Gold를 씁니다. 비밀번호나 client 
    * - Users can access data stored in OneLake with apps external to Fabric
      - Databricks가 OneLake에 Gold 저장
    * - Service principals can call Fabric public APIs
-     - 관리 ID가 Fabric 작업 영역 권한으로 접근
+     - Managed Identity가 Fabric 작업 영역 권한으로 접근
    * - Users can create Ontology items
      - Fabric IQ Ontology
    * - Users can use Copilot, AI Agents and other AI experiences powered by Azure OpenAI

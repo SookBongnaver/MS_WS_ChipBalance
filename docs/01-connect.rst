@@ -4,7 +4,7 @@
 `목차 <../README.rst>`_ | 이전: `00. 시나리오와 실습 순서 <00-scenario.rst>`_ | 다음: `02. 원천 데이터 만들기 <02-source-data.rst>`_
 
 Notebook을 Databricks로 가져오고, ``01_setup``\ 에 참가자 번호를 입력해 Unity Catalog와 OneLake 연결을 확인합니다.
-OneLake에 저장할 때는 관리 ID(Managed Identity)를 씁니다. 비밀번호나 키는 입력하지 않습니다.
+OneLake에 저장할 때는 Managed Identity를 씁니다. 비밀번호나 키는 입력하지 않습니다.
 
 관리자에게 받을 값은 세 가지입니다.
 
@@ -116,7 +116,7 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
      - Gold를 저장하는 Fabric 작업 영역과 Lakehouse
    * - ``service_credential``
      - ``chipbalance_onelake``
-     - OneLake에 저장할 때 쓰는 관리 ID
+     - OneLake에 저장할 때 쓰는 Managed Identity
 
 5. 셀 실행
 -------------
@@ -143,7 +143,7 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 
    결과는 출력되지 않습니다. 오류 없이 끝나면 됩니다.
    이 셀은 05·06장에서 Gold를 저장할 함수를 만듭니다. 저장할 때마다 service credential ``chipbalance_onelake``\ 에서
-   관리 ID 토큰을 받아 씁니다.
+   Managed Identity 토큰을 받아 씁니다.
 
 #. **5. OneLake 연결 확인**
 
@@ -160,20 +160,20 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 #. 왼쪽 **Workspaces**\ 에서 작업 영역 ``chipbalance-p001``\ 을 열고, Lakehouse ``lh_chipbalance_p001``\ 을 엽니다.
 #. 왼쪽 **Explorer**\ 에서 **Files** > ``chipbalance``\ 를 펼칩니다.
 
-**예상 결과:** ``connection_check`` 폴더가 보입니다. 5번 셀이 관리 ID로 OneLake에 쓴 결과입니다.
+**예상 결과:** ``connection_check`` 폴더가 보입니다. 5번 셀이 Managed Identity로 OneLake에 쓴 결과입니다.
 
 .. image:: ../assets/screenshots/d01-fabric-files.png
    :alt: Fabric Lakehouse lh_chipbalance_p001. Explorer에서 Files > chipbalance > connection_check 폴더가 보이고, 가운데 목록에도 connection_check 폴더가 있습니다.
    :width: 1000
 
-관리 ID로 저장하는 방식
---------------------------
+Managed Identity로 저장하는 방식
+--------------------------------
 
-* 관리자가 Azure에 Access Connector(``ac-chipbalance-onelake``)를 만들었습니다. 이 리소스에는 관리 ID가 붙어 있습니다.
-* 이 관리 ID를 Unity Catalog service credential ``chipbalance_onelake``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
-* Fabric 작업 영역 ``chipbalance-p001``\ 에는 이 관리 ID를 Contributor로 추가했습니다.
+* 관리자가 Azure에 Access Connector(``ac-chipbalance-onelake``)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
+* 이 Managed Identity를 Unity Catalog service credential ``chipbalance_onelake``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
+* Fabric 작업 영역 ``chipbalance-p001``\ 에는 이 Managed Identity를 Contributor로 추가했습니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider``\ 로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.
-* 관리자가 설정한 화면은 `관리자 준비 가이드 <../admin/README.rst>`_\ 의 "2. 관리 ID와 service credential"에 있습니다.
+* 관리자가 설정한 화면은 `관리자 준비 가이드 <../admin/README.rst>`_\ 의 "2. Managed Identity와 service credential"에 있습니다.
 
 Troubleshooting
 ---------------
