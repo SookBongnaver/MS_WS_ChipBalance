@@ -210,7 +210,7 @@ def architecture():
     d.arrow([(1470, 662), (1440, 662), (1440, 626), (1020, 626)], True, GRAY)
     d.card(1470, 750, 270, 135, "Microsoft Teams", "④ 채팅으로 제안 수신\nYes / No 승인", "teams.svg")
     d.arrow([(1470, 775), (1430, 775), (1430, 715), (1390, 715)], True, GRAY)
-    d.text(1394, 742, "Teams", 14, 50)
+    d.text(1394, 728, "Agent\nStore", 14, 50)
     d.card(1470, 902, 270, 100, "Outlook 메일", "공급사·고객 메일", "outlook.svg", dashed=True)
     d.text(1680, 598, "Work IQ", 14, 70)
     d.arrow([(1740, 455), (1752, 455), (1752, 952), (1740, 952)], True, GRAY)
