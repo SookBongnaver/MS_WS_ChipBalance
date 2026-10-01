@@ -172,7 +172,6 @@ def architecture():
     d.text(802, 248, "Microsoft Fabric | 현황 파악·대응안 제안", 23, 590, True)
     d.text(750, 304, "Gold로 현황을 파악하고, Agent가 대응안을 제안하고 질문에 답합니다", 17, 640)
     d.arrow([(620, 700), (680, 700), (680, 460), (750, 460)])
-    d.text(644, 712, "관리 ID\n저장", 15, 70)
     d.card(750, 360, 270, 180, "OneLake Gold",
            "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
            "lakehouse.svg")
