@@ -150,7 +150,7 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
    **예상 결과:** ``연결 확인 완료``, OneLake 경로, ``쓰기·읽기: 1행``\ 이 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-connection.png
-      :alt: 5. OneLake 연결 확인 셀. 결과에 연결 확인 완료, OneLake 경로 abfss://chipbalance-p001@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p001.lakehouse, 관리 ID(service credential) chipbalance_onelake, 쓰기·읽기 1행이 표시됩니다.
+      :alt: 5. OneLake 연결 확인 셀. 결과에 연결 확인 완료, OneLake 경로 abfss://chipbalance-p001@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p001.lakehouse, Managed Identity(service credential) chipbalance_onelake, 쓰기·읽기 1행이 표시됩니다.
       :width: 900
 
 6. Fabric에서 확인하기

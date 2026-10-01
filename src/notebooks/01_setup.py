@@ -41,7 +41,7 @@ print("Runtime:", cluster_tag("sparkVersion"))
 # MAGIC | `catalog`, `schema` | `lab_factory`, `chipbalance_p001` | Bronze·Silver·Gold 테이블을 저장하는 Unity Catalog 위치 |
 # MAGIC | `raw_volume` | `/Volumes/lab_factory/chipbalance_p001/raw` | 02에서 SAP·FPIMS·PVSS 원천 파일을 만드는 Volume |
 # MAGIC | `fabric_workspace`, `fabric_lakehouse` | `chipbalance-p001`, `lh_chipbalance_p001` | Gold를 저장하는 Fabric 작업 영역과 Lakehouse |
-# MAGIC | `service_credential` | `chipbalance_onelake` | OneLake에 저장할 때 쓰는 관리 ID |
+# MAGIC | `service_credential` | `chipbalance_onelake` | OneLake에 저장할 때 쓰는 Managed Identity |
 
 # COMMAND ----------
 participant = "p001"
@@ -77,13 +77,13 @@ print("원천 파일 Volume:", raw_volume)
 # MAGIC ## 4. OneLake 저장 함수
 # MAGIC Gold는 Fabric Lakehouse의 `Tables/gold` 폴더에 Delta 테이블로 저장합니다. Fabric은 이 폴더의 테이블을 자동으로 인식합니다.
 # MAGIC
-# MAGIC 인증에는 관리 ID(Managed Identity)를 씁니다. 관리자가 Access Connector의 관리 ID를
+# MAGIC 인증에는 Managed Identity를 씁니다. 관리자가 Access Connector의 Managed Identity를
 # MAGIC Unity Catalog service credential `chipbalance_onelake`로 등록하고, Fabric 작업 영역에 Contributor 권한을 주었습니다.
 # MAGIC Notebook에는 비밀번호나 키를 넣지 않습니다. 저장할 때마다 service credential에서 토큰을 받아 씁니다.
 # MAGIC
 # MAGIC | 함수 | 하는 일 |
 # MAGIC |---|---|
-# MAGIC | `onelake_options` | 관리 ID 토큰을 받아 OneLake 접속 옵션을 만듭니다. |
+# MAGIC | `onelake_options` | Managed Identity 토큰을 받아 OneLake 접속 옵션을 만듭니다. |
 # MAGIC | `write_delta` | Spark DataFrame을 OneLake 경로에 Delta 형식으로 덮어써서 저장하고, 저장된 행 수를 돌려줍니다. |
 # MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. `05_gold`와 `06_emergency_order`에서 씁니다. 소수(`DECIMAL`) 열은 `DOUBLE`로 바꿔 저장합니다. Fabric Ontology가 `DECIMAL`을 읽지 못하기 때문입니다. |
 
@@ -143,7 +143,7 @@ def write_gold(df, table):
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 5. OneLake 연결 확인
-# MAGIC 관리 ID로 토큰을 받아 Lakehouse의 `Files/chipbalance/connection_check`에 확인용 Delta 테이블을 쓰고 다시 읽습니다.
+# MAGIC Managed Identity로 토큰을 받아 Lakehouse의 `Files/chipbalance/connection_check`에 확인용 Delta 테이블을 쓰고 다시 읽습니다.
 # MAGIC Gold 테이블과 섞이지 않도록 `Files` 폴더에 저장합니다.
 # MAGIC
 # MAGIC **예상 결과:** `연결 확인 완료`, OneLake 경로, `쓰기·읽기: 1행`이 표시됩니다.
@@ -153,5 +153,5 @@ check = spark.sql(f"SELECT '{participant}' AS participant, current_timestamp() A
 check_rows = write_delta(check, f"{ONELAKE_ROOT}/Files/chipbalance/connection_check")
 print("연결 확인 완료")
 print("OneLake 경로:", ONELAKE_ROOT)
-print("관리 ID(service credential):", service_credential)
+print("Managed Identity(service credential):", service_credential)
 print("쓰기·읽기:", f"{check_rows}행")
