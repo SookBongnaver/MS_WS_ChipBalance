@@ -203,7 +203,7 @@ Operations agent는 이 앱의 **Fabric operations agent** 채팅으로 참가�
 #. 구독에 ``gpt-5`` 글로벌 표준 배포 할당량이 있는지 확인합니다. 에이전트를 만들면 ``gpt-5``\ 가 자동으로 배포됩니다.
 
 * Fabric IQ 도구는 로그인한 참가자의 Fabric 권한으로 Ontology를 읽습니다. 참가자는 작업 영역 ``chipbalance-pNNN``\ 의 **Contributor**\ 이면 됩니다.
-* 이 환경에서 Fabric IQ 도구가 Ontology(새 Ontology 환경)에 주는 기능은 ``list_ontology_entities``, ``list_ontology_rules``\ 입니다. 에이전트는 엔터티 정의와 업무 규칙 설명으로 답하고, 날짜별 값은 09장 Ontology agent에서 확인합니다.
+* Fabric IQ 도구가 Ontology에 주는 기능은 ``ask_ontology``\ (질문을 Ontology에 넘겨 연결된 데이터로 답), ``list_ontology_entities``, ``list_ontology_rules``\ 입니다. 12장 에이전트는 ``ask_ontology``\ 로 ``OPT-2``\ 를 반영한 BNK-L1-2의 최저 기말재고 같은 값을 답합니다.
   Ontology 엔드포인트의 도구 목록은 ``https://api.fabric.microsoft.com/v1/mcp/dataPlane/workspaces/<작업 영역 ID>/items/<Ontology ID>/ontologyEndpoint``\ 에 MCP ``tools/list``\ 를 보내 확인할 수 있습니다.
 * 비용은 모델 토큰 사용량만큼 나옵니다. 프로젝트를 만들 때 권장 리소스(App Insights)를 끄므로 추적 저장 비용은 없습니다.
 * Work IQ 도구(Teams, Mail 등)는 Microsoft 365 Copilot 라이선스가 있는 사용자만 조회할 수 있습니다. 라이선스가 없으면 도구 호출이 ``WorkIQ license check failed``\ 로 실패하므로, 12장에서는 붙이는 화면만 보여 줍니다.
@@ -264,11 +264,10 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
 
 * 화면이 바뀌면 ``assets/screenshots``\ 의 같은 이름 파일을 교체합니다.
 * 구성도는 ``python tools/build_architecture.py``\ 로 다시 만듭니다. 아이콘 출처는 `구성도 아이콘 출처 <../assets/icon-attribution.rst>`_\ 에 있습니다.
-* Ontology 연결 확인: 새 Ontology 환경의 ``ont_chipbalance``\ 를 Operations agent, Data agent, Foundry agent가 데이터 값까지 읽을 수 있게 되면 아래를 Ontology 기준으로 고칩니다.
+* Ontology 연결 확인: 새 Ontology 환경의 ``ont_chipbalance``\ 를 Operations agent와 Data agent가 데이터 값까지 읽을 수 있게 되면 아래를 Ontology 기준으로 고칩니다. Foundry agent(12장)는 ``ask_ontology``\ 로 값을 읽습니다.
 
   - 09장: Ontology agent 대신 Data agent를 만들고 데이터 원본으로 ``ont_chipbalance``\ 를 연결합니다.
   - 11장: ``oa_chipbalance``\ 의 **Knowledge**\ 를 ``eh_chipbalance``\ 에서 ``ont_chipbalance``\ 로 바꾸고, 위험 이벤트(RiskEvent)를 Ontology에서 감시합니다. Eventhouse 만들기 단계를 지우고 ``nb_record_decision``\ 은 Lakehouse에만 기록하게 고칩니다.
-  - 12장: 5절 질문을 ``OPT-2``\ 를 반영한 BNK-L1-2의 최저 기말재고(16,763 kg)처럼 값을 묻는 질문으로 바꾸고, note를 지웁니다.
   - 구성도: Eventhouse 카드를 지우고, Ontology에서 Operations agent와 Data agent로 바로 잇습니다.
 
-  확인 방법: Operations agent에서 **Knowledge**\ 를 ``ont_chipbalance``\ 로 두고 **Generate playbook**\ 이 성공하는지, Ontology 엔드포인트의 MCP ``tools/list``\ 에 값을 조회하는 도구(예: ``ask_ontology``)가 있고 호출이 성공하는지 봅니다.
+  확인 방법: Operations agent에서 **Knowledge**\ 를 ``ont_chipbalance``\ 로 두고 **Generate playbook**\ 이 성공하는지, Data agent에서 데이터 원본으로 ``ont_chipbalance``\ 를 추가할 수 있는지 봅니다.

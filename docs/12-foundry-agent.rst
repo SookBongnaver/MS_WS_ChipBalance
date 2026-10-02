@@ -18,7 +18,7 @@
    * - 에이전트 ``fa-chipbalance``
      - 한국어 지침에 따라 질문에 답합니다. 모델은 ``gpt-5``\ 입니다.
    * - Fabric IQ 도구 (``ont_chipbalance``)
-     - Ontology의 엔터티 타입, 속성, 관계, 데이터 바인딩을 에이전트에 제공합니다. 로그인한 사용자의 Fabric 권한으로 읽습니다.
+     - 질문을 Ontology에 넘겨 엔터티·관계와 연결된 데이터로 답을 받아 옵니다. 로그인한 사용자의 Fabric 권한으로 읽습니다.
 
 에이전트 이름에는 영문, 숫자, ``-``\ 만 쓸 수 있습니다. 그래서 ``fa_chipbalance``\ 가 아니라 ``fa-chipbalance``\ 로 만듭니다.
 
@@ -125,29 +125,25 @@
 
    .. code-block:: text
 
-      OPT-2를 검토하려면 ont_chipbalance의 어떤 엔터티와 속성을 봐야 하나요? 대응안이 판단 기준을 만족하는지 보는 속성과 벙커별 안전재고를 보는 속성을 알려 주세요.
+      OPT-2(BNK-L1-2 → BNK-L3-2 PET-SD 40,000 kg 이송)를 반영하면 BNK-L1-2의 최저 기말재고는 몇 kg이고, 안전재고 이상인가요?
 
-   **예상 결과:** 대응안 판단 기준은 **ResponseOption**\ 의 ``c1_safety_pass``, ``c2_capacity_pass``, ``c3_due_date_pass``, ``c4_route_limit_pass``, ``meets_all``, 벙커별 안전재고는 **Bunker**\ 의 ``safety_stock_kg``\ 와 **OptionBalance**·**DailyBalance**\ 의 ``safety_stock_kg``, ``closing_kg``, ``below_safety``\ 라고 답합니다. 답 아래에 근거 표시 ``ontchipbalance``\ 가 있습니다. 문장은 AI가 만들므로 조금 다를 수 있습니다.
+   **예상 결과:** 최저 기말재고 16,763 kg(2026-11-01), 안전재고 6,000 kg으로 안전재고 이상이라고 답합니다. 근거로 **ResponseOption** ``OPT-2``\ (BNK-L1-2 → BNK-L3-2, 40,000 kg, 첫 도착일 2026-10-03), **Bunker** BNK-L1-2의 안전재고, **OptionBalance**\ 의 일자별 기말재고를 들고, 답 아래에 근거 표시 ``ontchipbalance``\ 가 있습니다. 09장 Ontology agent의 Q4 답과 같은 값입니다. 문장은 AI가 만들므로 조금 다를 수 있습니다. (1~2분)
 
-   .. image:: ../assets/screenshots/d12-ask-schema.png
-      :alt: fa-chipbalance 채팅 창. 질문 아래 답에 대응안 판단 기준 충족 여부 Entity ResponseOption, Properties c1_safety_pass, c2_capacity_pass, c3_due_date_pass, c4_route_limit_pass, meets_all, option_name, 벙커별 안전재고 확인 Entity Bunker, Property safety_stock_kg, OptionBalance와 DailyBalance의 safety_stock_kg, below_safety, closing_kg가 보입니다. 아래에 근거 ontchipbalance 두 개와 mcp_list_tools, ontchipbalance, message 표시가 있습니다.
+   .. image:: ../assets/screenshots/d12-ask-value.png
+      :alt: fa-chipbalance 채팅 창. 질문 아래 답에 최저 기말재고 16,763 kg (일자 2026-11-01), 안전재고 6,000 kg 대비 이상입니다가 있고, 근거 엔터티/값으로 ResponseOption OPT-2 BNK-L1-2 → BNK-L3-2, PET-SD, 40,000 kg, 첫 도착일 2026-10-03, Bunker BNK-L1-2 안전재고 6,000 kg, OptionBalance OPT-2 BNK-L1-2 일자별 기말재고 시계열 최저 16,763 kg at 2026-11-01이 보입니다. 아래에 근거 ontchipbalance 표시와 mcp_list_tools, ontchipbalance, message가 있습니다.
       :width: 700
 
-#. 답 아래의 **추적**\ 을 누르고, 왼쪽 목록에서 **ontchipbalance: list_ontology_entities**\ 를 고릅니다.
+#. 답 아래의 **추적**\ 을 누르고, 왼쪽 목록에서 **ontchipbalance: ask_ontology**\ 를 고릅니다.
 
-   **예상 결과:** 에이전트가 Fabric IQ 도구로 ``list_ontology_entities``\ 를 호출했고, **출력**\ 에 ``ont_chipbalance``\ 의 엔터티 정의(예: ``Line``\ 의 ``backingTable``\ 이 ``dim_line``)가 들어 있습니다. 에이전트는 이 정의를 근거로 답했습니다.
+   **예상 결과:** 에이전트가 Fabric IQ 도구의 ``ask_ontology``\ 로 질문을 Ontology에 넘겼고, **출력**\ 에 Ontology가 데이터에서 찾은 결론(최저 기말재고 16,763 kg, 일자 2026-11-01, 안전재고 6,000 kg, 안전재고 이상)이 들어 있습니다. 에이전트는 이 결과를 근거로 답했습니다.
 
    .. image:: ../assets/screenshots/d12-trace.png
-      :alt: 대화 추적 창. 왼쪽에 응답 아래 도구 mcp_list_tools, ontchipbalance: list_ontology_entities, message가 있고 ontchipbalance: list_ontology_entities가 선택되어 있습니다. 오른쪽 입출력 탭의 입력에는 server_label ontchipbalance, operation list_ontology_entities, 출력에는 documents 아래 Line 엔터티 정의와 backingTable dim_line이 보입니다.
+      :alt: 대화 추적 창. 왼쪽에 응답 아래 도구 mcp_list_tools, ontchipbalance: ask_ontology, message가 있고 ontchipbalance: ask_ontology가 선택되어 있습니다. 오른쪽 입출력 탭의 입력에는 server_label ontchipbalance, operation ask_ontology와 OPT-2를 반영한 BNK-L1-2의 최저 기말재고를 묻는 request가 있고, 출력에는 최저 기말재고 16,763 kg, 해당 일자 2026-11-01, BNK-L1-2 안전재고 6,000 kg, 판정 안전재고 이상이 보입니다.
       :width: 1000
 
 #. 오른쪽 위 **X**\ 를 눌러 추적 창을 닫습니다.
 
-.. note::
-
-   이 환경에서 Fabric IQ 도구가 에이전트에 주는 기능은 Ontology의 엔터티 목록(``list_ontology_entities``)과 규칙 목록(``list_ontology_rules``)입니다.
-   에이전트는 엔터티 타입, 속성, 관계, 데이터 바인딩, 업무 규칙 설명을 근거로 답합니다.
-   ``OPT-2``\ 를 반영한 BNK-L1-2의 최저 기말재고(16,763 kg)처럼 날짜별 값이 필요한 질문은 09장 Ontology agent에서 확인합니다.
+Fabric IQ 도구는 질문에 따라 Ontology의 엔터티 정의를 읽거나(``list_ontology_entities``), 질문을 Ontology에 넘겨 연결된 데이터로 답을 받습니다(``ask_ontology``).
 
 6. (참고) Work IQ 도구 붙이기
 --------------------------------
@@ -175,7 +171,7 @@ Troubleshooting
 * **프로젝트 만들기**\ 에서 권한 오류가 나면 관리자에게 리소스 그룹 권한을 확인합니다(`관리자 준비 가이드 <../admin/README.rst>`_\ 의 "4. Microsoft Foundry").
 * **에이전트 이름**\ 에 ``_``\ 를 넣으면 만들 수 없습니다. ``fa-chipbalance``\ 처럼 ``-``\ 를 씁니다.
 * **OneLake 카탈로그**\ 에 ``ont_chipbalance``\ 가 없으면 Foundry와 Fabric에 같은 계정으로 로그인했는지, ``chipbalance-p001`` 작업 영역에 권한이 있는지 확인합니다.
-* 질문을 보냈는데 **추적**\ 에 ``ontchipbalance: list_ontology_entities``\ 가 없으면 **도구**\ 에 **Fabric IQ (ontchipbalance)**\ 가 있는지, **저장**\ 을 눌렀는지 확인하고 오른쪽 위 **새 채팅**\ 에서 다시 묻습니다.
+* 질문을 보냈는데 **추적**\ 에 ``ontchipbalance: ask_ontology``\ 가 없으면 **도구**\ 에 **Fabric IQ (ontchipbalance)**\ 가 있는지, **저장**\ 을 눌렀는지 확인하고 오른쪽 위 **새 채팅**\ 에서 다시 묻습니다.
 
 다음 단계
 ------------

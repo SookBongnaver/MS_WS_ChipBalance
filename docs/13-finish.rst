@@ -38,7 +38,7 @@
      - Teams에서 ``OPT-2``\ 를 승인하면 ``RiskEventStatus``\ 에 ``approved`` 행이, ``dbo.chip_decision_log``\ 에 승인 내역이 생깁니다.
    * - 12
      - Foundry 프로젝트 ``chipbalance-p001``, 에이전트 ``fa-chipbalance``
-     - 에이전트가 Fabric IQ 도구로 ``ont_chipbalance``\ 를 읽고, 대응안 검토에 쓸 엔터티와 속성을 답합니다.
+     - 에이전트가 Fabric IQ 도구로 ``ont_chipbalance``\ 에 물어, ``OPT-2``\ 를 반영한 BNK-L1-2의 최저 기말재고 16,763 kg이 안전재고 6,000 kg 이상이라고 답합니다.
 
 같은 Gold를 Genie, Ontology agent, Power BI, Operations agent, Foundry agent가 함께 씁니다.
 계산은 Databricks에서 한 번 하고, 결정은 담당자가 Teams에서 합니다.

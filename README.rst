@@ -36,7 +36,7 @@ Workshop: 원료 칩 수급과 긴급 수주 대응
 * `09. Ontology agent에 질문하기 <docs/09-ontology-agent.rst>`_ — 업무 규칙을 Ontology 설명에 넣고, Genie와 같은 질문을 Ontology agent에 해 정답과 비교합니다.
 * `10. Power BI 보고서 <docs/10-power-bi.rst>`_ — Direct Lake semantic model에 관계와 측정값을 넣고, 원료 수급 현황과 긴급 수주 대응안 보고서를 만듭니다.
 * `11. Operations agent <docs/11-operations-agent.rst>`_ — Eventhouse에 위험 이벤트를 보내면 Operations agent가 대응안을 Teams로 제안하고, 승인하면 Notebook이 승인 기록을 남깁니다.
-* `12. Foundry agent <docs/12-foundry-agent.rst>`_ — Microsoft Foundry 에이전트에 Fabric IQ 도구로 Ontology를 연결하고, 대응안을 검토할 때 볼 엔터티와 속성을 묻습니다.
+* `12. Foundry agent <docs/12-foundry-agent.rst>`_ — Microsoft Foundry 에이전트에 Fabric IQ 도구로 Ontology를 연결하고, 대응안의 근거 수치를 묻습니다.
 * `13. 마무리 <docs/13-finish.rst>`_ — 만든 결과를 확인하고, 에이전트를 멈추고 용량을 정리합니다.
 
 실습 파일
