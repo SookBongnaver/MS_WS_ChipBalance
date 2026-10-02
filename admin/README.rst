@@ -271,3 +271,8 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
   - 구성도: Eventhouse 카드를 지우고, Ontology에서 Operations agent와 Data agent로 바로 잇습니다.
 
   확인 방법: Operations agent에서 **Knowledge**\ 를 ``ont_chipbalance``\ 로 두고 **Generate playbook**\ 이 성공하는지, Data agent에서 데이터 원본으로 ``ont_chipbalance``\ 를 추가할 수 있는지 봅니다.
+
+  2026-10-02 확인 결과: 두 곳 모두 아직 열리지 않았습니다.
+
+  - Operations agent: **Generate playbook**\ 이 "No playbook generated"로 끝나고, 에이전트는 Ontology의 스키마만 읽을 수 있다고 답합니다.
+  - Data agent: ``ont_chipbalance``\ 를 추가하면 "Failed to add ontology"가 뜨고, 알림에 ``Ontology support is not enabled.``\ 가 남습니다.
