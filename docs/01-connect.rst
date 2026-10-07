@@ -99,10 +99,10 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
      - 값 (``p001``\ 일 때)
      - 용도
    * - ``catalog``, ``schema``
-     - ``lab_factory``, ``chipbalance_p001``
+     - ``lab_factory_p001``, ``chipbalance_p001``
      - Bronze·Silver·Gold 테이블 위치 (Unity Catalog)
    * - ``raw_volume``
-     - ``/Volumes/lab_factory/chipbalance_p001/raw``
+     - ``/Volumes/lab_factory_p001/chipbalance_p001/raw``
      - 02장에서 원천 파일을 만드는 곳
    * - ``fabric_workspace``, ``fabric_lakehouse``
      - ``chipbalance-p001``, ``lh_chipbalance_p001``
@@ -123,15 +123,15 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
 
 #. **3. Unity Catalog 확인**
 
-   설정값을 검증하고 Catalog ``lab_factory``, 스키마 ``chipbalance_p001``, Volume ``raw``\ 가 없으면
+   설정값을 검증하고 Catalog ``lab_factory_p001``, 스키마 ``chipbalance_p001``, Volume ``raw``\ 가 없으면
    ``CREATE ... IF NOT EXISTS``\ 로 준비한 뒤 실제 접근까지 확인합니다.
    관리자가 리소스를 미리 만들었다면 기존 리소스를 그대로 사용합니다.
 
-   **예상 결과:** 스키마 ``lab_factory.chipbalance_p001``\ 과 Volume 경로
-   ``/Volumes/lab_factory/chipbalance_p001/raw``\ 가 표시됩니다.
+   **예상 결과:** 스키마 ``lab_factory_p001.chipbalance_p001``\ 과 Volume 경로
+   ``/Volumes/lab_factory_p001/chipbalance_p001/raw``\ 가 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-uc.png
-      :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory.chipbalance_p001과 원천 파일 Volume: /Volumes/lab_factory/chipbalance_p001/raw가 표시됩니다.
+      :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory_p001.chipbalance_p001과 원천 파일 Volume: /Volumes/lab_factory_p001/chipbalance_p001/raw가 표시됩니다.
       :width: 900
 
 #. **4. OneLake 저장 함수**

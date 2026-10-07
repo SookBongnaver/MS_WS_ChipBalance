@@ -134,12 +134,12 @@
 --------------------------
 
 #. 왼쪽 메뉴에서 **Catalog**\ 를 누릅니다.
-#. ``lab_factory`` > ``chipbalance_p001`` > **Volumes** > ``raw``\ 를 차례로 펼치고 ``sap`` 폴더를 누릅니다.
+#. ``lab_factory_p001`` > ``chipbalance_p001`` > **Volumes** > ``raw``\ 를 차례로 펼치고 ``sap`` 폴더를 누릅니다.
 
 **예상 결과:** ``raw`` 아래에 ``fpims``, ``pvss``, ``sap`` 폴더가 있고, ``sap`` 폴더에 CSV 파일 5개가 보입니다.
 
 .. image:: ../assets/screenshots/d02-volume.png
-   :alt: Catalog 화면. 왼쪽 목록에서 lab_factory > chipbalance_p001 > Volumes > raw > sap이 선택되어 있고, 가운데에 sap_material.csv 등 CSV 파일 5개가 보입니다.
+   :alt: Catalog 화면. 왼쪽 목록에서 lab_factory_p001 > chipbalance_p001 > Volumes > raw > sap이 선택되어 있고, 가운데에 sap_material.csv 등 CSV 파일 5개가 보입니다.
    :width: 1000
 
 정리: 긴급 수주와 연결되는 데이터

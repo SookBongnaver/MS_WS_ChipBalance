@@ -26,8 +26,8 @@
 # MAGIC
 # MAGIC | 이름 | 값 (`p001`일 때) | 용도 |
 # MAGIC |---|---|---|
-# MAGIC | `catalog`, `schema` | `lab_factory`, `chipbalance_p001` | Bronze·Silver·Gold 테이블을 저장하는 Unity Catalog 위치 |
-# MAGIC | `raw_volume` | `/Volumes/lab_factory/chipbalance_p001/raw` | 02에서 SAP·FPIMS·PVSS 원천 파일을 만드는 Volume |
+# MAGIC | `catalog`, `schema` | `lab_factory_p001`, `chipbalance_p001` | Bronze·Silver·Gold 테이블을 저장하는 Unity Catalog 위치 |
+# MAGIC | `raw_volume` | `/Volumes/lab_factory_p001/chipbalance_p001/raw` | 02에서 SAP·FPIMS·PVSS 원천 파일을 만드는 Volume |
 # MAGIC | `fabric_workspace`, `fabric_lakehouse` | `chipbalance-p001`, `lh_chipbalance_p001` | Gold를 저장하는 Fabric 작업 영역과 Lakehouse |
 # MAGIC | `service_credential` | `chipbalance_onelake` | OneLake에 저장할 때 쓰는 Managed Identity |
 
@@ -36,7 +36,7 @@ import re
 
 participant = "p001"
 
-catalog = "lab_factory"
+catalog = f"lab_factory_{participant}"
 schema = f"chipbalance_{participant}"
 raw_volume = f"/Volumes/{catalog}/{schema}/raw"
 fabric_workspace = f"chipbalance-{participant}"

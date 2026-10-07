@@ -199,12 +199,13 @@ class NotebookTests(unittest.TestCase):
                         statements.append(statement)
 
                 schema = f"chipbalance_{participant}"
-                raw_volume = f"/Volumes/lab_factory/{schema}/raw"
+                catalog = f"lab_factory_{participant}"
+                raw_volume = f"/Volumes/{catalog}/{schema}/raw"
                 listed = []
                 namespace = {
                     "re": re,
                     "participant": participant,
-                    "catalog": "lab_factory",
+                    "catalog": catalog,
                     "schema": schema,
                     "raw_volume": raw_volume,
                     "spark": Spark(),
@@ -216,10 +217,10 @@ class NotebookTests(unittest.TestCase):
                 exec(setup_cell, namespace)
 
                 self.assertEqual(statements, [
-                    "CREATE CATALOG IF NOT EXISTS `lab_factory`",
-                    f"CREATE SCHEMA IF NOT EXISTS `lab_factory`.`{schema}`",
-                    f"CREATE VOLUME IF NOT EXISTS `lab_factory`.`{schema}`.`raw`",
-                    "USE CATALOG `lab_factory`",
+                    f"CREATE CATALOG IF NOT EXISTS `{catalog}`",
+                    f"CREATE SCHEMA IF NOT EXISTS `{catalog}`.`{schema}`",
+                    f"CREATE VOLUME IF NOT EXISTS `{catalog}`.`{schema}`.`raw`",
+                    f"USE CATALOG `{catalog}`",
                     f"USE SCHEMA `{schema}`",
                 ])
                 self.assertEqual(listed, [raw_volume])
@@ -232,9 +233,9 @@ class NotebookTests(unittest.TestCase):
                 namespace = {
                     "re": re,
                     "participant": participant,
-                    "catalog": "lab_factory",
+                    "catalog": f"lab_factory_{participant}",
                     "schema": schema,
-                    "raw_volume": f"/Volumes/lab_factory/{schema}/raw",
+                    "raw_volume": f"/Volumes/lab_factory_{participant}/{schema}/raw",
                 }
                 with self.assertRaisesRegex(ValueError, "participant는 p001처럼"):
                     exec(setup_cell, namespace)

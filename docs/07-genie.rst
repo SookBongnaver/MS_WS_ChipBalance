@@ -37,7 +37,7 @@ Genie는 자연어 질문을 SQL로 바꿔 답합니다(LLM to SQL). 이때 Unit
 
    .. code-block:: text
 
-      lab_factory.chipbalance_p001 스키마에서 이름이 gold_로 시작하는 테이블을 모두 분석해서 Unity Catalog에 한국어 설명을 넣어줘.
+      lab_factory_p001.chipbalance_p001 스키마에서 이름이 gold_로 시작하는 테이블을 모두 분석해서 Unity Catalog에 한국어 설명을 넣어줘.
       1. 테이블마다 데이터를 조회해서 한 행이 무엇인지, 키 열, 값의 범위와 단위, 다른 gold 테이블과 연결되는 열을 확인해.
       2. 테이블 설명에는 한 행의 의미, 기간, 시나리오(baseline은 현재 계획, emergency는 긴급 오더 반영), 연결되는 테이블을 2~3문장으로 써.
       3. 모든 열에 설명을 넣어. 단위(kg, 원, 일)를 쓰고, 계산 열에는 계산식을 써. 예: closing_kg = opening_kg + receipt_kg + transfer_in_kg - transfer_out_kg - requirement_kg
@@ -47,7 +47,7 @@ Genie는 자연어 질문을 SQL로 바꿔 답합니다(LLM to SQL). 이때 Unit
    참가자 번호가 ``p001``\ 이 아니면 첫 줄의 ``chipbalance_p001``\ 을 본인 스키마로 바꿉니다.
 
    .. image:: ../assets/screenshots/d07-genie-code-prompt.png
-      :alt: Genie Code 창. 아래 입력 칸에 lab_factory.chipbalance_p001 스키마에서 이름이 gold_로 시작하는 테이블을 모두 분석해서로 시작하는 프롬프트 5줄이 입력되어 있습니다.
+      :alt: Genie Code 창. 아래 입력 칸에 lab_factory_p001.chipbalance_p001 스키마에서 이름이 gold_로 시작하는 테이블을 모두 분석해서로 시작하는 프롬프트 5줄이 입력되어 있습니다.
       :width: 400
 
 #. Genie Code가 **Plan**\ 을 세우고 단계별로 SQL을 실행합니다. 셀을 실행할 때 승인을 묻는 창이 나오면 내용을 확인하고 실행을 허용합니다. (5~10분)
@@ -78,7 +78,7 @@ Genie Code의 답은 매번 조금씩 다를 수 있습니다. 설명이 모두 
       :alt: 3. 열 설명 보기 결과. gold_fact_balance의 col_name, data_type, comment 15행입니다. closing_kg의 comment는 기말 재고 (kg). closing_kg = opening_kg + receipt_kg + transfer_in_kg - transfer_out_kg - requirement_kg입니다.
       :width: 900
 
-#. 왼쪽 메뉴 **Catalog**\ 에서 ``lab_factory`` > ``chipbalance_p001``\ 을 누릅니다.
+#. 왼쪽 메뉴 **Catalog**\ 에서 ``lab_factory_p001`` > ``chipbalance_p001``\ 을 누릅니다.
 
    **예상 결과:** **Tables 50** (Bronze 14, Silver 15, Gold 21)이 보이고, Gold 테이블의 **Comment** 열에 설명이 보입니다.
 

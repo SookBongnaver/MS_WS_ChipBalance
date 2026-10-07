@@ -19,7 +19,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
    * - Azure Databricks
      - Premium workspace, Unity Catalog 사용
    * - Unity Catalog
-     - 카탈로그 ``lab_factory``, 참가자별 스키마 ``chipbalance_pNNN``, 스키마 안의 Volume ``raw``
+     - 참가자별 카탈로그 ``lab_factory_pNNN``, 스키마 ``chipbalance_pNNN``, 스키마 안의 Volume ``raw``
    * - Databricks Serverless
      - 참가자 Notebook 실행에 사용. ``deltalake==1.6.6``\ 은 ``01_setup``\ 이 Notebook 범위에 설치
    * - SQL warehouse
@@ -87,15 +87,16 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 
 .. code-block:: sql
 
-   CREATE CATALOG IF NOT EXISTS lab_factory;
-   CREATE SCHEMA IF NOT EXISTS lab_factory.chipbalance_p001
+   CREATE CATALOG IF NOT EXISTS lab_factory_p001;
+   CREATE SCHEMA IF NOT EXISTS lab_factory_p001.chipbalance_p001
      COMMENT '원료 칩 수급 Workshop 참가자 p001: 원천 파일 Volume raw와 Bronze·Silver·Gold 테이블';
-   CREATE VOLUME IF NOT EXISTS lab_factory.chipbalance_p001.raw;
+   CREATE VOLUME IF NOT EXISTS lab_factory_p001.chipbalance_p001.raw;
 
-   GRANT USE CATALOG ON CATALOG lab_factory TO `p001@contoso.com`;
-   GRANT USE SCHEMA, CREATE TABLE, MODIFY, SELECT ON SCHEMA lab_factory.chipbalance_p001 TO `p001@contoso.com`;
-   GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory.chipbalance_p001.raw TO `p001@contoso.com`;
+   GRANT USE CATALOG ON CATALOG lab_factory_p001 TO `p001@contoso.com`;
+   GRANT USE SCHEMA, CREATE TABLE, MODIFY, SELECT ON SCHEMA lab_factory_p001.chipbalance_p001 TO `p001@contoso.com`;
+   GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory_p001.chipbalance_p001.raw TO `p001@contoso.com`;
 
+* Catalog 이름은 참가자 번호가 붙은 ``lab_factory_pNNN``\ 입니다. 같은 Entra 테넌트의 같은 지역 작업 영역은 하나의 메타스토어를 공유하므로, 참가자(또는 실습 회차)마다 Catalog를 따로 두어 이름 충돌과 권한 문제를 피합니다.
 * 메타스토어에 기본 저장소가 없으면 ``CREATE CATALOG``\ 에 ``MANAGED LOCATION``\ 을 지정합니다.
 * Bronze·Silver·Gold 테이블은 참가자가 03~06 Notebook에서 만듭니다. 07장에서 Genie Code가 Gold 테이블에 설명을 넣으므로 참가자가 테이블 소유자이거나 ``MODIFY`` 권한이 있어야 합니다.
 * ``01_setup``\ 은 설정값을 검증하고 위 세 리소스에 ``CREATE ... IF NOT EXISTS``\ 를 실행합니다.
@@ -247,7 +248,7 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
 #. 참가자마다 Operations agent ``oa_chipbalance``\ 가 **Stop** 상태인지 확인합니다. 시작 상태면 5분마다 조회하며 용량을 씁니다.
 #. (선택) 실습 데이터를 지웁니다. Fabric 항목은 용량을 일시 중지하기 전에 지웁니다.
 
-   - Unity Catalog 스키마 ``lab_factory.chipbalance_pNNN``\ 과 Volume ``raw``
+   - Unity Catalog Catalog ``lab_factory_pNNN``, 스키마 ``chipbalance_pNNN``\ 과 Volume ``raw``
    - Fabric 작업 영역 ``chipbalance-pNNN``: ``oa_chipbalance``, ``nb_record_decision``, ``eh_chipbalance``, ``rpt_chipbalance``, ``sm_chipbalance``, ``ont_chipbalance``\ (자동으로 만들어진 ``ont_chipbalance_eh_…``, ``ont_chipbalance_graph_…`` 포함), ``lh_chipbalance_pNNN``. 작업 영역을 지우면 한 번에 지워집니다.
    - Foundry: Azure portal의 리소스 그룹에서 Foundry 리소스 ``fdy-chipbalance-pNNN``\ 을 삭제합니다. 프로젝트, 에이전트 ``fa-chipbalance``, 모델 배포, Fabric IQ 연결이 함께 지워집니다.
      같은 이름으로 다시 만들려면 Azure portal에서 삭제된 Foundry 리소스를 제거(purge)합니다.
