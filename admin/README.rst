@@ -80,6 +80,9 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 1. Unity Catalog와 Serverless
 --------------------------------
 
+Databricks 쪽 준비(2장의 service credential 등록, 이 장의 Catalog·스키마·Volume과 권한)는 Notebook `admin/00_admin_setup.py`\ 로 한 번에 할 수 있습니다.
+Databricks에서 **Import**\ 로 가져와 설정값만 채워 실행합니다. Azure의 Access Connector와 Fabric 작업 영역·Lakehouse·Contributor 권한은 직접 만듭니다.
+
 #. Pricing tier가 **Premium**\ 인 Azure Databricks workspace를 Unity Catalog 메타스토어에 연결합니다.
 #. 참가자의 Microsoft Entra ID 계정을 workspace에 추가합니다.
 #. SQL editor에서 Catalog, 스키마, Volume을 미리 만들고 참가자에게 사용 권한을 주는 방식을 권장합니다.
