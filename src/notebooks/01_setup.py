@@ -9,26 +9,14 @@
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 1. Compute 확인
-# MAGIC 관리자가 배정한 Classic Compute에서 실행합니다. Serverless는 사용하지 않습니다.
+# MAGIC ## 1. Serverless 준비
+# MAGIC 이 Workshop은 별도 Compute를 만들지 않고 Serverless에서 실행합니다.
+# MAGIC OneLake에 Delta 형식으로 저장할 때 필요한 `deltalake`를 Notebook 범위에 설치합니다.
 # MAGIC
-# MAGIC **예상 결과:** 배정받은 Compute 이름과 Runtime `16.4.x`가 표시됩니다.
+# MAGIC **예상 결과:** 설치가 완료되거나 `Requirement already satisfied`가 표시됩니다.
 
 # COMMAND ----------
-import re
-
-
-def cluster_tag(name):
-    try:
-        return spark.conf.get(f"spark.databricks.clusterUsageTags.{name}", "")
-    except Exception:
-        return ""
-
-
-if not re.fullmatch(r"\d{4}-\d{6}-[A-Za-z0-9]+", cluster_tag("clusterId")):
-    raise RuntimeError("오른쪽 위 Compute 목록에서 배정받은 Classic Compute를 선택한 뒤 다시 실행하세요.")
-print("Compute:", cluster_tag("clusterName"))
-print("Runtime:", cluster_tag("sparkVersion"))
+# MAGIC %pip install deltalake==1.6.6
 
 # COMMAND ----------
 # MAGIC %md
@@ -44,6 +32,8 @@ print("Runtime:", cluster_tag("sparkVersion"))
 # MAGIC | `service_credential` | `chipbalance_onelake` | OneLake에 저장할 때 쓰는 Managed Identity |
 
 # COMMAND ----------
+import re
+
 participant = "p001"
 
 catalog = "lab_factory"
@@ -97,7 +87,7 @@ from pyspark.sql import types as T
 try:
     from deltalake import DeltaTable, write_deltalake
 except ImportError as error:
-    raise RuntimeError("Compute에 deltalake 라이브러리가 없습니다. 관리자에게 알립니다.") from error
+    raise RuntimeError("deltalake 설치에 실패했습니다. 1. Serverless 준비 셀의 오류 메시지를 관리자에게 알립니다.") from error
 
 ONELAKE_ROOT = f"abfss://{fabric_workspace}@onelake.dfs.fabric.microsoft.com/{fabric_lakehouse}.lakehouse"
 ARROW_TYPES = {T.StringType: pa.string(), T.LongType: pa.int64(), T.IntegerType: pa.int32(),

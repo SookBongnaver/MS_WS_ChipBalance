@@ -36,7 +36,7 @@ def cells_from_source(path):
             first = text[0].strip()
             if first == "%md":
                 kind, text = "markdown", text[1:]
-            elif first.startswith("%run "):
+            elif first.startswith(("%run ", "%pip ")):
                 kind = "code"
             else:
                 raise ValueError(f"{path.name}: cell {number} has unsupported magic {first!r}")

@@ -20,7 +20,7 @@ Genie는 자연어 질문을 SQL로 바꿔 답합니다(LLM to SQL). 이때 Unit
 1. 설명 현황 확인
 --------------------
 
-#. ``ChipBalance`` 폴더에서 ``07_unity_catalog``\ 를 열고, 오른쪽 위 Compute 목록에서 배정받은 Compute를 고릅니다.
+#. ``ChipBalance`` 폴더에서 ``07_unity_catalog``\ 를 열고, 오른쪽 위 Compute 목록에 **Serverless**\ 가 선택되어 있는지 확인합니다.
 #. **1. 설정 불러오기**\ 와 **2. 설명 현황** 셀을 차례로 실행합니다. (**Shift+Enter**)
 
 **예상 결과:** 21행. ``table_comment``\ 가 모두 ``null``\ 이고, ``columns_without_comment``\ 가 ``columns``\ 와 같습니다. 아직 설명이 없습니다.

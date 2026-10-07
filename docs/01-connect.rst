@@ -3,14 +3,13 @@
 
 `목차 <../README.rst>`_ | 이전: `00. 시나리오와 실습 순서 <00-scenario.rst>`_ | 다음: `02. 원천 데이터 만들기 <02-source-data.rst>`_
 
-Notebook을 Databricks로 가져오고, ``01_setup``\ 에 참가자 번호를 입력해 Unity Catalog와 OneLake 연결을 확인합니다.
+Notebook을 Databricks로 가져오고 Serverless에 연결한 뒤, ``01_setup``\ 에 참가자 번호를 입력해 Unity Catalog와 OneLake 연결을 확인합니다.
 OneLake에 저장할 때는 Managed Identity를 씁니다. 비밀번호나 키는 입력하지 않습니다.
 
-관리자에게 받을 값은 세 가지입니다.
+관리자에게 받을 값은 두 가지입니다.
 
 * Databricks 주소
 * 참가자 번호 (예: ``p001``)
-* 배정받은 Compute 이름
 
 1. Databricks 접속
 ---------------------
@@ -72,21 +71,15 @@ OneLake에 저장할 때는 Managed Identity를 씁니다. 비밀번호나 키�
 
 Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니다.
 
-3. Compute 연결
-------------------
+3. Serverless 연결
+---------------------
 
 #. ``ChipBalance`` 폴더에서 ``01_setup``\ 을 엽니다.
-#. 오른쪽 위 Compute 목록(처음에는 **Serverless**)을 누르고 **More…**\ 를 누릅니다.
-   배정받은 Compute가 **Recent resources**\ 에 보이면 바로 골라도 됩니다.
-#. **Attach to an existing compute resource** 창에서 **General compute**\ 를 선택하고, 목록에서 배정받은 Compute를 고릅니다.
-#. 오른쪽 **Summary**\ 에서 Runtime이 **16.4 LTS**\ 인지 확인하고 **Attach**\ 를 누릅니다.
+#. 오른쪽 위 Compute 목록에 **Serverless**\ 가 선택되어 있는지 확인합니다.
+   다른 Compute가 선택되어 있으면 목록을 열고 **Serverless**\ 를 고릅니다.
 
-.. image:: ../assets/screenshots/d01-attach.png
-   :alt: Attach to an existing compute resource 창. General compute에서 factory-gold-probe를 골랐고, Summary에 1 Worker, Runtime 16.4 LTS, Unity Catalog가 보입니다. 오른쪽 아래에 Attach 버튼이 있습니다.
-   :width: 700
-
-**예상 결과:** 오른쪽 위 Compute 목록에 배정받은 Compute 이름이 초록색 점과 함께 보입니다.
-Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
+**예상 결과:** 오른쪽 위 Compute 목록에 **Serverless**\ 가 표시됩니다.
+처음 셀을 실행할 때 Serverless 환경이 시작되므로 잠시 기다릴 수 있습니다.
 
 4. 참가자 번호 입력
 ----------------------
@@ -123,13 +116,10 @@ Compute가 중지되어 있으면 시작하는 데 3~5분 걸립니다.
 
 맨 위 코드 셀을 누르고 **Shift+Enter**\ 로 한 셀씩 실행합니다. 위쪽 **Run all**\ 로 한 번에 실행해도 됩니다.
 
-#. **1. Compute 확인**
+#. **1. Serverless 준비**
 
-   **예상 결과:** ``Compute:`` 뒤에 배정받은 Compute 이름, ``Runtime:`` 뒤에 ``16.4.x``\ 가 표시됩니다.
-
-   .. image:: ../assets/screenshots/d01-compute.png
-      :alt: 1. Compute 확인 셀. 결과에 Compute: factory-gold-probe와 Runtime: 16.4.x-scala2.12가 표시됩니다.
-      :width: 900
+   OneLake에 Delta 형식으로 저장할 때 필요한 ``deltalake==1.6.6``\ 을 Notebook 범위에 설치합니다.
+   **예상 결과:** 설치가 완료되거나 ``Requirement already satisfied``\ 가 표시됩니다.
 
 #. **3. Unity Catalog 확인**
 
@@ -178,11 +168,11 @@ Managed Identity로 저장하는 방식
 Troubleshooting
 ---------------
 
-* **1. Compute 확인**\ 에서 "배정받은 Classic Compute를 선택한 뒤 다시 실행하세요" 오류가 나면 3단계로 돌아갑니다.
+* 셀을 실행할 수 없거나 Serverless 시작 오류가 나면 3단계에서 **Serverless**\ 가 선택되어 있는지 확인합니다.
 * "participant는 p001처럼 …" 오류가 나면 4단계에서 참가자 번호를 고치고 그 셀부터 다시 실행합니다.
 * ``SCHEMA_NOT_FOUND``, ``PERMISSION_DENIED`` 같은 Unity Catalog 오류나 "service credential … 사용 권한" 오류가 나면
   오류 메시지를 관리자에게 알립니다.
-* "Compute에 deltalake 라이브러리가 없습니다" 오류가 나면 관리자에게 알립니다.
+* "deltalake 설치에 실패했습니다" 오류가 나면 **1. Serverless 준비** 셀의 설치 오류를 관리자에게 알립니다.
 
 다음 단계
 ------------

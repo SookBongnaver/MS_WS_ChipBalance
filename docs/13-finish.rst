@@ -48,7 +48,7 @@
 
 #. Fabric 작업 영역 ``chipbalance-p001``\ 에서 ``oa_chipbalance``\ 를 엽니다. 도구 모음에 **Start**\ 가 보이면 멈춘 상태입니다. **Stop**\ 이 보이면 **Stop**\ 을 누릅니다.
 #. Foundry 에이전트 ``fa-chipbalance``\ 는 질문할 때만 모델을 호출하므로 따로 멈추지 않습니다.
-#. Databricks Compute는 20분 동안 쓰지 않으면 자동으로 종료됩니다. 바로 끄려면 **Compute**\ 에서 배정받은 Compute를 **Terminate**\ 합니다.
+#. Databricks Serverless는 Notebook을 실행하지 않으면 별도로 종료할 Compute가 없습니다.
 
 **예상 결과:** ``oa_chipbalance``\ 의 도구 모음에 **Start**\ 가 보입니다.
 
