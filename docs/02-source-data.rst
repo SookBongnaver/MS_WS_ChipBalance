@@ -10,18 +10,13 @@
 생산 Lot, 원료 사용, 입고, Bunker 레벨이 같은 운영에서 나오므로 서로 맞습니다.
 실제 추출 파일처럼 톤 단위, 중복, 수량 공란, 미등록 코드, 센서 누락·튐도 들어 있습니다.
 
-1. Notebook 열고 Compute 연결
--------------------------------
+1. Notebook 열고 Serverless 확인
+----------------------------------
 
 #. ``ChipBalance`` 폴더에서 ``02_source_data``\ 를 엽니다.
-#. 오른쪽 위 Compute 목록(처음에는 **Serverless**)을 누르고 **Recent resources**\ 에서 배정받은 Compute를 고릅니다.
-   목록에 없으면 **More…**\ 를 눌러 01장 3단계처럼 연결합니다.
+#. 오른쪽 위 Compute 목록에 **Serverless**\ 가 선택되어 있는지 확인합니다.
 
-.. image:: ../assets/screenshots/d02-compute.png
-   :alt: 02_source_data Notebook의 Compute 목록. Serverless 아래 Recent resources에 factory-gold-probe 16.4 LTS · 1 worker가 있고, 그 아래에 More…와 Create new resource…가 있습니다.
-   :width: 600
-
-**예상 결과:** 오른쪽 위 Compute 목록에 배정받은 Compute 이름이 초록색 점과 함께 보입니다.
+**예상 결과:** 오른쪽 위 Compute 목록에 **Serverless**\ 가 표시됩니다.
 
 2. 셀 실행
 -------------

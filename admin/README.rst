@@ -20,8 +20,8 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
      - Premium workspace, Unity Catalog 사용
    * - Unity Catalog
      - 카탈로그 ``lab_factory``, 참가자별 스키마 ``chipbalance_pNNN``, 스키마 안의 Volume ``raw``
-   * - Compute
-     - 참가자별 Classic Compute (Dedicated), DBR 16.4 LTS, 20분 자동 종료, 라이브러리 ``deltalake==1.6.6``
+   * - Databricks Serverless
+     - 참가자 Notebook 실행에 사용. ``deltalake==1.6.6``\ 은 ``01_setup``\ 이 Notebook 범위에 설치
    * - SQL warehouse
      - Pro SQL warehouse ``chipbalance-pro`` (2X-Small, 15분 자동 종료). 07장 Genie Agent가 사용
    * - Managed Identity
@@ -51,8 +51,8 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
      - 참가자마다 F16 하루(24시간): 16 CU × $0.19 × 24 = $72.96
      - $364.80
      - $729.60
-   * - Databricks Classic Compute (DBU, VM, 디스크)
-     - 참가자 1명이 02~07장을 실행한 날의 실제 비용 약 $20
+   * - Databricks Serverless Notebook (DBU)
+     - 참가자 1명이 02~07장을 실행하는 계획 비용 약 $20. 실제 비용은 Serverless 사용 시간과 지역 단가에 따라 확인
      - $100
      - $200
    * - Databricks SQL warehouse ``chipbalance-pro``
@@ -77,8 +77,8 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 * 한국 중부(Korea Central)는 CU·시간당 $0.21이라 F16 하루가 $80.64입니다.
 * Databricks 비용은 02~07장을 여러 번 다시 실행한 날의 값이라 넉넉하게 잡은 값입니다. Microsoft Defender for Cloud처럼 구독 설정에 따라 붙는 비용은 넣지 않았습니다.
 
-1. Unity Catalog와 Compute
------------------------------
+1. Unity Catalog와 Serverless
+--------------------------------
 
 #. Pricing tier가 **Premium**\ 인 Azure Databricks workspace를 Unity Catalog 메타스토어에 연결합니다.
 #. 참가자의 Microsoft Entra ID 계정을 workspace에 추가합니다.
@@ -98,14 +98,11 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 * 메타스토어에 기본 저장소가 없으면 ``CREATE CATALOG``\ 에 ``MANAGED LOCATION``\ 을 지정합니다.
 * Bronze·Silver·Gold 테이블은 참가자가 03~06 Notebook에서 만듭니다. 07장에서 Genie Code가 Gold 테이블에 설명을 넣으므로 참가자가 테이블 소유자이거나 ``MODIFY`` 권한이 있어야 합니다.
 
-참가자마다 Classic Compute를 하나씩 만듭니다. Serverless는 사용하지 않습니다.
+참가자는 별도 Classic Compute 없이 Notebook의 기본 **Serverless**\ 를 사용합니다.
 
-* Access mode: **Dedicated** (single user), 해당 참가자 한 명
-* Databricks Runtime: **16.4 LTS**
-* Worker 1대, 자동 크기 조정 끔 (이 환경: Standard_D4as_v5)
-* 자동 종료: 20분
-* **Libraries** > **Install new** > **PyPI**\ 에서 ``deltalake==1.6.6``\ 을 설치합니다. Gold를 OneLake에 쓸 때 사용합니다.
-* 권한: 해당 참가자에게 **Can Restart** (자동 종료된 Compute를 다시 시작할 수 있음)
+* Workspace에서 Serverless notebook 사용이 활성화되어 있어야 합니다.
+* 참가자에게 **Serverless compute access** entitlement를 줍니다.
+* ``01_setup`` 첫 셀이 ``deltalake==1.6.6``\ 을 Notebook 범위에 설치하므로 Compute 라이브러리를 미리 설치하지 않습니다.
 
 SQL warehouse를 하나 만들어 모든 참가자가 함께 씁니다. 07장 Genie Agent가 이 warehouse로 SQL을 실행합니다.
 
@@ -211,18 +208,19 @@ Operations agent는 이 앱의 **Fabric operations agent** 채팅으로 참가�
 5. 네트워크
 --------------
 
-Databricks Compute에서 아래 주소로 HTTPS(443) 연결이 되어야 합니다. 방화벽이나 프록시를 쓰면 허용합니다.
+Databricks Serverless 환경에서 아래 주소로 HTTPS(443) 연결이 되어야 합니다.
 
 * ``onelake.dfs.fabric.microsoft.com``: Gold 저장
-* ``pypi.org``, ``files.pythonhosted.org``: Compute 시작 시 ``deltalake`` 설치
+* ``pypi.org``, ``files.pythonhosted.org``: ``01_setup`` 첫 셀에서 ``deltalake`` 설치
 
-Unity Catalog 저장소를 private endpoint로 연결했다면, Compute에서 저장소 주소가 사설 IP로 해석되도록 private DNS를 구성합니다.
+Unity Catalog 저장소를 private endpoint로 연결했다면 Serverless가 저장소에 접근할 수 있도록
+Network Connectivity Configuration(NCC)과 private endpoint를 구성합니다.
 
 6. 참가자에게 알려 줄 값
 ---------------------------
 
 * Databricks 주소 (예: ``https://adb-<번호>.<번호>.azuredatabricks.net``)
-* 참가자 번호(예: ``p001``)와 배정한 Compute 이름
+* 참가자 번호(예: ``p001``)
 * GitHub 저장소 접근 권한 또는 저장소 ZIP 파일
 * Foundry 프로젝트를 만들 구독과 리소스 그룹 (12장)
 
@@ -231,7 +229,7 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
 7. 종료 후 정리
 ------------------
 
-#. 참가자 Compute를 모두 **Terminate**\ 하고, SQL warehouse ``chipbalance-pro``\ 를 **Stop**\ 합니다.
+#. SQL warehouse ``chipbalance-pro``\ 를 **Stop**\ 합니다. Serverless Notebook은 별도로 종료할 Compute가 없습니다.
 #. 참가자마다 Operations agent ``oa_chipbalance``\ 가 **Stop** 상태인지 확인합니다. 시작 상태면 5분마다 조회하며 용량을 씁니다.
 #. (선택) 실습 데이터를 지웁니다. Fabric 항목은 용량을 일시 중지하기 전에 지웁니다.
 

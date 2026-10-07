@@ -25,7 +25,7 @@ Workshop: 원료 칩 수급과 긴급 수주 대응
 ------------
 
 * `00. 시나리오와 실습 순서 <docs/00-scenario.rst>`_ — 업무 상황, 원천 데이터, 계산 방식을 확인하고 실습 파일을 내려받습니다.
-* `01. Databricks 접속과 설정 <docs/01-connect.rst>`_ — Notebook을 가져오고 Compute를 연결한 뒤, OneLake 연결을 확인합니다(인증 방식: Managed Identity).
+* `01. Databricks 접속과 설정 <docs/01-connect.rst>`_ — Notebook을 가져와 Serverless에서 실행하고, OneLake 연결을 확인합니다(인증 방식: Managed Identity).
 * `02. 원천 데이터 만들기 <docs/02-source-data.rst>`_ — Notebook으로 SAP·FPIMS·PVSS 원천 파일 14개를 만들고, 원료·Bunker·생산계획의 관계를 확인합니다.
 * `03. Bronze <docs/03-bronze.rst>`_ — 원천 파일을 그대로 Bronze 테이블로 적재합니다.
 * `04. Silver <docs/04-silver.rst>`_ — 형식·단위를 맞추고 중복·공란·미등록 코드·센서 이상값을 격리합니다.
@@ -46,7 +46,7 @@ Workshop: 원료 칩 수급과 긴급 수주 대응
 원천 데이터는 02장에서 Notebook을 실행해 만듭니다.
 ``fabric`` 폴더에는 10장의 semantic model 스크립트(``sm_chipbalance.tmdl``)와 보고서 테마(``chipbalance-theme.json``), 11장의 승인 기록 Notebook(``nb_record_decision.ipynb``)이 있습니다.
 
-관리자에게 받을 값은 Databricks 주소, 참가자 번호(예: ``p001``), 배정받은 Compute 이름입니다.
+관리자에게 받을 값은 Databricks 주소와 참가자 번호(예: ``p001``)입니다.
 
 관리자용
 -----------
