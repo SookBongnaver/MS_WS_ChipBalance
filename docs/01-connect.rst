@@ -123,7 +123,12 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
 
 #. **3. Unity Catalog 확인**
 
-   **예상 결과:** 스키마 ``lab_factory.chipbalance_p001``\ 과 Volume 경로 ``/Volumes/lab_factory/chipbalance_p001/raw``\ 가 표시됩니다.
+   설정값을 검증하고 Catalog ``lab_factory``, 스키마 ``chipbalance_p001``, Volume ``raw``\ 가 없으면
+   ``CREATE ... IF NOT EXISTS``\ 로 준비한 뒤 실제 접근까지 확인합니다.
+   관리자가 리소스를 미리 만들었다면 기존 리소스를 그대로 사용합니다.
+
+   **예상 결과:** 스키마 ``lab_factory.chipbalance_p001``\ 과 Volume 경로
+   ``/Volumes/lab_factory/chipbalance_p001/raw``\ 가 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-uc.png
       :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory.chipbalance_p001과 원천 파일 Volume: /Volumes/lab_factory/chipbalance_p001/raw가 표시됩니다.
@@ -159,7 +164,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
 Managed Identity로 저장하는 방식
 --------------------------------
 
-* 관리자가 Azure에 Access Connector(``ac-chipbalance-onelake``)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
+* 관리자가 Azure에 Access Connector(``unity-catalog-access-connector``)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
 * 이 Managed Identity를 Unity Catalog service credential ``chipbalance_onelake``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
 * Fabric 작업 영역 ``chipbalance-p001``\ 에는 이 Managed Identity를 Contributor로 추가했습니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider``\ 로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.
@@ -170,8 +175,11 @@ Troubleshooting
 
 * 셀을 실행할 수 없거나 Serverless 시작 오류가 나면 3단계에서 **Serverless**\ 가 선택되어 있는지 확인합니다.
 * "participant는 p001처럼 …" 오류가 나면 4단계에서 참가자 번호를 고치고 그 셀부터 다시 실행합니다.
-* ``SCHEMA_NOT_FOUND``, ``PERMISSION_DENIED`` 같은 Unity Catalog 오류나 "service credential … 사용 권한" 오류가 나면
-  오류 메시지를 관리자에게 알립니다.
+* ``CREATE CATALOG``, ``CREATE SCHEMA``, ``CREATE VOLUME`` 오류가 나면 Spark가 표시한 원본 오류를 관리자에게 알립니다.
+  관리자는 리소스를 미리 만들고 접근 권한을 주거나, Notebook 자동 준비에 필요한 생성 권한과 메타스토어 기본 관리형 저장소를 확인합니다.
+* ``USE CATALOG``, ``USE SCHEMA``, Volume 목록 조회 오류가 나면 관리자가 ``USE CATALOG``, ``USE SCHEMA``,
+  ``READ VOLUME``, ``WRITE VOLUME`` 권한을 확인합니다.
+* "service credential … 사용 권한" 오류가 나면 오류 메시지를 관리자에게 알립니다.
 * "deltalake 설치에 실패했습니다" 오류가 나면 **1. Serverless 준비** 셀의 설치 오류를 관리자에게 알립니다.
 
 다음 단계

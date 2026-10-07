@@ -46,7 +46,8 @@ service_credential = "chipbalance_onelake"
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 3. Unity Catalog 확인
-# MAGIC 본인 스키마와 원천 파일 Volume을 확인하고, 이후 SQL이 본인 스키마를 기본으로 쓰도록 지정합니다.
+# MAGIC 설정값을 확인한 뒤 Catalog, 본인 스키마, 원천 파일 Volume이 없으면 준비합니다.
+# MAGIC 이후 SQL이 본인 스키마를 기본으로 쓰도록 지정합니다.
 # MAGIC 시간대는 한국 시간(Asia/Seoul)으로 맞춥니다.
 # MAGIC
 # MAGIC **예상 결과:** 스키마 이름과 Volume 경로가 표시됩니다.
@@ -55,6 +56,9 @@ service_credential = "chipbalance_onelake"
 if not re.fullmatch(r"p\d{3}", participant):
     raise ValueError("participant는 p001처럼 p와 숫자 세 자리로 입력합니다.")
 
+spark.sql(f"CREATE CATALOG IF NOT EXISTS `{catalog}`")
+spark.sql(f"CREATE SCHEMA IF NOT EXISTS `{catalog}`.`{schema}`")
+spark.sql(f"CREATE VOLUME IF NOT EXISTS `{catalog}`.`{schema}`.`raw`")
 spark.sql(f"USE CATALOG `{catalog}`")
 spark.sql(f"USE SCHEMA `{schema}`")
 spark.conf.set("spark.sql.session.timeZone", "Asia/Seoul")
