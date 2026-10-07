@@ -34,7 +34,7 @@
 # MAGIC | 값 | 내용 |
 # MAGIC |---|---|
 # MAGIC | `urgent_production` | L3에서 10월 5일과 6일에 50,000kg씩 긴급 생산합니다. |
-# MAGIC | `move_from`, `move_to`, `move_days` | 10월 5~10일에 잡혀 있던 L3 생산을 2일씩 미룹니다. 10월 11~15일 예비일을 씁니다. |
+# MAGIC | `move_from`, `move_to`, `move_days` | 10월 5–10일에 잡혀 있던 L3 생산을 2일씩 미룹니다. 10월 11–15일 예비일을 씁니다. |
 # MAGIC | `today` | 판단 기준일입니다. 대응안의 출고·발주는 다음 날부터 할 수 있습니다. |
 # MAGIC
 # MAGIC **예상 결과:** 1행. `SO-10322`, 누리전자소재, `P-L3-05`, 100,000kg, 납기 2026-10-08
@@ -73,7 +73,7 @@ FROM urgent_order u JOIN gold_dim_customer c USING (customer_id) JOIN gold_dim_p
 # MAGIC 현재 계획(`baseline`)을 복사해 긴급 생산 2행을 넣고, 10월 5~10일 L3 생산을 2일씩 미룹니다.
 # MAGIC `change_type`은 `urgent`(긴급 생산), `moved`(미룬 생산), `none`(그대로)입니다.
 # MAGIC
-# MAGIC **예상 결과:** L3 10월 1~16일 13행. 10월 5·6일은 `P-L3-05` 긴급 생산이고, `P-L3-01` 6행이 10월 7~12일로 밀립니다.
+# MAGIC **예상 결과:** L3 10월 1–16일 13행. 10월 5·6일은 `P-L3-05` 긴급 생산이고, `P-L3-01` 6행이 10월 7–12일로 밀립니다.
 # MAGIC 모든 행에서 생산일(`plan_date`)이 납기(`due_date`)보다 앞섭니다.
 
 # COMMAND ----------

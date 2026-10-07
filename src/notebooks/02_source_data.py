@@ -95,7 +95,7 @@ def read_raw(path):
 # MAGIC ## 4. 라인과 Bunker
 # MAGIC 원천: FPIMS `fpims_bunker`
 # MAGIC
-# MAGIC 라인 6개에 Bunker가 4개씩 있습니다. L1~L4는 BOPET 필름, L5~L6은 BOPA(나일론) 필름 라인입니다.
+# MAGIC 라인 6개에 Bunker가 4개씩 있습니다. L1–L4는 BOPET 필름, L5–L6은 BOPA(나일론) 필름 라인입니다.
 # MAGIC
 # MAGIC **예상 결과:** 6행. L1과 L3의 Bunker 2(`BNK-L1-2`, `BNK-L3-2`)가 모두 `PET-SD`를 보관합니다.
 
@@ -126,7 +126,7 @@ display(read_raw("fpims/fpims_recipe.csv")
 # MAGIC ## 6. 생산 실적: Lot과 원료 사용
 # MAGIC 원천: FPIMS `fpims_production_lot`, `fpims_material_consumption`
 # MAGIC
-# MAGIC 라인은 주간(08~20시)과 야간(20~08시) Lot으로 생산합니다. Lot마다 Bunker에서 원료를 꺼내 쓴 양이 기록됩니다.
+# MAGIC 라인은 주간(08–20시)과 야간(20–08시) Lot으로 생산합니다. Lot마다 Bunker에서 원료를 꺼내 쓴 양이 기록됩니다.
 # MAGIC 9월 30일 L3 주간 Lot `L3-260930-D`를 봅니다.
 # MAGIC
 # MAGIC **예상 결과:** 4행. 제품 `P-L3-01`을 24,564kg 생산하면서 PET-SD를 3,031kg 썼습니다.
@@ -144,7 +144,7 @@ display(read_raw("fpims/fpims_material_consumption_2025-10_2026-09.csv")
 # MAGIC ## 7. L3 생산계획과 판매오더
 # MAGIC 원천: FPIMS `fpims_production_plan_2026Q4`, SAP `sap_sales_order_open_2026Q4`
 # MAGIC
-# MAGIC 10월 1~16일 L3 생산계획에 판매오더의 고객과 납기를 붙여 봅니다. 같은 제품을 며칠씩 이어서 생산하고, 판매오더 하나를 1~3일에 나눠 채웁니다.
+# MAGIC 10월 1–16일 L3 생산계획에 판매오더의 고객과 납기를 붙여 봅니다. 같은 제품을 며칠씩 이어서 생산하고, 판매오더 하나를 1–3일에 나눠 채웁니다.
 # MAGIC
 # MAGIC **예상 결과:** 11행. 10월 10일 다음 계획이 10월 16일입니다. 10월 11~15일은 계획이 없는 예비일입니다.
 # MAGIC 모든 행에서 생산일이 납기(`due_date`)보다 앞섭니다.
