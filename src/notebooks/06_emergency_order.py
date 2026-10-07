@@ -13,17 +13,25 @@
 # MAGIC | 5 | 위험 이벤트와 추천안 | `gold_fact_risk_event` |
 # MAGIC
 # MAGIC 긴급 오더를 반영한 결과는 시나리오 `emergency`로 저장합니다. 05에서 만든 현재 계획(`baseline`) 행은 그대로 남습니다.
+# MAGIC Gold는 05에서 OneLake에 저장한 것을 불러와 이어서 계산하고, 결과도 OneLake에 저장합니다. Unity Catalog에는 만들지 않습니다.
 # MAGIC
 # MAGIC 1. 위에서부터 셀을 하나씩 실행합니다. (**Shift+Enter**)
 # MAGIC 2. 마지막 셀까지 확인하면 교재 06장으로 돌아갑니다.
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 1. 설정 불러오기
-# MAGIC **예상 결과:** 01에서 본 결과가 다시 표시되고, `연결 확인 완료`가 나옵니다.
+# MAGIC ## 1. 설정과 Gold 불러오기
+# MAGIC 05에서 OneLake에 저장한 Gold 테이블 18개를 읽어 임시 뷰(`gold_…`)로 등록합니다. 아래 계산이 이 뷰를 씁니다.
+# MAGIC
+# MAGIC **예상 결과:** 01에서 본 결과가 다시 표시되고, `연결 확인 완료`가 나옵니다. 다음 셀에서 `OneLake에서 불러온 Gold: 18개`가 표시됩니다.
 
 # COMMAND ----------
 # MAGIC %run ./01_setup
+
+# COMMAND ----------
+for table in GOLD_TABLES:
+    read_gold(table)
+print("OneLake에서 불러온 Gold:", f"{len(GOLD_TABLES)}개")
 
 # COMMAND ----------
 # MAGIC %md
@@ -498,12 +506,13 @@ display(spark.table("risk_event").select("event_id", "detected_at", "sales_order
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 12. Gold 테이블 저장
-# MAGIC 긴급 오더 결과를 Unity Catalog의 Gold 테이블에 넣습니다. 다시 실행하면 `emergency` 행과 긴급 판매오더를 지우고 다시 넣습니다.
-# MAGIC 대응안, 대응안별 재고, 위험 이벤트는 새 Gold 테이블입니다.
+# MAGIC 긴급 오더 결과를 OneLake의 Gold 테이블에 넣고, 바뀐 테이블 9개를 Fabric Lakehouse의 `gold` 스키마에 다시 저장합니다. 05와 같은 방법입니다.
+# MAGIC 다시 실행하면 `emergency` 행과 긴급 판매오더를 지우고 다시 넣습니다. 대응안, 대응안별 재고, 위험 이벤트는 새 Gold 테이블입니다.
+# MAGIC Unity Catalog에는 만들지 않습니다.
 # MAGIC
-# MAGIC **예상 결과:** 9행
+# MAGIC **예상 결과:** 9행 (1~2분)
 # MAGIC
-# MAGIC | Gold 테이블 | 전체 행 수 | `emergency` 행 수 |
+# MAGIC | Gold 테이블 | OneLake 행 수 | `emergency` 행 수 |
 # MAGIC |---|---|---|
 # MAGIC | `gold_dim_scenario` | 2 | 1 |
 # MAGIC | `gold_fact_sales_order` | 322 | 1 (긴급 오더) |
@@ -530,30 +539,21 @@ replaced = [("gold_dim_scenario", "scenario_id = 'emergency'", "emergency_scenar
             ("gold_fact_order_fulfillment", "scenario_id = 'emergency'", "emergency_fulfillment"),
             ("gold_fact_balance", "scenario_id = 'emergency'", "emergency_balance"),
             ("gold_fact_bunker_summary", "scenario_id = 'emergency'", "emergency_summary")]
-for table, condition, view in replaced:
-    spark.sql(f"DELETE FROM {table} WHERE {condition}")
-    spark.sql(f"INSERT INTO {table} SELECT * FROM {view}")
 created = [("gold_fact_response_option", "response_option"), ("gold_fact_option_balance", "option_balance"),
            ("gold_fact_risk_event", "risk_event")]
-for table, view in created:
-    spark.sql(f"CREATE OR REPLACE TABLE {table} AS SELECT * FROM {view}")
 
-emergency_tables = [t for t, _, _ in replaced] + [t for t, _ in created]
+from pyspark.sql import functions as F
+
 counts = []
-for table, condition, _ in replaced:
-    counts.append((table, spark.table(table).count(), spark.table(table).filter(condition).count()))
-for table, _ in created:
-    counts.append((table, spark.table(table).count(), spark.table(table).count()))
-display(spark.createDataFrame(counts, "`Gold 테이블` string, `전체 행 수` long, `emergency 행 수` long"))
-
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 13. OneLake에 저장
-# MAGIC 바뀐 Gold 테이블 9개를 Fabric Lakehouse의 `gold` 스키마에 다시 저장합니다. 05와 같은 방법입니다.
-# MAGIC
-# MAGIC **예상 결과:** 9행. `Unity Catalog 행 수`와 `OneLake 행 수`가 모두 같습니다. (1~2분)
-
-# COMMAND ----------
-published = [(t, f"gold.{t[5:]}", spark.table(t).count(), write_gold(spark.table(t), t[5:])) for t in emergency_tables]
-display(spark.createDataFrame(published, "`Unity Catalog` string, `OneLake` string, `Unity Catalog 행 수` long, `OneLake 행 수` long"))
+for table, condition, view in replaced:
+    name = table.removeprefix("gold_")
+    kept = spark.table(table).where(f"NOT coalesce({condition}, false)")
+    added = spark.table(view).toDF(*kept.columns).select([F.col(f.name).cast(f.dataType) for f in kept.schema.fields])
+    publish_gold(name, kept.union(added))
+    counts.append((table, onelake_gold_rows(name), spark.table(table).filter(condition).count()))
+for table, view in created:
+    name = table.removeprefix("gold_")
+    publish_gold(name, spark.table(view))
+    counts.append((table, onelake_gold_rows(name), onelake_gold_rows(name)))
+display(spark.createDataFrame(counts, "`Gold 테이블` string, `OneLake 행 수` long, `emergency 행 수` long"))
 print("OneLake 경로:", f"{ONELAKE_ROOT}/Tables/gold")

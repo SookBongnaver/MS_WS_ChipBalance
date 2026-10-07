@@ -1,7 +1,8 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # 05. Gold: Chip Balance 계산과 OneLake 저장
-# MAGIC Silver 테이블로 Bunker별·날짜별 원료 Balance를 계산해 Gold 테이블로 만들고, Fabric Lakehouse(OneLake)에 저장합니다.
+# MAGIC Silver 테이블로 Bunker별·날짜별 원료 Balance를 계산해 Gold 테이블을 만들고, Fabric Lakehouse(OneLake)에 바로 저장합니다.
+# MAGIC Gold는 Unity Catalog에 만들지 않습니다. OneLake에만 있고, Databricks와 Fabric이 같은 Gold를 씁니다.
 # MAGIC
 # MAGIC | 순서 | 계산 | Gold 테이블 |
 # MAGIC |---|---|---|
@@ -16,6 +17,9 @@
 # MAGIC
 # MAGIC 1. 위에서부터 셀을 하나씩 실행합니다. (**Shift+Enter**)
 # MAGIC 2. 마지막 셀까지 확인하면 교재 05장으로 돌아가 Fabric에서 결과를 확인합니다.
+# MAGIC
+# MAGIC Gold 셀은 결과를 OneLake에 저장하고, 저장된 Gold를 같은 이름(`gold_…`)의 임시 뷰로 등록합니다. 다음 셀이 이 뷰를 이어서 씁니다.
+# MAGIC OneLake에 저장하느라 셀마다 몇 초 더 걸립니다.
 
 # COMMAND ----------
 # MAGIC %md
@@ -59,7 +63,7 @@ dimension_tables = {
         SELECT 'baseline' AS scenario_id, '현재 계획' AS scenario_name, '2026년 4분기 생산계획과 입고 예정' AS description""",
 }
 for table, query in dimension_tables.items():
-    spark.sql(f"CREATE OR REPLACE TABLE {table} AS {query}")
+    publish_gold(table.removeprefix("gold_"), spark.sql(query))
 
 # COMMAND ----------
 # MAGIC %md
@@ -74,8 +78,7 @@ for table, query in dimension_tables.items():
 # MAGIC **예상 결과:** 5행. `P-L3-05`의 PET-SD 실제 소요량은 `0.463237`로 레시피 기준 `0.450000`보다 2.94% 많습니다.
 
 # COMMAND ----------
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_usage_factor AS
+publish_gold("fact_usage_factor", spark.sql("""
 WITH output AS (
     SELECT product_id, SUM(output_kg) AS output_kg FROM silver_production_lot GROUP BY product_id
 ), used AS (
@@ -92,14 +95,13 @@ WITH output AS (
 SELECT concat(product_id, '|', material_id) AS usage_factor_key, product_id, material_id, std_kg_per_kg, actual_kg_per_kg,
        CAST(ROUND((actual_kg_per_kg / std_kg_per_kg - 1) * 100, 2) AS DECIMAL(6,2)) AS loss_pct, consumed_kg, output_kg
 FROM factor
-""")
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_monthly_usage AS
+"""))
+publish_gold("fact_monthly_usage", spark.sql("""
 SELECT concat(date_format(l.start_ts, 'yyyy-MM'), '|', c.bunker_id) AS monthly_usage_key, date_format(l.start_ts, 'yyyy-MM') AS usage_month,
        c.bunker_id, c.material_id, SUM(c.consumed_kg) AS consumed_kg
 FROM silver_material_consumption c JOIN silver_production_lot l ON l.lot_id = c.lot_id
 GROUP BY ALL
-""")
+"""))
 display(spark.table("gold_fact_usage_factor")
         .filter("product_id LIKE 'P-L3-%' AND material_id = 'PET-SD'")
         .select("product_id", "material_id", "std_kg_per_kg", "actual_kg_per_kg", "loss_pct", "consumed_kg", "output_kg")
@@ -115,8 +117,7 @@ display(spark.table("gold_fact_usage_factor")
 # MAGIC **예상 결과:** 6행. 계획 지연일은 `SUP-PET-A` 0, `SUP-PET-B` 0, `SUP-MB-A` 1, `SUP-NY-A` 1, `SUP-NY-B` 2, `SUP-ADD-A` 3일입니다.
 
 # COMMAND ----------
-spark.sql("""
-CREATE OR REPLACE TABLE gold_dim_supplier AS
+publish_gold("dim_supplier", spark.sql("""
 WITH delay AS (
     SELECT supplier_id, COUNT(*) AS receipt_count,
            CAST(SUM(datediff(received_date, promised_date)) AS DECIMAL(20,0)) / COUNT(*) AS avg_delay
@@ -125,14 +126,13 @@ WITH delay AS (
 SELECT s.*, d.receipt_count, CAST(ROUND(d.avg_delay, 2) AS DECIMAL(6,2)) AS avg_delay_days,
        CAST(ROUND(d.avg_delay, 0) AS INT) AS planning_delay_days
 FROM silver_supplier s JOIN delay d ON d.supplier_id = s.supplier_id
-""")
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_inbound AS
+"""))
+publish_gold("fact_inbound", spark.sql("""
 SELECT concat(p.purchase_order_id, '|', p.po_line_no) AS inbound_key, p.purchase_order_id, p.po_line_no, p.supplier_id, p.material_id,
        p.bunker_id, p.promised_date, date_add(p.promised_date, s.planning_delay_days) AS expected_date,
        p.quantity_kg, p.source_quantity, p.source_unit
 FROM silver_purchase_order_open p JOIN gold_dim_supplier s ON s.supplier_id = p.supplier_id
-""")
+"""))
 display(spark.table("gold_dim_supplier")
         .select("supplier_id", "supplier_name", "receipt_count", "avg_delay_days", "planning_delay_days")
         .orderBy("supplier_id"))
@@ -145,14 +145,13 @@ display(spark.table("gold_dim_supplier")
 # MAGIC **예상 결과:** 24행. `BNK-L3-2`는 `30370`kg입니다.
 
 # COMMAND ----------
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_opening_stock AS
+publish_gold("fact_opening_stock", spark.sql("""
 SELECT bunker_id, DATE'2026-10-01' AS as_of_date, reading_ts, level_kg AS opening_kg
 FROM (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY bunker_id ORDER BY reading_ts DESC) AS rn
     FROM silver_bunker_level WHERE reading_ts <= TIMESTAMP'2026-09-30 23:00:00'
 ) WHERE rn = 1
-""")
+"""))
 display(spark.table("gold_fact_opening_stock").orderBy("bunker_id"))
 
 # COMMAND ----------
@@ -164,25 +163,22 @@ display(spark.table("gold_fact_opening_stock").orderBy("bunker_id"))
 # MAGIC **예상 결과:** 321행 가운데 `on_time`이 `false`인 오더는 0개입니다.
 
 # COMMAND ----------
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_sales_order AS
+publish_gold("fact_sales_order", spark.sql("""
 SELECT o.sales_order_id, o.order_date, o.customer_id, o.product_id, p.line_id, o.order_qty_kg, o.due_date, o.priority, false AS is_urgent
 FROM silver_sales_order o JOIN silver_product p ON p.product_id = o.product_id
-""")
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_plan AS
+"""))
+publish_gold("fact_plan", spark.sql("""
 SELECT concat('baseline|', plan_id) AS plan_key, 'baseline' AS scenario_id, plan_id, plan_date, line_id, product_id,
        planned_output_kg, sales_order_id, plan_date AS original_plan_date, 'none' AS change_type
 FROM silver_production_plan
-""")
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_order_fulfillment AS
+"""))
+publish_gold("fact_order_fulfillment", spark.sql("""
 SELECT concat(p.scenario_id, '|', o.sales_order_id) AS fulfillment_key, p.scenario_id, o.sales_order_id, o.customer_id, o.product_id,
        o.line_id, o.due_date, MAX(p.plan_date) AS finish_date, datediff(o.due_date, MAX(p.plan_date)) AS slack_days,
        MAX(p.plan_date) <= o.due_date AS on_time
 FROM gold_fact_sales_order o JOIN gold_fact_plan p ON p.sales_order_id = o.sales_order_id
 GROUP BY p.scenario_id, o.sales_order_id, o.customer_id, o.product_id, o.line_id, o.due_date
-""")
+"""))
 display(spark.sql("SELECT scenario_id, COUNT(*) AS orders, COUNT_IF(NOT on_time) AS late_orders FROM gold_fact_order_fulfillment GROUP BY scenario_id"))
 
 # COMMAND ----------
@@ -201,8 +197,7 @@ display(spark.sql("SELECT scenario_id, COUNT(*) AS orders, COUNT_IF(NOT on_time)
 # MAGIC **예상 결과:** `BNK-L3-2`의 10월 1~10일 10행. 10월 2일과 9일에 입고가 있고, `below_safety`는 모두 `false`입니다.
 
 # COMMAND ----------
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_balance AS
+publish_gold("fact_balance", spark.sql("""
 WITH requirement AS (
     SELECT b.bunker_id, p.plan_date AS balance_date,
            SUM(CAST(ROUND(p.planned_output_kg * f.actual_kg_per_kg, 0) AS BIGINT)) AS requirement_kg
@@ -234,7 +229,7 @@ SELECT concat('baseline|', bunker_id, '|', balance_date) AS balance_key, 'baseli
        closing_kg < safety_stock_kg AS below_safety, closing_kg < 0 AS shortage,
        closing_kg + requirement_kg + transfer_out_kg > capacity_kg AS over_capacity
 FROM balance
-""")
+"""))
 display(spark.table("gold_fact_balance")
         .filter("bunker_id = 'BNK-L3-2' AND balance_date <= '2026-10-10'")
         .select("balance_date", "opening_kg", "receipt_kg", "requirement_kg", "closing_kg", "safety_stock_kg", "below_safety")
@@ -251,8 +246,7 @@ display(spark.table("gold_fact_balance")
 # MAGIC 모든 Bunker의 `below_safety_days`와 `required_topup_kg`가 0입니다. 현재 계획으로는 모든 Bunker가 안전재고를 지킵니다.
 
 # COMMAND ----------
-spark.sql("""
-CREATE OR REPLACE TABLE gold_fact_bunker_summary AS
+publish_gold("fact_bunker_summary", spark.sql("""
 SELECT concat(f.scenario_id, '|', f.bunker_id) AS summary_key, f.scenario_id, f.bunker_id, b.line_id, b.material_id,
        COUNT_IF(f.below_safety) AS below_safety_days,
        MIN(CASE WHEN f.below_safety THEN f.balance_date END) AS first_below_safety_date,
@@ -262,7 +256,7 @@ SELECT concat(f.scenario_id, '|', f.bunker_id) AS summary_key, f.scenario_id, f.
        GREATEST(0, MAX(f.safety_stock_kg) - MIN(f.closing_kg)) AS required_topup_kg
 FROM gold_fact_balance f JOIN gold_dim_bunker b ON b.bunker_id = f.bunker_id
 GROUP BY f.scenario_id, f.bunker_id, b.line_id, b.material_id
-""")
+"""))
 display(spark.sql("""
 SELECT s.bunker_id, s.material_id, s.below_safety_days, s.min_closing_kg, b.safety_stock_kg,
        s.min_closing_kg - b.safety_stock_kg AS margin_kg, s.min_closing_date, s.required_topup_kg
@@ -272,29 +266,14 @@ ORDER BY margin_kg, s.bunker_id
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 9. Gold 테이블 확인
-# MAGIC Unity Catalog에 만든 Gold 테이블 18개의 행 수입니다. 07장에서 Genie가 이 테이블로 질문에 답합니다.
+# MAGIC ## 9. OneLake의 Gold 확인
+# MAGIC Gold 테이블 18개가 Fabric Lakehouse `lh_chipbalance_<참가자 번호>`의 `gold` 스키마에 저장되었는지 확인합니다.
+# MAGIC 이름에서 `gold_`를 뺍니다. 예를 들어 `gold_fact_balance`는 Lakehouse의 `gold.fact_balance`입니다.
+# MAGIC Managed Identity로 저장했고, 다시 실행하면 덮어씁니다. 소수 열(`actual_kg_per_kg` 등)은 `DOUBLE`로 저장됩니다.
 # MAGIC
-# MAGIC **예상 결과:** 18행. `gold_fact_balance` 2,208행 (Bunker 24개 × 92일)
+# MAGIC **예상 결과:** 18행. `gold_fact_balance`는 2,208행 (Bunker 24개 × 92일)입니다.
 
 # COMMAND ----------
-gold_tables = [
-    "dim_line", "dim_bunker", "dim_material", "dim_product", "dim_supplier", "dim_customer", "dim_route", "dim_date", "dim_scenario",
-    "fact_usage_factor", "fact_monthly_usage", "fact_opening_stock", "fact_inbound", "fact_sales_order", "fact_plan",
-    "fact_order_fulfillment", "fact_balance", "fact_bunker_summary",
-]
-display(spark.createDataFrame([(f"gold_{t}", spark.table(f"gold_{t}").count()) for t in gold_tables], "`Gold 테이블` string, `행 수` long"))
-
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 10. OneLake에 저장
-# MAGIC Gold 테이블 18개를 Fabric Lakehouse `lh_chipbalance_<참가자 번호>`의 `gold` 스키마에 저장합니다.
-# MAGIC 이름에서 `gold_`를 뺍니다. 예를 들어 `gold_fact_balance`는 Lakehouse의 `gold.fact_balance`가 됩니다.
-# MAGIC Managed Identity로 저장하며, 다시 실행하면 덮어씁니다. 소수 열(`actual_kg_per_kg` 등)은 `DOUBLE`로 저장됩니다.
-# MAGIC
-# MAGIC **예상 결과:** 18행. `Unity Catalog 행 수`와 `OneLake 행 수`가 모두 같습니다. (2~3분)
-
-# COMMAND ----------
-published = [(f"gold_{t}", f"gold.{t}", spark.table(f"gold_{t}").count(), write_gold(spark.table(f"gold_{t}"), t)) for t in gold_tables]
-display(spark.createDataFrame(published, "`Unity Catalog` string, `OneLake` string, `Unity Catalog 행 수` long, `OneLake 행 수` long"))
+check = [(f"gold_{t}", f"gold.{t}", onelake_gold_rows(t)) for t in GOLD_TABLES]
+display(spark.createDataFrame(check, "`Notebook의 Gold` string, `OneLake 테이블` string, `OneLake 행 수` long"))
 print("OneLake 경로:", f"{ONELAKE_ROOT}/Tables/gold")

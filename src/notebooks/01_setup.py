@@ -79,7 +79,12 @@ print("원천 파일 Volume:", raw_volume)
 # MAGIC |---|---|
 # MAGIC | `onelake_options` | Managed Identity 토큰을 받아 OneLake 접속 옵션을 만듭니다. |
 # MAGIC | `write_delta` | Spark DataFrame을 OneLake 경로에 Delta 형식으로 덮어써서 저장하고, 저장된 행 수를 돌려줍니다. |
-# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. `05_gold`와 `06_emergency_order`에서 씁니다. 소수(`DECIMAL`) 열은 `DOUBLE`로 바꿔 저장합니다. Fabric Ontology가 `DECIMAL`을 읽지 못하기 때문입니다. |
+# MAGIC | `write_gold` | `Tables/gold/<테이블 이름>`에 저장합니다. 소수(`DECIMAL`) 열은 `DOUBLE`로 바꿔 저장합니다. Fabric Ontology가 `DECIMAL`을 읽지 못하기 때문입니다. |
+# MAGIC | `publish_gold` | Gold를 `write_gold`로 OneLake에 저장한 뒤 `read_gold`로 다시 읽어 임시 뷰 `gold_<테이블 이름>`으로 등록합니다. Gold는 Unity Catalog에 만들지 않고 OneLake에만 있으며, 뷰는 OneLake에 저장된 Gold와 같습니다. `05_gold`와 `06_emergency_order`에서 씁니다. |
+# MAGIC | `read_gold` | OneLake의 Gold를 읽어 임시 뷰 `gold_<테이블 이름>`으로 등록합니다. `DOUBLE`로 저장한 소수 열은 `DECIMAL`로 되돌립니다. `06_emergency_order`가 05의 Gold를 불러올 때 씁니다. |
+# MAGIC | `onelake_gold_rows` | OneLake에 저장된 Gold 테이블의 행 수를 돌려줍니다. |
+# MAGIC
+# MAGIC 임시 뷰는 이 Notebook 세션 안에서만 보입니다. 세션이 끊겨도 OneLake의 Gold는 그대로 남습니다.
 
 # COMMAND ----------
 from zoneinfo import ZoneInfo
@@ -133,6 +138,56 @@ def write_gold(df, table):
     df = df.select([F.col(f.name).cast("double") if isinstance(f.dataType, T.DecimalType) else F.col(f.name)
                     for f in df.schema.fields])
     return write_delta(df, f"{ONELAKE_ROOT}/Tables/gold/{table}")
+
+
+GOLD_TABLES = [
+    "dim_line", "dim_bunker", "dim_material", "dim_product", "dim_supplier", "dim_customer", "dim_route", "dim_date", "dim_scenario",
+    "fact_usage_factor", "fact_monthly_usage", "fact_opening_stock", "fact_inbound", "fact_sales_order", "fact_plan",
+    "fact_order_fulfillment", "fact_balance", "fact_bunker_summary",
+]
+GOLD_DECIMALS = {"std_kg_per_kg": "decimal(10,6)", "actual_kg_per_kg": "decimal(10,6)",
+                 "loss_pct": "decimal(6,2)", "avg_delay_days": "decimal(6,2)"}
+
+
+def publish_gold(table, df):
+    write_gold(df, table)
+    read_gold(table)
+
+
+def spark_type(arrow_type):
+    if pa.types.is_string(arrow_type) or pa.types.is_large_string(arrow_type):
+        return T.StringType()
+    if pa.types.is_int64(arrow_type):
+        return T.LongType()
+    if pa.types.is_int32(arrow_type):
+        return T.IntegerType()
+    if pa.types.is_floating(arrow_type):
+        return T.DoubleType()
+    if pa.types.is_boolean(arrow_type):
+        return T.BooleanType()
+    if pa.types.is_date32(arrow_type):
+        return T.DateType()
+    if pa.types.is_timestamp(arrow_type):
+        return T.TimestampType()
+    raise TypeError(f"OneLake에서 읽을 수 없는 형식입니다: {arrow_type}")
+
+
+def onelake_gold_table(table):
+    return DeltaTable(f"{ONELAKE_ROOT}/Tables/gold/{table}", storage_options=onelake_options()).to_pyarrow_table()
+
+
+def read_gold(table):
+    data = onelake_gold_table(table)
+    schema = T.StructType([T.StructField(f.name, spark_type(f.type), True) for f in data.schema])
+    df = spark.createDataFrame([tuple(row.values()) for row in data.to_pylist()], schema)
+    for column, decimal_type in GOLD_DECIMALS.items():
+        if column in df.columns:
+            df = df.withColumn(column, F.col(column).cast(decimal_type))
+    df.createOrReplaceTempView(f"gold_{table}")
+
+
+def onelake_gold_rows(table):
+    return onelake_gold_table(table).num_rows
 
 # COMMAND ----------
 # MAGIC %md
