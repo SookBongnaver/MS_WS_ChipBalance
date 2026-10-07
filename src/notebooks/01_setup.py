@@ -41,7 +41,7 @@ schema = f"chipbalance_{participant}"
 raw_volume = f"/Volumes/{catalog}/{schema}/raw"
 fabric_workspace = f"chipbalance-{participant}"
 fabric_lakehouse = f"lh_chipbalance_{participant}"
-service_credential = "chipbalance_onelake"
+service_credential = "chipbalance_onelake_hyosung"
 
 # COMMAND ----------
 # MAGIC %md
