@@ -82,7 +82,8 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 
 #. Pricing tier가 **Premium**\ 인 Azure Databricks workspace를 Unity Catalog 메타스토어에 연결합니다.
 #. 참가자의 Microsoft Entra ID 계정을 workspace에 추가합니다.
-#. SQL editor에서 스키마와 Volume을 만들고 참가자에게 권한을 줍니다.
+#. SQL editor에서 Catalog, 스키마, Volume을 미리 만들고 참가자에게 사용 권한을 주는 방식을 권장합니다.
+   그러면 참가자는 메타스토어 수준의 생성 권한 없이 실습할 수 있습니다.
 
 .. code-block:: sql
 
@@ -97,6 +98,19 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
 
 * 메타스토어에 기본 저장소가 없으면 ``CREATE CATALOG``\ 에 ``MANAGED LOCATION``\ 을 지정합니다.
 * Bronze·Silver·Gold 테이블은 참가자가 03~06 Notebook에서 만듭니다. 07장에서 Genie Code가 Gold 테이블에 설명을 넣으므로 참가자가 테이블 소유자이거나 ``MODIFY`` 권한이 있어야 합니다.
+* ``01_setup``\ 은 설정값을 검증하고 위 세 리소스에 ``CREATE ... IF NOT EXISTS``\ 를 실행합니다.
+  미리 만든 리소스는 바꾸지 않으며, 준비 후 ``USE CATALOG``, ``USE SCHEMA``, Volume 목록 조회까지 확인합니다.
+* 관리자가 리소스를 미리 만들지 않고 참가자가 Notebook에서 자동 준비하게 하려면 참가자에게 누락 리소스별 생성 권한이 필요합니다.
+
+  - Catalog가 없을 때: 메타스토어의 ``CREATE CATALOG``. 메타스토어 기본 관리형 저장소가 없으면 관리자가
+    ``MANAGED LOCATION``\ 을 지정해 Catalog를 먼저 만드는 편이 안전합니다.
+  - 스키마가 없을 때: Catalog의 ``USE CATALOG``, ``CREATE SCHEMA``.
+  - Volume이 없을 때: Catalog의 ``USE CATALOG`` 및 스키마의 ``USE SCHEMA``, ``CREATE VOLUME``.
+  - 준비 후 실습: 위 SQL 예시의 ``USE CATALOG``, ``USE SCHEMA``, ``CREATE TABLE``, ``MODIFY``, ``SELECT``,
+    ``READ VOLUME``, ``WRITE VOLUME``.
+
+  생성 권한이나 메타스토어 설정이 부족하면 Notebook에서 Spark 원본 오류가 그대로 표시됩니다.
+  참가자에게 메타스토어 ``CREATE CATALOG`` 권한을 주지 않는 운영 환경에서는 위 사전 생성 흐름을 사용합니다.
 
 참가자는 별도 Classic Compute 없이 Notebook의 기본 **Serverless**\ 를 사용합니다.
 

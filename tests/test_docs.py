@@ -2,6 +2,7 @@
 import importlib.util
 import json
 import re
+import types
 import unittest
 import zipfile
 from pathlib import Path
@@ -170,6 +171,73 @@ class NotebookTests(unittest.TestCase):
                 with self.subTest(entry=name):
                     self.assertEqual(bundle.read(name), (NOTEBOOKS / name.split("/", 1)[1]).read_bytes(),
                                      f"{name} is stale; run python tools/build_notebooks.py")
+
+    def setup_unity_catalog_cell(self):
+        source = SOURCES / "01_setup.py"
+        spec = importlib.util.spec_from_file_location("build_notebooks", ROOT / "tools" / "build_notebooks.py")
+        build_notebooks = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(build_notebooks)
+        return next("".join(cell["source"]) for cell in build_notebooks.cells_from_source(source)
+                    if cell["cell_type"] == "code" and "CREATE CATALOG IF NOT EXISTS" in "".join(cell["source"]))
+
+    def test_setup_prepares_and_checks_unity_catalog(self):
+        setup_cell = self.setup_unity_catalog_cell()
+        self.assertNotIn("import re", setup_cell)
+        for name in ("participant", "catalog", "schema", "raw_volume", "fabric_workspace",
+                     "fabric_lakehouse", "service_credential"):
+            self.assertNotRegex(setup_cell, rf"(?m)^{name}\s*=")
+
+        for participant in ("p001", "p002", "p037", "p999"):
+            with self.subTest(participant=participant):
+                statements = []
+
+                class Spark:
+                    conf = types.SimpleNamespace(set=lambda *args: None)
+
+                    @staticmethod
+                    def sql(statement):
+                        statements.append(statement)
+
+                schema = f"chipbalance_{participant}"
+                raw_volume = f"/Volumes/lab_factory/{schema}/raw"
+                listed = []
+                namespace = {
+                    "re": re,
+                    "participant": participant,
+                    "catalog": "lab_factory",
+                    "schema": schema,
+                    "raw_volume": raw_volume,
+                    "spark": Spark(),
+                    "dbutils": types.SimpleNamespace(
+                        fs=types.SimpleNamespace(ls=lambda path: listed.append(path))
+                    ),
+                    "print": lambda *args: None,
+                }
+                exec(setup_cell, namespace)
+
+                self.assertEqual(statements, [
+                    "CREATE CATALOG IF NOT EXISTS `lab_factory`",
+                    f"CREATE SCHEMA IF NOT EXISTS `lab_factory`.`{schema}`",
+                    f"CREATE VOLUME IF NOT EXISTS `lab_factory`.`{schema}`.`raw`",
+                    "USE CATALOG `lab_factory`",
+                    f"USE SCHEMA `{schema}`",
+                ])
+                self.assertEqual(listed, [raw_volume])
+
+    def test_setup_rejects_invalid_participant(self):
+        setup_cell = self.setup_unity_catalog_cell()
+        for participant in ("p01", "p1000", "P001", "participant"):
+            with self.subTest(participant=participant):
+                schema = f"chipbalance_{participant}"
+                namespace = {
+                    "re": re,
+                    "participant": participant,
+                    "catalog": "lab_factory",
+                    "schema": schema,
+                    "raw_volume": f"/Volumes/lab_factory/{schema}/raw",
+                }
+                with self.assertRaisesRegex(ValueError, "participant는 p001처럼"):
+                    exec(setup_cell, namespace)
 
 
 if __name__ == "__main__":
