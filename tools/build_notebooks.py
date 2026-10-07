@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "src" / "notebooks"
 OUTPUT = ROOT / "notebooks"
+ADMIN = ROOT / "admin"
 ARCHIVE = OUTPUT / "ChipBalance.zip"
 ARCHIVE_FOLDER = "ChipBalance"
 
@@ -52,20 +53,23 @@ def cells_from_source(path):
     return cells
 
 
+def write_notebook(path, target):
+    notebook = {
+        "nbformat": 4, "nbformat_minor": 5,
+        "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+                     "language_info": {"name": "python"}},
+        "cells": cells_from_source(path),
+    }
+    target.write_text(json.dumps(notebook, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return target
+
+
 def build():
     OUTPUT.mkdir(exist_ok=True)
-    built = []
-    for path in sorted(SOURCE.glob("*.py")):
-        notebook = {
-            "nbformat": 4, "nbformat_minor": 5,
-            "metadata": {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
-                         "language_info": {"name": "python"}},
-            "cells": cells_from_source(path),
-        }
-        target = OUTPUT / f"{path.stem}.ipynb"
-        target.write_text(json.dumps(notebook, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-        built.append(target)
+    built = [write_notebook(path, OUTPUT / f"{path.stem}.ipynb") for path in sorted(SOURCE.glob("*.py"))]
     built.append(build_archive(built))
+    for path in sorted(ADMIN.glob("*.py")):
+        built.append(write_notebook(path, ADMIN / f"{path.stem}.ipynb"))
     return built
 
 
