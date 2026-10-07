@@ -108,7 +108,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
      - ``chipbalance-p001``, ``lh_chipbalance_p001``
      - Gold를 저장하는 Fabric 작업 영역과 Lakehouse
    * - ``service_credential``
-     - ``chipbalance_onelake``
+     - ``chipbalance_onelake_p001``
      - OneLake에 저장할 때 쓰는 Managed Identity
 
 5. 셀 실행
@@ -137,7 +137,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
 #. **4. OneLake 저장 함수**
 
    결과는 출력되지 않습니다. 오류 없이 끝나면 됩니다.
-   이 셀은 05·06장에서 Gold를 저장할 함수를 만듭니다. 저장할 때마다 service credential ``chipbalance_onelake``\ 에서
+   이 셀은 05·06장에서 Gold를 저장할 함수를 만듭니다. 저장할 때마다 service credential ``chipbalance_onelake_p001``\ 에서
    Managed Identity 토큰을 받아 씁니다.
 
 #. **5. OneLake 연결 확인**
@@ -145,7 +145,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
    **예상 결과:** ``연결 확인 완료``, OneLake 경로, ``쓰기·읽기: 1행``\ 이 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-connection.png
-      :alt: 5. OneLake 연결 확인 셀. 결과에 연결 확인 완료, OneLake 경로 abfss://chipbalance-p001@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p001.lakehouse, Managed Identity(service credential) chipbalance_onelake, 쓰기·읽기 1행이 표시됩니다.
+      :alt: 5. OneLake 연결 확인 셀. 결과에 연결 확인 완료, OneLake 경로 abfss://chipbalance-p001@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p001.lakehouse, Managed Identity(service credential) chipbalance_onelake_p001, 쓰기·읽기 1행이 표시됩니다.
       :width: 900
 
 6. Fabric에서 확인하기
@@ -165,7 +165,7 @@ Managed Identity로 저장하는 방식
 --------------------------------
 
 * 관리자가 Azure에 Access Connector(``unity-catalog-access-connector``)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
-* 이 Managed Identity를 Unity Catalog service credential ``chipbalance_onelake``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
+* 이 Managed Identity를 Unity Catalog service credential ``chipbalance_onelake_p001``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
 * Fabric 작업 영역 ``chipbalance-p001``\ 에는 이 Managed Identity를 Contributor로 추가했습니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider``\ 로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.
 * 관리자가 설정한 화면은 `관리자 준비 가이드 <../admin/README.rst>`_\ 의 "2. Managed Identity와 service credential"에 있습니다.

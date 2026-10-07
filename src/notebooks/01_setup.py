@@ -29,7 +29,7 @@
 # MAGIC | `catalog`, `schema` | `lab_factory_p001`, `chipbalance_p001` | Bronze·Silver·Gold 테이블을 저장하는 Unity Catalog 위치 |
 # MAGIC | `raw_volume` | `/Volumes/lab_factory_p001/chipbalance_p001/raw` | 02에서 SAP·FPIMS·PVSS 원천 파일을 만드는 Volume |
 # MAGIC | `fabric_workspace`, `fabric_lakehouse` | `chipbalance-p001`, `lh_chipbalance_p001` | Gold를 저장하는 Fabric 작업 영역과 Lakehouse |
-# MAGIC | `service_credential` | `chipbalance_onelake` | OneLake에 저장할 때 쓰는 Managed Identity |
+# MAGIC | `service_credential` | `chipbalance_onelake_p001` | OneLake에 저장할 때 쓰는 Managed Identity |
 
 # COMMAND ----------
 import re
@@ -41,7 +41,7 @@ schema = f"chipbalance_{participant}"
 raw_volume = f"/Volumes/{catalog}/{schema}/raw"
 fabric_workspace = f"chipbalance-{participant}"
 fabric_lakehouse = f"lh_chipbalance_{participant}"
-service_credential = "chipbalance_onelake"
+service_credential = f"chipbalance_onelake_{participant}"
 
 # COMMAND ----------
 # MAGIC %md
@@ -72,7 +72,7 @@ print("원천 파일 Volume:", raw_volume)
 # MAGIC Gold는 Fabric Lakehouse의 `Tables/gold` 폴더에 Delta 테이블로 저장합니다. Fabric은 이 폴더의 테이블을 자동으로 인식합니다.
 # MAGIC
 # MAGIC 인증에는 Managed Identity를 씁니다. 관리자가 Access Connector의 Managed Identity를
-# MAGIC Unity Catalog service credential `chipbalance_onelake`로 등록하고, Fabric 작업 영역에 Contributor 권한을 주었습니다.
+# MAGIC Unity Catalog service credential `chipbalance_onelake_<참가자 번호>`로 등록하고, Fabric 작업 영역에 Contributor 권한을 주었습니다.
 # MAGIC Notebook에는 비밀번호나 키를 넣지 않습니다. 저장할 때마다 service credential에서 토큰을 받아 씁니다.
 # MAGIC
 # MAGIC | 함수 | 하는 일 |
