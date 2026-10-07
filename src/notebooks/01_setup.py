@@ -104,7 +104,7 @@ def onelake_options():
         credential = dbutils.credentials.getServiceCredentialsProvider(service_credential)
         token = credential.get_token("https://storage.azure.com/.default").token
     except Exception as error:
-        raise RuntimeError(f"service credential '{service_credential}' 사용 권한을 확인합니다. 오류 메시지를 관리자에게 알립니다.") from error
+        raise RuntimeError(f"service credential '{service_credential}' 사용 권한을 확인합니다. 오류 메시지를 관리자에게 알립니다.\n원본 오류: {type(error).__name__}: {error}") from error
     return {"bearer_token": token, "use_fabric_endpoint": "true"}
 
 
