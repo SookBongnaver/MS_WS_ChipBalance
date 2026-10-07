@@ -164,7 +164,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
 Managed Identity로 저장하는 방식
 --------------------------------
 
-* 관리자가 Azure에 Access Connector(``ac-chipbalance-onelake``)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
+* 관리자가 Azure에 Access Connector(``unity-catalog-access-connector``)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
 * 이 Managed Identity를 Unity Catalog service credential ``chipbalance_onelake``\ 로 등록하고, 참가자에게 사용 권한을 주었습니다.
 * Fabric 작업 영역 ``chipbalance-p001``\ 에는 이 Managed Identity를 Contributor로 추가했습니다.
 * Notebook은 ``dbutils.credentials.getServiceCredentialsProvider``\ 로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.
