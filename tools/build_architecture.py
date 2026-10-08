@@ -149,7 +149,7 @@ def architecture():
     d.rect(40, 222, 600, 790, GRAY, True)
     d.icon("databricks.svg", 60, 242)
     d.text(122, 248, "Azure Databricks | 데이터 정제·계산", 23, 500, True)
-    d.text(70, 304, "Classic compute · Notebook · Spark / Delta\n원천 Volume과 Bronze·Silver·Gold는 Unity Catalog에 저장", 17, 550)
+    d.text(70, 304, "Serverless · Notebook · Spark / Delta\n원천 Volume과 Bronze·Silver는 Unity Catalog에 저장", 17, 550)
     d.card(70, 380, 240, 180, "원천 → Bronze", "02 원천 파일 14개 생성\nSAP · FPIMS · PVSS\n03 파일 그대로 적재", "delta-table.svg")
     d.arrow([(310, 470), (360, 470)])
     d.text(316, 437, "정제", 15, 40)
@@ -157,9 +157,9 @@ def architecture():
     d.arrow([(490, 560), (490, 630)])
     d.text(505, 582, "업무 계산", 16, 110)
     d.card(360, 630, 260, 250, "Gold / 계산",
-           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n06 긴급 수주·대응안 4개\nGold를 OneLake에 저장",
+           "05 실제 소요량·시작 재고\n05 4분기 날짜별 재고\n06 긴급 수주·대응안 4개\nGold는 OneLake에만 저장",
            "delta-table.svg")
-    d.card(70, 630, 240, 130, "Genie", "07 테이블·열 설명 작성\n자연어 질문 → SQL", "genie.svg")
+    d.card(70, 630, 240, 130, "Genie (선택 확장)", "OneLake 연결 후 질문\n07 정답 6개와 비교", "genie.svg")
     d.arrow([(360, 695), (310, 695)])
     d.text(75, 782, "① 현재 계산", 18, 270, True)
     d.text(75, 812, "소요량 = 계획 × 실제 소요량\n마감 = 전일 + 입고 ± 이송 − 소요", 16, 270)
@@ -173,7 +173,7 @@ def architecture():
     d.text(750, 304, "Gold로 현황을 파악하고, Agent가 대응안을 제안하고 질문에 답합니다", 17, 640)
     d.arrow([(620, 700), (680, 700), (680, 460), (750, 460)])
     d.card(750, 360, 270, 180, "OneLake Gold",
-           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\nSQL analytics endpoint로 확인\nGold 저장은 Databricks만",
+           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\nUnity Catalog에는 만들지 않음\nGold 저장은 Databricks만",
            "lakehouse.svg")
     d.card(750, 565, 270, 160, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안\n위험 이벤트 (RiskEvent)", "ontology.svg")
     d.card(750, 790, 270, 150, "Notebook · 승인 기록", "승인하면 실행\n위험 이벤트 approved로 변경\ndbo.chip_decision_log", "notebook.svg")

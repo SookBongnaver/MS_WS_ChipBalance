@@ -25,8 +25,8 @@
      - 긴급 수주와 대응안 4개
      - 긴급 수주를 반영하면 BNK-L3-2(L3 PET-SD)가 2026-10-06에 안전재고 아래로 내려가고, 판단 기준을 모두 만족하는 추천안은 ``OPT-2``\ 입니다.
    * - 07
-     - Unity Catalog 설명, Genie
-     - Genie가 Q1~Q6에 정답과 같은 값으로 답합니다.
+     - 정답 계산 ``07_answers``
+     - Q1~Q6의 정답 6행이 표시됩니다. (Genie는 선택 확장)
    * - 08~09
      - Ontology ``ont_chipbalance``, Ontology agent
      - Ontology agent가 같은 질문에 답합니다. 예: ``OPT-2``\ 를 반영해도 BNK-L1-2의 최저 기말재고는 16,763 kg으로 안전재고 6,000 kg 이상입니다.
@@ -40,7 +40,7 @@
      - Foundry 프로젝트 ``chipbalance-p001``, 에이전트 ``fa-chipbalance``
      - 에이전트가 Fabric IQ 도구로 ``ont_chipbalance``\ 에 물어, ``OPT-2``\ 를 반영한 BNK-L1-2의 최저 기말재고 16,763 kg이 안전재고 6,000 kg 이상이라고 답합니다.
 
-같은 Gold를 Genie, Ontology agent, Power BI, Operations agent, Foundry agent가 함께 씁니다.
+같은 Gold를 Ontology agent, Power BI, Operations agent, Foundry agent가 함께 씁니다. Genie는 선택 확장으로 같은 Gold를 볼 수 있습니다.
 계산은 Databricks에서 한 번 하고, 결정은 담당자가 Teams에서 합니다.
 
 2. 에이전트 멈추기
@@ -59,7 +59,7 @@
 
 #. Fabric 작업 영역 ``chipbalance-p001``: ``oa_chipbalance`` → ``nb_record_decision`` → ``eh_chipbalance`` → ``rpt_chipbalance`` → ``sm_chipbalance`` → ``ont_chipbalance``. 항목의 **...** > **Delete**\ 를 누릅니다. ``ont_chipbalance``\ 를 지우면 함께 만들어진 ``ont_chipbalance_eh_…``, ``ont_chipbalance_graph_…``\ 도 지웁니다.
 #. Foundry: ``fa-chipbalance`` 에이전트 목록의 **작업** > **삭제**\ 로 에이전트를 지웁니다. 프로젝트와 Foundry 리소스 ``fdy-chipbalance-p001``\ 은 관리자가 Azure portal에서 지웁니다.
-#. Databricks: Unity Catalog 스키마 ``lab_factory_p001.chipbalance_p001``\ 은 관리자가 지웁니다.
+#. Databricks: Unity Catalog 스키마 ``lab_factory_p001.chipbalance_p001``\ (Bronze·Silver)은 관리자가 지웁니다. Gold는 Fabric Lakehouse에 있습니다.
 
 Fabric 용량 일시 중지는 관리자가 합니다.
 

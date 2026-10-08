@@ -106,7 +106,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 
 09장은 Ontology agent로, 11장은 Eventhouse ``eh_chipbalance``\ 를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 연결은 운영에 적용할 때 붙입니다. Foundry agent에 Work IQ 도구를 붙여 Teams·Outlook 메일의 업무 맥락을 함께 묻는 연결, Microsoft 365 Copilot·Cowork(기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용), Data agent를 Microsoft 365 Copilot의 Agent Store에 게시해 Teams에서 대화하는 연결입니다.
 
-* **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에 저장합니다. Genie는 Unity Catalog 설명을 근거로 질문에 답합니다.
+* **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에만 저장합니다.
 * **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 Eventhouse의 위험 이벤트를 감시해 대응안을 제안합니다.
 * **Microsoft Foundry** — Foundry agent가 Fabric IQ 도구로 Ontology를 읽어, 승인하기 전에 대응안의 근거를 답합니다.
 * **Microsoft 365** — 담당자가 Teams에서 Operations agent의 제안을 받고 승인합니다.
@@ -131,7 +131,7 @@ SAP, FPIMS, PVSS에서 추출한 것과 같은 형식의 파일 14개를 씁니�
 * `04. Silver <04-silver.rst>`_ — Databricks, 25분
 * `05. Gold와 OneLake <05-gold-onelake.rst>`_ — Databricks → Fabric, 30분
 * `06. 긴급 수주와 대응안 <06-emergency-order.rst>`_ — Databricks → Fabric, 30분
-* `07. Unity Catalog 설명과 Genie <07-genie.rst>`_ — Databricks, 40분
+* `07. 정답 계산과 Genie <07-genie.rst>`_ — Databricks, 20분
 * `08. Ontology <08-ontology.rst>`_ — Fabric, 45분
 * `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_ — Fabric, 30분
 * `10. Power BI 보고서 <10-power-bi.rst>`_ — Fabric, 45분

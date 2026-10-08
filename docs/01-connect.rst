@@ -40,7 +40,7 @@ OneLake에 저장할 때는 Managed Identity를 씁니다. 비밀번호나 키�
 **예상 결과:** 오른쪽 위에 **Successful import**\ 가 잠깐 보이고, 홈 폴더에 ``ChipBalance`` 폴더가 생깁니다. 폴더를 열면 Notebook 8개가 있습니다.
 
 .. image:: ../assets/screenshots/d01-folder.png
-   :alt: ChipBalance 폴더. 01_setup, 02_source_data, 03_bronze, 04_silver, 05_gold, 06_emergency_order, 07_unity_catalog, source_systems Notebook 8개가 보입니다.
+   :alt: ChipBalance 폴더. 01_setup, 02_source_data, 03_bronze, 04_silver, 05_gold, 06_emergency_order, 07_answers, source_systems Notebook 8개가 보입니다.
    :width: 800
 
 .. list-table::
@@ -62,9 +62,9 @@ OneLake에 저장할 때는 Managed Identity를 씁니다. 비밀번호나 키�
    * - ``06_emergency_order``
      - 06
      - 긴급 수주와 대응안 계산
-   * - ``07_unity_catalog``
+   * - ``07_answers``
      - 07
-     - Unity Catalog 설명 확인, Genie 질문의 정답
+     - OneLake의 Gold로 질문 6개의 정답 계산
    * - ``source_systems``
      - 02
      - 원천 데이터 생성 함수. ``02_source_data``\ 가 불러오며 직접 실행하지 않습니다.
@@ -100,7 +100,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
      - 용도
    * - ``catalog``, ``schema``
      - ``lab_factory_p001``, ``chipbalance_p001``
-     - Bronze·Silver·Gold 테이블 위치 (Unity Catalog)
+     - Bronze·Silver 테이블 위치 (Unity Catalog). Gold는 OneLake에 저장
    * - ``raw_volume``
      - ``/Volumes/lab_factory_p001/chipbalance_p001/raw``
      - 02장에서 원천 파일을 만드는 곳

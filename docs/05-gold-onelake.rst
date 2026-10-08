@@ -3,7 +3,8 @@
 
 `목차 <../README.rst>`_ | 이전: `04. Silver <04-silver.rst>`_ | 다음: `06. 긴급 수주와 대응안 <06-emergency-order.rst>`_
 
-``05_gold``\ 로 Silver 테이블에서 Bunker별·날짜별 원료 Balance를 계산해 Gold 테이블 18개를 만들고, Fabric Lakehouse(OneLake)에 저장합니다.
+``05_gold``\ 로 Silver 테이블에서 Bunker별·날짜별 원료 Balance를 계산해 Gold 테이블 18개를 만들고, Fabric Lakehouse(OneLake)에 바로 저장합니다.
+Gold는 Unity Catalog에 만들지 않습니다. OneLake에만 있고, Databricks와 Fabric이 같은 Gold를 씁니다.
 Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 06장의 위험 이벤트로 대응안을 제안합니다.
 
 .. list-table::
@@ -40,6 +41,8 @@ Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agen
 #. ``ChipBalance`` 폴더에서 ``05_gold``\ 를 엽니다.
 #. 오른쪽 위 Compute 목록에 **Serverless**\ 가 선택되어 있는지 확인합니다.
 #. 위에서부터 **Shift+Enter**\ 로 한 셀씩 실행합니다. 위쪽 **Run all**\ 로 한 번에 실행해도 됩니다. 전체 실행에 3~4분 걸립니다.
+   Gold 셀은 결과를 OneLake에 저장하고, 저장된 Gold를 같은 이름(``gold_…``)의 임시 뷰로 등록합니다. 다음 셀이 이 뷰를 이어서 씁니다.
+   저장하느라 셀마다 몇 초 더 걸립니다.
 
 2. 셀별 결과 확인
 --------------------
@@ -123,26 +126,12 @@ Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agen
       :alt: 8. Bunker 위험 요약 결과. bunker_id, material_id, below_safety_days, min_closing_kg, safety_stock_kg, margin_kg, min_closing_date, required_topup_kg 열이 있는 표입니다. 첫 행 BNK-L5-4의 margin_kg는 1002이고 below_safety_days와 required_topup_kg는 모두 0입니다.
       :width: 900
 
-#. **9. Gold 테이블 확인**
+#. **9. OneLake의 Gold 확인**
 
-   Unity Catalog에 만든 Gold 테이블 18개의 행 수입니다. 07장에서 Genie가 이 테이블로 질문에 답합니다.
+   Gold 테이블 18개가 Fabric Lakehouse ``lh_chipbalance_p001``\ 의 ``gold`` 스키마에 저장되었는지 확인합니다. 이름에서 ``gold_``\ 를 뺍니다. 예를 들어 ``gold_fact_balance``\ 는 ``gold.fact_balance``\ 입니다.
+   Managed Identity로 저장했고, 다시 실행하면 덮어씁니다. 소수 열(``actual_kg_per_kg`` 등)은 ``DOUBLE``\ 로 저장됩니다.
 
-   **예상 결과:** 18행. ``gold_fact_balance``\ 는 2,208행(Bunker 24개 × 92일)입니다. 표 아래로 스크롤하면 나머지 행이 보입니다.
-
-   .. image:: ../assets/screenshots/d05-tables.png
-      :alt: 9. Gold 테이블 확인 결과. Gold 테이블, 행 수 열이 있는 18행 표입니다. gold_dim_line 6, gold_dim_bunker 24, gold_dim_date 92, gold_fact_inbound 719, gold_fact_plan 547이 보입니다.
-      :width: 900
-
-#. **10. OneLake에 저장**
-
-   Gold 테이블 18개를 Fabric Lakehouse ``lh_chipbalance_p001``\ 의 ``gold`` 스키마에 저장합니다. 이름에서 ``gold_``\ 를 빼서 ``gold_fact_balance``\ 는 ``gold.fact_balance``\ 가 됩니다.
-   Managed Identity로 저장하며, 다시 실행하면 덮어씁니다. 소수 열(``actual_kg_per_kg`` 등)은 ``DOUBLE``\ 로 저장됩니다.
-
-   **예상 결과:** 18행. ``Unity Catalog 행 수``\ 와 ``OneLake 행 수``\ 가 모두 같고, 아래에 OneLake 경로가 표시됩니다.
-
-   .. image:: ../assets/screenshots/d05-onelake.png
-      :alt: 10. OneLake에 저장 결과. Unity Catalog, OneLake, Unity Catalog 행 수, OneLake 행 수 열이 있는 18행 표입니다. gold_dim_line은 gold.dim_line으로 6행씩 같고, 아래에 OneLake 경로 abfss://chipbalance-p001@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p001.lakehouse/Tables/gold가 표시됩니다.
-      :width: 900
+   **예상 결과:** 18행. ``gold_fact_balance``\ 는 2,208행(Bunker 24개 × 92일)입니다. 표 아래로 스크롤하면 나머지 행이 보이고, 맨 아래에 OneLake 경로가 표시됩니다.
 
 3. Fabric Lakehouse에서 Gold 확인
 ------------------------------------
@@ -182,7 +171,7 @@ Databricks가 저장한 Gold를 Fabric에서 그대로 읽습니다.
 Troubleshooting
 ---------------
 
-* **10. OneLake에 저장**\ 에서 ``service credential`` 오류가 나면 01장 **5. OneLake 연결 확인**\ 을 다시 실행하고, 오류 메시지를 관리자에게 알립니다.
+* Gold 셀에서 ``service credential`` 오류가 나면 01장 **5. OneLake 연결 확인**\ 을 다시 실행하고, 오류 메시지를 관리자에게 알립니다.
 * Fabric에 ``gold`` 테이블이 보이지 않으면 Explorer의 **Tables** 옆 **…** > **Refresh**\ 를 누릅니다.
 * SQL에서 ``Invalid object name 'gold.fact_balance'`` 오류가 나면 **Sync metadata from the Lakehouse**\ 를 누르고 30초 뒤 다시 실행합니다.
 

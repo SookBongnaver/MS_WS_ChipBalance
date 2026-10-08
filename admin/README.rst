@@ -23,7 +23,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
    * - Databricks Serverless
      - 참가자 Notebook 실행에 사용. ``deltalake==1.6.6``\ 은 ``01_setup``\ 이 Notebook 범위에 설치
    * - SQL warehouse
-     - Pro SQL warehouse ``chipbalance-pro`` (2X-Small, 15분 자동 종료). 07장 Genie Agent가 사용
+     - (선택) Pro SQL warehouse ``chipbalance-pro`` (2X-Small, 15분 자동 종료). 07장 선택 확장의 Genie Agent가 사용
    * - Managed Identity
      - Access Connector for Azure Databricks ``ac-chipbalance-onelake``, Unity Catalog service credential ``chipbalance_onelake``
    * - Microsoft Fabric
@@ -56,7 +56,7 @@ Sweden Central 종량제 소매가(USD, 2026년 9월 Azure 가격표) 기준이�
      - $100
      - $200
    * - Databricks SQL warehouse ``chipbalance-pro``
-     - 07장 Genie에서만 켜짐, 2X-Small Pro, 15분 자동 종료. 1명 실행한 날 약 $3.3
+     - 07장 선택 확장의 Genie에서만 켜짐, 2X-Small Pro, 15분 자동 종료. 1명 실행한 날 약 $3.3
      - $5
      - $10
    * - Microsoft Foundry (``gpt-5`` 토큰)
@@ -101,7 +101,7 @@ Databricks에서 **Import**\ 로 가져와 설정값만 채워 실행합니다. 
 
 * Catalog 이름은 참가자 번호가 붙은 ``lab_factory_pNNN``\ 입니다. 같은 Entra 테넌트의 같은 지역 작업 영역은 하나의 메타스토어를 공유하므로, 참가자(또는 실습 회차)마다 Catalog를 따로 두어 이름 충돌과 권한 문제를 피합니다.
 * 메타스토어에 기본 저장소가 없으면 ``CREATE CATALOG``\ 에 ``MANAGED LOCATION``\ 을 지정합니다.
-* Bronze·Silver·Gold 테이블은 참가자가 03~06 Notebook에서 만듭니다. 07장에서 Genie Code가 Gold 테이블에 설명을 넣으므로 참가자가 테이블 소유자이거나 ``MODIFY`` 권한이 있어야 합니다.
+* Bronze·Silver 테이블은 참가자가 03~04 Notebook에서 만듭니다. Gold는 05~06 Notebook이 Unity Catalog가 아니라 Fabric Lakehouse(OneLake)에만 저장합니다.
 * ``01_setup``\ 은 설정값을 검증하고 위 세 리소스에 ``CREATE ... IF NOT EXISTS``\ 를 실행합니다.
   미리 만든 리소스는 바꾸지 않으며, 준비 후 ``USE CATALOG``, ``USE SCHEMA``, Volume 목록 조회까지 확인합니다.
 * 관리자가 리소스를 미리 만들지 않고 참가자가 Notebook에서 자동 준비하게 하려면 참가자에게 누락 리소스별 생성 권한이 필요합니다.
@@ -122,7 +122,7 @@ Databricks에서 **Import**\ 로 가져와 설정값만 채워 실행합니다. 
 * 참가자에게 **Serverless compute access** entitlement를 줍니다.
 * ``01_setup`` 첫 셀이 ``deltalake==1.6.6``\ 을 Notebook 범위에 설치하므로 Compute 라이브러리를 미리 설치하지 않습니다.
 
-SQL warehouse를 하나 만들어 모든 참가자가 함께 씁니다. 07장 Genie Agent가 이 warehouse로 SQL을 실행합니다.
+(선택) 07장의 Genie 확장을 쓸 때만 SQL warehouse를 하나 만들어 모든 참가자가 함께 씁니다. Genie Agent가 이 warehouse로 SQL을 실행합니다.
 
 * **SQL Warehouses** > **Create SQL warehouse**: 이름 ``chipbalance-pro``, Type **Pro**, Cluster size **2X-Small**, Auto stop 15분
 * **Permissions**\ 에서 참가자에게 **Can use**\ 를 줍니다.

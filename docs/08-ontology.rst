@@ -1,7 +1,7 @@
 08. Ontology
 =============
 
-`목차 <../README.rst>`_ | 이전: `07. Unity Catalog 설명과 Genie <07-genie.rst>`_ | 다음: `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_
+`목차 <../README.rst>`_ | 이전: `07. 정답 계산과 Genie <07-genie.rst>`_ | 다음: `09. Ontology agent에 질문하기 <09-ontology-agent.rst>`_
 
 Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관계를 정의하고, 각 개념을 Lakehouse 테이블에 연결(데이터 바인딩)한 모델입니다.
 이 장에서는 Ontology agent에 프롬프트를 주어 Gold 테이블로 엔터티 타입 17개와 관계 26개를 만들고, 설명·키·바인딩·관계를 점검합니다.

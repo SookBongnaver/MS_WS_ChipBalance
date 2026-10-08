@@ -1,7 +1,7 @@
 06. 긴급 수주와 대응안
 =========================
 
-`목차 <../README.rst>`_ | 이전: `05. Gold와 OneLake <05-gold-onelake.rst>`_ | 다음: `07. Unity Catalog 설명과 Genie <07-genie.rst>`_
+`목차 <../README.rst>`_ | 이전: `05. Gold와 OneLake <05-gold-onelake.rst>`_ | 다음: `07. 정답 계산과 Genie <07-genie.rst>`_
 
 10월 1일, 고객 누리전자소재가 L3 제품 ``P-L3-05``\ (반광택 75μm 후막) 100,000kg을 10월 8일까지 요청했습니다.
 ``06_emergency_order``\ 로 긴급 수주를 생산계획에 넣고 Bunker별·날짜별 재고를 다시 계산합니다.
@@ -179,24 +179,11 @@
 
 #. **12. Gold 테이블 저장**
 
-   긴급 수주 결과를 Unity Catalog의 Gold 테이블에 넣습니다. 다시 실행하면 ``emergency`` 행과 긴급 판매오더를 지우고 다시 넣습니다.
+   긴급 수주 결과를 OneLake의 Gold 테이블에 넣고, 바뀐 테이블 9개를 Fabric Lakehouse의 ``gold`` 스키마에 다시 저장합니다. 05와 같은 방법입니다.
+   다시 실행하면 ``emergency`` 행과 긴급 판매오더를 지우고 다시 넣습니다. Unity Catalog에는 만들지 않습니다.
 
    **예상 결과:** 9행. ``gold_fact_plan`` 1,096행(``emergency`` 549행), ``gold_fact_balance`` 4,416행(``emergency`` 2,208행),
-   ``gold_fact_response_option`` 4행, ``gold_fact_option_balance`` 460행, ``gold_fact_risk_event`` 1행
-
-   .. image:: ../assets/screenshots/d06-gold.png
-      :alt: 12. Gold 테이블 저장 결과. Gold 테이블, 전체 행 수, emergency 행 수 열이 있는 9행 표입니다. gold_dim_scenario 2와 1, gold_fact_sales_order 322와 1, gold_fact_plan 1096과 549, gold_fact_balance 4416과 2208입니다.
-      :width: 900
-
-#. **13. OneLake에 저장**
-
-   바뀐 Gold 테이블 9개를 Fabric Lakehouse의 ``gold`` 스키마에 다시 저장합니다.
-
-   **예상 결과:** 9행. ``Unity Catalog 행 수``\ 와 ``OneLake 행 수``\ 가 모두 같습니다.
-
-   .. image:: ../assets/screenshots/d06-onelake.png
-      :alt: 13. OneLake에 저장 결과. Unity Catalog, OneLake, Unity Catalog 행 수, OneLake 행 수 열이 있는 9행 표입니다. gold_fact_response_option은 gold.fact_response_option으로 4행씩 같습니다.
-      :width: 900
+   ``gold_fact_response_option`` 4행, ``gold_fact_option_balance`` 460행, ``gold_fact_risk_event`` 1행. 표 아래에 OneLake 경로가 표시됩니다.
 
 정리: 판단 기준으로 고른 추천안
 ----------------------------------
@@ -216,10 +203,10 @@
 Troubleshooting
 ---------------
 
-* ``TABLE_OR_VIEW_NOT_FOUND`` 오류가 나면 05장 ``05_gold``\ 를 먼저 실행합니다.
+* 맨 위 **1. 설정과 Gold 불러오기**\ 에서 오류가 나면 05장 ``05_gold``\ 를 먼저 실행합니다. 이 Notebook은 05가 OneLake에 저장한 Gold를 읽어 시작합니다.
 * 05장을 다시 실행하면 ``emergency`` 행이 지워집니다. 이 Notebook을 다시 실행합니다.
 
 다음 단계
 ------------
 
-`07. Unity Catalog 설명과 Genie <07-genie.rst>`_
+`07. 정답 계산과 Genie <07-genie.rst>`_

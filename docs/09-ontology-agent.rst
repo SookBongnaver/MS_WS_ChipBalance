@@ -63,7 +63,7 @@ Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질�
 #. 브라우저를 새로 고칩니다(**F5**). 에이전트 대화가 지워지고 새 대화로 시작합니다.
 #. 리본의 **Ontology agent**\ 를 누르고, 스위치가 **Plan**\ 인지 확인합니다. Plan 모드에서는 조회만 하고 Ontology를 바꾸지 않습니다.
 #. **Say something** 칸에 아래 질문을 Q1부터 하나씩 입력하고 화살표를 눌러 보냅니다. 답이 끝나면 다음 질문을 같은 대화에 이어서 합니다.
-#. ``07_unity_catalog`` Notebook의 **4. Genie 질문의 정답**\ 과 비교합니다.
+#. ``07_answers`` Notebook의 **2. Genie 질문의 정답**\ 과 비교합니다.
 
    .. image:: ../assets/screenshots/d09-q1-prompt.png
       :alt: Ontology Agent 창. Hi, how can I help you? 아래 입력 칸에 긴급 오더를 반영하지 않은 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어? 질문이 입력되어 있고, 스위치는 Plan이 선택되어 있습니다.
@@ -75,7 +75,7 @@ Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질�
 
    * - 번호
      - 질문
-     - 정답 (Notebook **4. Genie 질문의 정답**)
+     - 정답 (Notebook **2. Genie 질문의 정답**)
    * - Q1
      - 긴급 오더를 반영하지 않은 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어?
      - 없음
