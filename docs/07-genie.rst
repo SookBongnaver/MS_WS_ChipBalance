@@ -17,6 +17,10 @@ Gold가 Unity Catalog에 없으므로, Genie가 Gold를 보려면 OneLake를 Uni
 
 **예상 결과:** **1. 설정과 Gold 불러오기**\ 에서 ``OneLake에서 불러온 Gold: 21개``\ 가 표시되고, **2. Genie 질문의 정답**\ 에서 6행 표가 나옵니다.
 
+.. image:: ../assets/screenshots/d07-answers.png
+   :alt: 2. Genie 질문의 정답 셀 결과. 번호, 정답, 근거 열이 있는 6행 표입니다. Q1 없음, Q2 BNK-L3-2, Q3 모두 준수, Q4 BNK-L1-2, Q5 10/09, Q6 OPT-2입니다.
+   :width: 900
+
 .. list-table::
    :header-rows: 1
    :widths: 6 50 44

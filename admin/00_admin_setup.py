@@ -5,7 +5,7 @@
 # MAGIC
 # MAGIC | 단계 | 하는 일 |
 # MAGIC |---|---|
-# MAGIC | 2 | Access Connector의 Managed Identity를 service credential `chipbalance_onelake`로 등록 |
+# MAGIC | 2 | Access Connector의 Managed Identity를 service credential `chipbalance_onelake_hyosung`로 등록 |
 # MAGIC | 3 | 참가자별 Catalog·스키마·Volume 만들기 |
 # MAGIC | 4 | 참가자에게 service credential, Catalog, 스키마, Volume 권한 주기 |
 # MAGIC
@@ -22,7 +22,7 @@
 
 # COMMAND ----------
 access_connector_id = "/subscriptions/<구독 ID>/resourceGroups/<리소스 그룹>/providers/Microsoft.Databricks/accessConnectors/ac-chipbalance-onelake"
-service_credential = "chipbalance_onelake"
+service_credential = "chipbalance_onelake_hyosung"
 
 participants = {
     "p101": "user@contoso.com",

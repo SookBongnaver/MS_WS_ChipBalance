@@ -25,7 +25,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
    * - SQL warehouse
      - (선택) Pro SQL warehouse ``chipbalance-pro`` (2X-Small, 15분 자동 종료). 07장 선택 확장의 Genie Agent가 사용
    * - Managed Identity
-     - Access Connector for Azure Databricks ``ac-chipbalance-onelake``, Unity Catalog service credential ``chipbalance_onelake``
+     - Access Connector for Azure Databricks ``ac-chipbalance-onelake``, Unity Catalog service credential ``chipbalance_onelake_hyosung``
    * - Microsoft Fabric
      - F 용량, 작업 영역 ``chipbalance-pNNN``, Lakehouse ``lh_chipbalance_pNNN`` (Lakehouse schemas 켬)
    * - Microsoft Teams
@@ -144,20 +144,20 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 #. Databricks **Catalog** > **External data** > **Credentials** > **Create credential**\ 을 누릅니다.
 
    * Credential type: **Service credential**
-   * Credential name: ``chipbalance_onelake``
+   * Credential name: ``chipbalance_onelake_hyosung``
    * Access connector ID: Access Connector의 Resource ID (``/subscriptions/…/providers/Microsoft.Databricks/accessConnectors/ac-chipbalance-onelake``)
 
-   **예상 결과:** ``chipbalance_onelake``\ 의 **Overview**\ 에 Credential Type **Managed Identity**, Purpose **SERVICE**\ 와 Access Connector의 Resource ID가 보입니다.
+   **예상 결과:** ``chipbalance_onelake_hyosung``\ 의 **Overview**\ 에 Credential Type **Managed Identity**, Purpose **SERVICE**\ 와 Access Connector의 Resource ID가 보입니다.
 
    .. image:: ../assets/screenshots/admin-service-credential.png
-      :alt: Catalog Explorer > Credentials > chipbalance_onelake 화면. Credential Type은 Managed Identity, Purpose는 SERVICE, Connector Id는 ac-chipbalance-onelake Access Connector의 Resource ID입니다.
+      :alt: Catalog Explorer > Credentials > chipbalance_onelake_hyosung 화면. Credential Type은 Managed Identity, Purpose는 SERVICE, Connector Id는 ac-chipbalance-onelake Access Connector의 Resource ID입니다.
       :width: 800
 
 #. 참가자에게 service credential 사용 권한을 줍니다.
 
    .. code-block:: sql
 
-      GRANT ACCESS ON SERVICE CREDENTIAL `chipbalance_onelake` TO `p001@contoso.com`;
+      GRANT ACCESS ON SERVICE CREDENTIAL `chipbalance_onelake_hyosung` TO `p001@contoso.com`;
 
    credential을 만든 소유자는 GRANT 없이 쓸 수 있습니다. 부여한 권한은 **Permissions** 탭에서 확인합니다.
 
@@ -172,7 +172,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 
 * service credential 하나를 모든 참가자가 함께 쓰면, 이 Managed Identity가 Contributor로 추가된 모든 작업 영역에 쓸 수 있습니다.
   참가자별로 권한을 나누려면 참가자마다 Access Connector와 service credential을 따로 만듭니다.
-* Notebook은 ``dbutils.credentials.getServiceCredentialsProvider("chipbalance_onelake")``\ 로 토큰을 받습니다.
+* Notebook은 ``dbutils.credentials.getServiceCredentialsProvider("chipbalance_onelake_hyosung")``\ 로 토큰을 받습니다.
   Databricks Runtime 16.2 이상이 필요합니다.
 
 3. Microsoft Fabric
@@ -263,7 +263,7 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
       az resource invoke-action --action suspend --ids /subscriptions/<구독 ID>/resourceGroups/rg-factory-onelake-lab-0922/providers/Microsoft.Fabric/capacities/<용량 이름>
 
 #. Workshop 환경을 더 쓰지 않으면 Fabric 작업 영역 권한에서 ``ac-chipbalance-onelake``\ 를 빼고,
-   service credential ``chipbalance_onelake``\ 와 Access Connector를 삭제합니다.
+   service credential ``chipbalance_onelake_hyosung``\ 와 Access Connector를 삭제합니다.
 
 8. 유지보수
 --------------

@@ -185,6 +185,10 @@
    **예상 결과:** 9행. ``gold_fact_plan`` 1,096행(``emergency`` 549행), ``gold_fact_balance`` 4,416행(``emergency`` 2,208행),
    ``gold_fact_response_option`` 4행, ``gold_fact_option_balance`` 460행, ``gold_fact_risk_event`` 1행. 표 아래에 OneLake 경로가 표시됩니다.
 
+   .. image:: ../assets/screenshots/d06-gold.png
+      :alt: 12. Gold 테이블 저장 결과. Gold 테이블, OneLake 행 수, emergency 행 수 열이 있는 9행 표입니다. gold_dim_scenario 2와 1, gold_fact_sales_order 322와 1, gold_fact_plan 1096과 549, gold_fact_balance 4416과 2208이고, 아래에 OneLake 경로가 표시됩니다.
+      :width: 900
+
 정리: 판단 기준으로 고른 추천안
 ----------------------------------
 

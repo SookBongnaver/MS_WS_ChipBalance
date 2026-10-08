@@ -133,6 +133,10 @@ Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agen
 
    **예상 결과:** 18행. ``gold_fact_balance``\ 는 2,208행(Bunker 24개 × 92일)입니다. 표 아래로 스크롤하면 나머지 행이 보이고, 맨 아래에 OneLake 경로가 표시됩니다.
 
+   .. image:: ../assets/screenshots/d05-onelake.png
+      :alt: 9. OneLake의 Gold 확인 결과. Notebook의 Gold, OneLake 테이블, OneLake 행 수 열이 있는 18행 표입니다. gold_dim_line은 gold.dim_line으로 6행이고, 아래에 OneLake 경로 abfss://chipbalance-p101@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p101.lakehouse/Tables/gold가 표시됩니다.
+      :width: 900
+
 3. Fabric Lakehouse에서 Gold 확인
 ------------------------------------
 
@@ -140,11 +144,11 @@ Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agen
 #. 왼쪽 **Workspaces**\ 에서 작업 영역 ``chipbalance-p001``\ 을 열고, 유형이 **Lakehouse**\ 인 ``lh_chipbalance_p001``\ 을 엽니다.
 #. 왼쪽 **Explorer**\ 에서 **Tables** > ``gold``\ 를 펼치고 ``fact_opening_stock``\ 을 누릅니다.
 
-**예상 결과:** ``gold`` 스키마에 테이블 18개가 있고, 가운데에 ``fact_opening_stock`` 24행이 보입니다. ``BNK-L3-2``\ 는 ``30370``\ 입니다.
+**예상 결과:** ``gold`` 스키마에 테이블 18개가 있고(06장까지 실행했다면 21개), 가운데에 ``fact_opening_stock`` 24행이 보입니다. ``BNK-L3-2``\ 는 ``30370``\ 입니다.
 ``reading_ts``\ 는 UTC로 표시되어 ``2026-09-30T14:00:00Z``\ (한국 시간 9월 30일 23시)입니다.
 
 .. image:: ../assets/screenshots/d05-lakehouse.png
-   :alt: Fabric Lakehouse lh_chipbalance_p001. Explorer에서 Tables > gold 아래에 dim_bunker부터 fact_usage_factor까지 테이블이 있고, 가운데에 fact_opening_stock 24행이 보입니다. BNK-L3-2의 opening_kg는 30370입니다.
+   :alt: Fabric Lakehouse lh_chipbalance_p101. Explorer에서 Tables > gold 아래에 dim_bunker부터 fact_response_option까지 테이블이 있고, 가운데에 fact_opening_stock 24행이 보입니다. BNK-L3-2의 opening_kg는 30370입니다. 06장까지 실행한 뒤의 화면이라 gold 테이블이 21개입니다.
    :width: 1000
 
 4. SQL로 같은 결과 확인
