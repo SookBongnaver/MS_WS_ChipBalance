@@ -277,3 +277,19 @@ ORDER BY margin_kg, s.bunker_id
 check = [(f"gold_{t}", f"gold.{t}", onelake_gold_rows(t)) for t in GOLD_TABLES]
 display(spark.createDataFrame(check, "`Notebook의 Gold` string, `OneLake 테이블` string, `OneLake 행 수` long"))
 print("OneLake 경로:", f"{ONELAKE_ROOT}/Tables/gold")
+
+# COMMAND ----------
+# MAGIC %md
+# MAGIC ## 10. (선택) Unity Catalog에서 같은 Gold 보기
+# MAGIC Genie(07장)는 Unity Catalog의 테이블만 씁니다. 관리자가 OneLake의 Lakehouse를 Unity Catalog의 Foreign catalog `fabric_chipbalance_<참가자 번호>`\로 연결해 두었으면, 복사 없이 같은 Gold를 `fabric_chipbalance_<참가자 번호>.gold.<테이블 이름>`\으로 읽을 수 있습니다. 읽기 전용입니다.
+# MAGIC
+# MAGIC **예상 결과:** 18행 이상(06장까지 실행했다면 21행). 행 수가 9번 셀의 `OneLake 행 수`와 같습니다. 연결이 준비되지 않았으면 안내 문구가 나오고 끝납니다.
+
+# COMMAND ----------
+foreign_catalog = f"fabric_chipbalance_{participant}"
+try:
+    rows = [(t, spark.table(f"{foreign_catalog}.gold.{t}").count()) for t in GOLD_TABLES]
+    display(spark.createDataFrame(rows, "`테이블` string, `Unity Catalog 행 수` long"))
+except Exception as error:
+    print(f"{foreign_catalog}를 읽지 못했습니다. 관리자가 Genie용 OneLake 연결(00_admin_setup 6단계)을 준비했는지 확인합니다.")
+    print("원본 오류:", type(error).__name__, str(error)[:200])
