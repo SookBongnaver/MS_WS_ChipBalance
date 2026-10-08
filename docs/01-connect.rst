@@ -131,7 +131,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
    ``/Volumes/lab_factory_p001/chipbalance_p001/raw``\ 가 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-uc.png
-      :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory_p001.chipbalance_p001과 원천 파일 Volume: /Volumes/lab_factory_p001/chipbalance_p001/raw가 표시됩니다.
+      :alt: 3. Unity Catalog 확인 셀. 결과에 Unity Catalog 스키마: lab_factory_p101.chipbalance_p101과 원천 파일 Volume: /Volumes/lab_factory_p101/chipbalance_p101/raw가 표시됩니다.
       :width: 900
 
 #. **4. OneLake 저장 함수**
@@ -145,7 +145,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
    **예상 결과:** ``연결 확인 완료``, OneLake 경로, ``쓰기·읽기: 1행``\ 이 표시됩니다.
 
    .. image:: ../assets/screenshots/d01-connection.png
-      :alt: 5. OneLake 연결 확인 셀. 결과에 연결 확인 완료, OneLake 경로 abfss://chipbalance-p001@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p001.lakehouse, Managed Identity(service credential) chipbalance_onelake_hyosung, 쓰기·읽기 1행이 표시됩니다.
+      :alt: 5. OneLake 연결 확인 셀. 결과에 연결 확인 완료, OneLake 경로 abfss://chipbalance-p101@onelake.dfs.fabric.microsoft.com/lh_chipbalance_p101.lakehouse, Managed Identity(service credential) chipbalance_onelake_hyosung, 쓰기·읽기 1행이 표시됩니다.
       :width: 900
 
 6. Fabric에서 확인하기
@@ -158,7 +158,7 @@ Notebook끼리 ``%run``\ 으로 불러오므로 8개를 같은 폴더에 둡니�
 **예상 결과:** ``connection_check`` 폴더가 보입니다. 5번 셀이 Managed Identity로 OneLake에 쓴 결과입니다.
 
 .. image:: ../assets/screenshots/d01-fabric-files.png
-   :alt: Fabric Lakehouse lh_chipbalance_p001. Explorer에서 Files > chipbalance > connection_check 폴더가 보이고, 가운데 목록에도 connection_check 폴더가 있습니다.
+   :alt: Fabric Lakehouse lh_chipbalance_p101. Explorer에서 Files > chipbalance > connection_check 폴더가 보이고, 가운데 목록에도 connection_check 폴더가 있습니다.
    :width: 1000
 
 Managed Identity로 저장하는 방식
