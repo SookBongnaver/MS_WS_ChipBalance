@@ -1,54 +1,30 @@
 # Databricks notebook source
 # MAGIC %md
-# MAGIC # 07. Unity Catalog 설명과 Genie 정답
-# MAGIC Genie는 Unity Catalog의 테이블 설명과 열 설명을 읽고 질문을 SQL로 바꿉니다. 설명이 정확할수록 답이 정확해집니다.
-# MAGIC 이 Notebook으로 Gold 테이블의 설명 현황을 확인하고, Genie 답과 비교할 정답을 계산합니다.
+# MAGIC # 07. 정답 계산
+# MAGIC Gold는 Fabric Lakehouse(OneLake)에만 있습니다. 이 Notebook은 OneLake의 Gold로 Genie와 Fabric agent에 물어볼 질문 6개의 정답을 계산합니다.
+# MAGIC Genie 답과 비교할 기준 값입니다.
 # MAGIC
-# MAGIC 1. **2. 설명 현황**까지 실행합니다.
-# MAGIC 2. 교재 07장의 프롬프트로 Genie Code에 설명 작성을 요청합니다.
-# MAGIC 3. **2. 설명 현황**을 다시 실행해 빈 설명이 없는지 확인하고, 나머지 셀을 실행합니다.
+# MAGIC 1. 위에서부터 셀을 하나씩 실행합니다. (**Shift+Enter**)
+# MAGIC 2. **2. Genie 질문의 정답**의 표를 Genie 답과 비교합니다.
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 1. 설정 불러오기
-# MAGIC **예상 결과:** 01에서 본 결과가 다시 표시됩니다.
+# MAGIC ## 1. 설정과 Gold 불러오기
+# MAGIC 05와 06에서 OneLake에 저장한 Gold 테이블 21개(05의 18개와 06이 새로 만든 3개)를 읽어 임시 뷰(`gold_…`)로 등록합니다. 아래 계산이 이 뷰를 씁니다.
+# MAGIC
+# MAGIC **예상 결과:** 01에서 본 결과가 다시 표시되고, 다음 셀에서 `OneLake에서 불러온 Gold: 21개`가 표시됩니다.
 
 # COMMAND ----------
 # MAGIC %run ./01_setup
 
 # COMMAND ----------
-# MAGIC %md
-# MAGIC ## 2. 설명 현황
-# MAGIC Gold 테이블마다 테이블 설명(`table_comment`)과, 설명이 없는 열 수(`columns_without_comment`)를 봅니다.
-# MAGIC
-# MAGIC **예상 결과:** 21행
-# MAGIC * Genie Code에 요청하기 전: `table_comment`가 모두 비어 있고, `columns_without_comment`가 `columns`와 같습니다.
-# MAGIC * 요청한 뒤: `table_comment`가 모두 채워지고, `columns_without_comment`가 모두 0입니다.
-
-# COMMAND ----------
-display(spark.sql(f"""
-SELECT t.table_name, t.comment AS table_comment, COUNT(c.column_name) AS columns,
-       COUNT_IF(c.comment IS NULL OR trim(c.comment) = '') AS columns_without_comment
-FROM `{catalog}`.information_schema.tables t
-JOIN `{catalog}`.information_schema.columns c ON c.table_schema = t.table_schema AND c.table_name = t.table_name
-WHERE t.table_schema = '{schema}' AND t.table_name LIKE 'gold%'
-GROUP BY t.table_name, t.comment
-ORDER BY t.table_name
-"""))
+for table in GOLD_TABLES + EMERGENCY_GOLD_TABLES:
+    read_gold(table)
+print("OneLake에서 불러온 Gold:", f"{len(GOLD_TABLES) + len(EMERGENCY_GOLD_TABLES)}개")
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 3. 열 설명 보기
-# MAGIC Genie Code가 넣은 `gold_fact_balance`의 열 설명을 봅니다.
-# MAGIC
-# MAGIC **예상 결과:** 15행. 모든 열의 `comment`에 한국어 설명이 있습니다. `closing_kg`처럼 계산하는 열에는 계산식이 들어 있습니다.
-
-# COMMAND ----------
-display(spark.sql("DESCRIBE TABLE gold_fact_balance"))
-
-# COMMAND ----------
-# MAGIC %md
-# MAGIC ## 4. Genie 질문의 정답
+# MAGIC ## 2. Genie 질문의 정답
 # MAGIC 07장에서 Genie에 물어볼 질문 6개의 정답을 Gold 테이블로 계산합니다. Genie 답과 이 표를 비교합니다.
 # MAGIC 같은 질문을 09장에서 Fabric의 Ontology agent에도 합니다.
 # MAGIC

@@ -145,6 +145,7 @@ GOLD_TABLES = [
     "fact_usage_factor", "fact_monthly_usage", "fact_opening_stock", "fact_inbound", "fact_sales_order", "fact_plan",
     "fact_order_fulfillment", "fact_balance", "fact_bunker_summary",
 ]
+EMERGENCY_GOLD_TABLES = ["fact_response_option", "fact_option_balance", "fact_risk_event"]
 GOLD_DECIMALS = {"std_kg_per_kg": "decimal(10,6)", "actual_kg_per_kg": "decimal(10,6)",
                  "loss_pct": "decimal(6,2)", "avg_delay_days": "decimal(6,2)"}
 
