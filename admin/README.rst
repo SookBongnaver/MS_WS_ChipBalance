@@ -179,6 +179,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 ----------------------
 
 #. Fabric 용량을 만듭니다. 참가자마다 F16 하나를 기준으로 합니다(위 "예상 비용"). F2 이상이면 실습할 수 있습니다.
+   10장에서 Copilot으로 보고서를 만들고 질문하려면 **F2 이상의 유료 용량**\ 이 필요합니다. Trial 용량에서는 Copilot을 쓸 수 없습니다.
 #. 참가자마다 작업 영역 ``chipbalance-p001``\ 을 만들고 위 용량에 할당합니다.
 #. 작업 영역의 **Manage access**\ 에서 참가자를 **Contributor**\ 로 추가합니다.
 #. **New item** > **Lakehouse**\ 에서 ``lh_chipbalance_p001``\ 을 만듭니다. **Lakehouse schemas** 옵션을 켭니다.
@@ -200,7 +201,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
    * - Users can create Ontology items
      - Fabric IQ Ontology
    * - Users can use Copilot, AI Agents and other AI experiences powered by Azure OpenAI
-     - Ontology agent, Operations agent
+     - Power BI Copilot(10장), Ontology agent, Operations agent
    * - Data sent to Azure OpenAI can be processed / stored outside your capacity's geographic region
      - 용량이 미국·EU 밖에 있을 때 Operations agent 사용
 
