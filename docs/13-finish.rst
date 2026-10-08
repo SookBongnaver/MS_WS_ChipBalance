@@ -32,7 +32,7 @@
      - Ontology agent가 같은 질문에 답합니다. 예: ``OPT-2``\ 를 반영해도 BNK-L1-2의 최저 기말재고는 16,763 kg으로 안전재고 6,000 kg 이상입니다.
    * - 10
      - Semantic model ``sm_chipbalance``, 보고서 ``rpt_chipbalance``
-     - 원료 수급 현황과 긴급 오더 대응안 두 페이지에서 부족 지점과 추천안을 봅니다.
+     - 원료 수급 현황 페이지에서 부족 지점을 보고, Copilot이 만든 긴급 오더 대응안 페이지와 질문으로 추천안을 확인합니다.
    * - 11
      - Eventhouse ``eh_chipbalance``, Operations agent ``oa_chipbalance``, Notebook ``nb_record_decision``
      - Teams에서 ``OPT-2``\ 를 승인하면 ``RiskEventStatus``\ 에 ``approved`` 행이, ``dbo.chip_decision_log``\ 에 승인 내역이 생깁니다.
