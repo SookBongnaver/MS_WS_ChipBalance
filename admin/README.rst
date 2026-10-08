@@ -131,6 +131,15 @@ Databricks에서 **Import**\ 로 가져와 설정값만 채워 실행합니다. 
   데이터 처리 지역 제한(**Enforce data processing within workspace Geography for AI features**)이 켜져 있으면 Genie Code를 쓸 수 없는 지역이 있습니다.
   참가자에게는 Databricks SQL 사용 권한(**Databricks SQL access** entitlement)이 필요합니다.
 
+(선택) 07장의 Genie는 Unity Catalog의 테이블만 읽습니다. Gold는 OneLake에만 있으므로, OneLake Lakehouse를 **Foreign catalog**\ ``fabric_chipbalance_pNNN``\ 으로 연결합니다. 복사하지 않고 읽기 전용으로 연결합니다.
+이 연결은 ``admin/00_admin_setup`` Notebook의 6단계가 만듭니다. 05장에서 Gold를 만든 뒤에 실행합니다.
+
+* Fabric 테넌트 설정 3개를 켭니다: **Service principals can call Fabric public APIs**, **Users can access data stored in OneLake with apps external to Fabric**, **Use short-lived user-delegated SAS tokens**.
+* 작업 영역 ``chipbalance-pNNN``\ 의 **Workspace settings** > **Delegated Settings** > **OneLake settings**\ 에서 **Authenticate with OneLake user-delegated SAS tokens**\ 를 켭니다.
+* 2장의 Access Connector를 작업 영역의 **Contributor**\ 로 추가합니다.
+* Notebook 설정값에 참가자별 Fabric 작업 영역 ID와 Lakehouse ID(Lakehouse 주소 ``.../lakehouses/<Lakehouse ID>``)를 넣습니다.
+* 6단계가 storage credential(service credential과 다른 종류), 참가자별 Connection, Foreign catalog를 만들고 참가자에게 ``USE CATALOG``, ``USE SCHEMA``, ``SELECT``\ 를 줍니다. Connection은 만든 뒤 작업 영역을 바꿀 수 없어 참가자마다 따로 만듭니다.
+
 2. Managed Identity와 service credential
 ----------------------------------------
 
