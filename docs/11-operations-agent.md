@@ -22,7 +22,7 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 
 ## 1. Eventhouse 만들기
 
-1.  작업 영역 `chipbalance-p001`에서 **+ New item**을 누릅니다. 검색 상자에 `Eventhouse`를 입력하고 **Eventhouse**를 고릅니다.
+1.  작업 영역 `chipbalance-p001`에서 **+ New item**을 누릅니다. 검색 상자에 `Eventhouse`를 입력하고 **Eventhouse**를 고릅니다. 한국어 UI에서 검색 결과가 없으면 `이벤트하우스`로 검색합니다.
 
     <img src="../assets/screenshots/d11-new-eventhouse.png" width="700" alt="New item 창. 검색 상자에 Eventhouse가 입력되어 있고, Eventhouse 카드 하나가 보입니다." />
 
@@ -102,7 +102,7 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 
 ## 4. Operations agent 만들기
 
-1.  작업 영역에서 **+ New item**을 누르고 **Operations agent**를 고릅니다. **Name**에 `oa_chipbalance`를 입력하고 **Create**를 누릅니다.
+1.  작업 영역에서 **+ New item**을 누르고 **Operations agent**(한국어 UI: **운영 에이전트**)를 고릅니다. 검색할 때도 화면의 언어에 맞는 이름을 사용합니다. **Name**에 `oa_chipbalance`를 입력하고 **Create**를 누릅니다.
 
     <img src="../assets/screenshots/d11-new-agent.png" width="600" alt="New Operations agent 창. Name에 oa_chipbalance, Location에 chipbalance-p001이 있고 Create 버튼이 있습니다." />
 
@@ -242,6 +242,7 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
 ## Troubleshooting
 
+- 실습 도중 Fabric 용량이 일시 중지되면 Azure의 **상태**와 **활동 로그**를 확인합니다. 조직 자동화가 중지한 용량은 임의로 재개하지 말고 관리자에게 확인합니다. 용량을 사용할 수 있는 시간 안에 결과 확인과 Operations agent의 **Stop**을 마칩니다. 실행 목록의 성공이나 Eventhouse 조회만으로 Lakehouse 승인 기록·위험 이벤트 상태·agent 중지까지 확인한 것으로 간주하지 않습니다.
 - **Generate playbook** 뒤 **No playbook generated**와 함께 데이터를 어디서 읽을지 알 수 없다는 안내가 보이면, 지침에 `RiskEventStatus.event_status`처럼 테이블 이름과 열 이름이 들어 있는지, **Knowledge**가 `eh_chipbalance`인지 확인합니다. 저장한 뒤 다시 **Generate playbook**을 누릅니다.
 - 데이터 원본이 요청을 제한하고 있다는 안내(rate-limiting)가 보이면 1~2분 뒤 다시 **Generate playbook**을 누릅니다.
 - **Start**를 누를 수 없으면 Playbook을 만든 뒤 저장했는지 확인합니다.

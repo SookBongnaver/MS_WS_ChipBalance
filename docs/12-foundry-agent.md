@@ -27,6 +27,8 @@
 
 2.  **모든 리소스** 화면 오른쪽 위의 **프로젝트 만들기**를 누릅니다.
 
+    이미 프로젝트 홈이 열렸다면 상단의 **프로젝트 이름** 메뉴에서 **새 프로젝트 만들기**를 고릅니다. 기존 프로젝트를 그대로 쓰지 말고 아래에서 본인 실습용 이름과 리소스 그룹을 확인합니다.
+
 3.  **프로젝트 만들기** 창에서 아래와 같이 입력하고 **만들기**를 누릅니다.
 
     | 필드 | 값 |
@@ -107,7 +109,7 @@
 
     **검증 목표:** 최저 기말재고 16,763 kg(2026-11-01), 안전재고 6,000 kg으로 안전재고 이상인지 확인합니다. 근거는 **ResponseOption** `OPT-2`(BNK-L1-2 → BNK-L3-2, 40,000 kg, 첫 도착일 2026-10-03), **Bunker** BNK-L1-2의 안전재고, **OptionBalance**의 일자별 기말재고이며, 화면 예시에는 근거 표시 `ontchipbalance`가 있습니다. 07장 정답 Notebook과 09장 Q4의 핵심 값에 비교합니다. AI 응답이 항상 맞는 것은 아니므로 다음 단계에서 도구 출력을 확인합니다. 전체 대화의 참고 시간은 1~2분이며, 개별 MCP 호출에는 별도 시간 제한이 있습니다.
 
-    <img src="../assets/screenshots/d12-ask-value.png" width="700" alt="fa-chipbalance 채팅 창. 질문 아래 답에 최저 기말재고 16,763 kg (일자 2026-11-01), 안전재고 6,000 kg 대비 이상입니다가 있고, 근거 엔터티/값으로 ResponseOption OPT-2 BNK-L1-2 → BNK-L3-2, PET-SD, 40,000 kg, 첫 도착일 2026-10-03, Bunker BNK-L1-2 안전재고 6,000 kg, OptionBalance OPT-2 BNK-L1-2 일자별 기말재고 시계열 최저 16,763 kg at 2026-11-01이 보입니다. 아래에 근거 ontchipbalance 표시와 mcp_list_tools, ontchipbalance, message가 있습니다." />
+    <img src="../assets/screenshots/d12-ask-value.png" width="700" alt="Foundry 채팅의 질문과 답. OPT-2 이송을 반영한 BNK-L1-2의 최저 기말재고는 16,763 kg, 발생일은 2026-11-01 UTC이며 안전재고 6,000 kg 이상입니다. 근거 엔터티 OptionBalance와 bunker_id=BNK-L1-2, option_id=OPT-2, min closing=16,763 kg, date=2026-11-01, safety_stock=6,000 kg가 보입니다. 아래에 gpt-5, 추적, mcp_list_tools, ontchipbalance, message가 있습니다." />
 
 2.  답 아래의 **추적**을 누르고, 왼쪽 목록에서 **ontchipbalance: ask_ontology**를 고릅니다.
 
@@ -146,6 +148,7 @@ Fabric IQ 도구는 질문에 따라 Ontology의 엔터티 정의를 읽거나(`
 - `404` 또는 `Not Found`이면 선택한 작업 영역·Ontology와 연결의 엔드포인트가 맞는지, 정의가 게시됐는지 확인합니다([Fabric IQ 문제 해결](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/fabric-iq#troubleshoot)).
 - 질문을 보냈는데 **추적**에 `ontchipbalance: ask_ontology`가 없으면 **도구**에 **Fabric IQ (ontchipbalance)**가 있는지, **저장**을 눌렀는지 확인하고 오른쪽 위 **새 채팅**에서 다시 묻습니다.
 - MCP 호출이 시간 초과되면 질문의 Bunker·대응안·기간을 좁히거나 안전재고 조회와 최저 재고 조회를 나눠 재시도합니다. Foundry의 **비스트리밍 MCP 호출 제한은 100초**이며, **Ontology 엔드포인트는 동기 호출**입니다. 모델의 background mode를 켜는 것만으로 이 제한을 해결할 수 없습니다. Fabric IQ의 장기 background 실행 지원은 Data agent 엔드포인트에만 해당합니다([MCP 제한](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/model-context-protocol#known-limitations), [항목별 실행 방식](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/fabric-iq#find-your-fabric-iq-server-details)).
+- 추적의 **완료** 표시는 도구가 답을 반환했다는 뜻이 아닙니다. 출력이 `No answer received from the agent.`이면 해당 호출은 검증에 쓰지 않습니다. 후속 `ask_ontology` 호출이나 좁힌 재질문에서 실제 숫자·날짜·안전재고가 반환됐는지 확인합니다. 예: `OptionBalance에서 option_id=OPT-2, bunker_id=BNK-L1-2인 행의 closing_kg 최솟값, balance_date, safety_stock_kg를 조회해 주세요.` 정답 수치를 질문에 넣지는 않습니다.
 - 도구 출력이 비어 있거나 숫자가 다르면 08장의 속성·데이터 바인딩과 09장의 설명을 확인하고, 정답 Notebook의 값과 비교합니다. 확인되지 않은 답으로 Teams 승인을 진행하지 않습니다.
 
 ## 공식 문서

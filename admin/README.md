@@ -109,7 +109,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
     - 이름: `ac-chipbalance-onelake`, 지역: Databricks workspace와 같은 지역
     - **Managed identity**: System-assigned (기본값)
 
-2.  Databricks **Catalog** \> **External data** \> **Credentials** \> **Create credential**을 누릅니다.
+2.  Databricks **Catalog**에서 위쪽 **Connect** \> **Credentials**를 열고 **Create credential**을 누릅니다. UI에 **External data** 메뉴가 보이는 환경에서는 **External data** \> **Credentials**로 들어갑니다. 열린 페이지의 제목은 **External Data**일 수 있습니다.
 
     - Credential type: **Service credential**
     - Credential name: `chipbalance_onelake_hyosung`
