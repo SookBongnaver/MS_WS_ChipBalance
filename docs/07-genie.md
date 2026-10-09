@@ -83,7 +83,9 @@ fact_sales_order에는 scenario_id가 없고 is_urgent로 긴급 오더를 구�
 답변은 한국어로, 정답 값과 근거(Bunker, 날짜, kg)를 함께 보여준다.
 ```
 
-<img src="../assets/screenshots/d07-genie-instructions.png" width="900" alt="Genie Agent의 Configure 패널 Instructions 탭. General Instructions에 시나리오와 안전재고 판단 규칙이 입력되어 있습니다." />
+아래 캡처는 **입력 위치** 예시입니다. 입력 내용은 위 코드 블록을 복사하고 참가자 번호를 바꿔 사용합니다.
+
+<img src="../assets/screenshots/d07-genie-instructions.png" width="500" alt="Genie Agent의 Configure 패널에서 Instructions 탭과 General Instructions 입력 위치를 보여 주는 캡처." />
 
 ### 4. 질문 6개 하기
 
