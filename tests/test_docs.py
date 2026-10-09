@@ -13,20 +13,20 @@ SOURCES = ROOT / "src" / "notebooks"
 NOTEBOOKS = ROOT / "notebooks"
 
 CHAPTERS = [
-    "00-scenario.rst",
-    "01-connect.rst",
-    "02-source-data.rst",
-    "03-bronze.rst",
-    "04-silver.rst",
-    "05-gold-onelake.rst",
-    "06-emergency-order.rst",
-    "07-genie.rst",
-    "08-ontology.rst",
-    "09-ontology-agent.rst",
-    "10-power-bi.rst",
-    "11-operations-agent.rst",
-    "12-foundry-agent.rst",
-    "13-finish.rst",
+    "00-scenario.md",
+    "01-connect.md",
+    "02-source-data.md",
+    "03-bronze.md",
+    "04-silver.md",
+    "05-gold-onelake.md",
+    "06-emergency-order.md",
+    "07-genie.md",
+    "08-ontology.md",
+    "09-ontology-agent.md",
+    "10-power-bi.md",
+    "11-operations-agent.md",
+    "12-foundry-agent.md",
+    "13-finish.md",
 ]
 # Chapters that are still being written. While such a file is missing, the existence check and
 # links pointing to it are reported as skipped. Empty this set once all chapters are written.
@@ -38,35 +38,20 @@ HISTORY_PHRASES = ["기존 교재", "이전 교재", "이전 버전", "기존 �
                    "올리지 않", "업로드 대신", "올리는 대신", "바뀌었", "바꿨", "변경되었", "변경됐", "달라졌",
                    "재설계", "새로 바뀐", "새 방식"]
 
-LINK = re.compile(r"(?<!`)`[^`<>]*<([^<>`]+)>`__?")
-IMAGE = re.compile(r"^[ \t]*\.\.[ \t]+(?:image|figure)[ \t]?::[ \t]*(\S+)", re.MULTILINE)
+LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
+IMAGE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)\)|<img\s[^>]*?src=\"([^\"]+)\"")
 SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
-# ".." that starts a comment: not a directive (name::), target (_), footnote ([) or substitution (|).
-COMMENT_START = re.compile(r"^(\s*)\.\.(?:[ \t]+(?![ \t_\[|])(?![\w.+:-]+ ?::).*)?$")
-
-
 def rel(path):
     return path.relative_to(ROOT).as_posix()
 
 
 def strip_comments(text):
-    """Remove RST comment blocks so commented-out links and images are not checked."""
-    kept, comment_indent = [], None
-    for line in text.splitlines():
-        if comment_indent is not None:
-            if not line.strip() or len(line) - len(line.lstrip()) > comment_indent:
-                continue
-            comment_indent = None
-        match = COMMENT_START.match(line)
-        if match:
-            comment_indent = len(match.group(1))
-            continue
-        kept.append(line)
-    return "\n".join(kept)
+    """Remove HTML comments so commented-out links and images are not checked."""
+    return re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
 
 
-def rst_files():
-    files = [ROOT / "README.rst", ROOT / "admin" / "README.rst", *sorted(DOCS.glob("*.rst"))]
+def md_files():
+    files = [ROOT / "README.md", ROOT / "admin" / "README.md", *sorted(DOCS.glob("*.md"))]
     return [path for path in files if path.is_file()]
 
 
@@ -76,7 +61,7 @@ def is_pending(path):
 
 class DocumentTests(unittest.TestCase):
     def test_required_documents_exist(self):
-        for path in (ROOT / "README.rst", ROOT / "admin" / "README.rst"):
+        for path in (ROOT / "README.md", ROOT / "admin" / "README.md"):
             with self.subTest(document=rel(path)):
                 self.assertTrue(path.is_file(), f"{rel(path)} is missing")
         for name in CHAPTERS:
@@ -87,7 +72,7 @@ class DocumentTests(unittest.TestCase):
                 self.assertTrue(path.is_file(), f"{rel(path)} is missing")
 
     def test_relative_links_resolve(self):
-        for path in rst_files():
+        for path in md_files():
             for target in LINK.findall(strip_comments(path.read_text(encoding="utf-8"))):
                 target = "".join(target.split())
                 if SCHEME.match(target) or target.startswith("#") or target.endswith("_"):
@@ -99,15 +84,16 @@ class DocumentTests(unittest.TestCase):
                     self.assertTrue(resolved.exists(), f"{rel(path)}: broken link {target}")
 
     def test_images_exist(self):
-        for path in rst_files():
-            for target in IMAGE.findall(strip_comments(path.read_text(encoding="utf-8"))):
+        for path in md_files():
+            for found in IMAGE.findall(strip_comments(path.read_text(encoding="utf-8"))):
+                target = found[0] or found[1]
                 if SCHEME.match(target):
                     continue
                 with self.subTest(document=rel(path), image=target):
                     self.assertTrue((path.parent / target).is_file(), f"{rel(path)}: missing image {target}")
 
     def test_forbidden_words(self):
-        for path in [ROOT / "README.rst", *sorted(DOCS.glob("*.rst"))]:
+        for path in [ROOT / "README.md", *sorted(DOCS.glob("*.md"))]:
             if not path.is_file():
                 continue
             text = path.read_text(encoding="utf-8")
@@ -117,7 +103,7 @@ class DocumentTests(unittest.TestCase):
 
     def test_no_history_phrases(self):
         texts = {rel(path): path.read_text(encoding="utf-8")
-                 for path in [*rst_files(), *sorted((ROOT / "admin").glob("*.rst")), ROOT / "assets" / "architecture.svg"]
+                 for path in [*md_files(), *sorted((ROOT / "admin").glob("*.md")), ROOT / "assets" / "architecture.svg"]
                  if path.is_file()}
         for source in sorted(SOURCES.glob("*.py")):
             texts[rel(source)] = "\n".join(line for line in source.read_text(encoding="utf-8").splitlines()
