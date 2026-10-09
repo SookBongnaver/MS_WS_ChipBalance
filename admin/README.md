@@ -41,7 +41,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 
 Databricks 쪽 준비(2장의 service credential 등록, 이 장의 Catalog·스키마·Volume과 권한)는 Notebook `admin/00_admin_setup.ipynb`로 한 번에 할 수 있습니다. Databricks에서 **Import**로 가져와 설정값만 채워 실행합니다. Azure의 Access Connector와 Fabric 작업 영역·Lakehouse·Contributor 권한은 직접 만듭니다.
 
-관리자 Notebook은 **Notebook Serverless** 또는 **Databricks Runtime 18.0 이상 / Standard access mode**에서 실행합니다. 먼저 **0단계**의 `databricks-sdk==0.81.0` 설치와 Python 재시작 셀을 실행한 뒤 **1~5단계**를 순서대로 실행합니다. Runtime 기본 SDK가 service credential API를 지원한다고 가정하지 않습니다([공식 SDK 설치 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)).
+관리자 Notebook은 **Notebook Serverless** 또는 **Databricks Runtime 18.0 이상 / Standard access mode**에서 실행합니다. 먼저 **0단계**의 `databricks-sdk>=0.122.0,<1` 의존성 확인과 Python 재시작 셀을 실행한 뒤 **1~5단계**를 순서대로 실행합니다. 실제 Serverless의 `databricks-connect 19.1` 요구 조건에 맞춘 범위이며, 이를 만족하는 내장 SDK는 낮추지 않습니다. `incompatible` 또는 core package 변경 경고가 있으면 설치 성공으로만 판단하지 말고 해당 Runtime의 의존성을 확인합니다([공식 SDK 설치 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)).
 
 **6단계는 Genie를 사용할 때만** 05장의 Gold 생성 뒤에 실행하므로, 최초 준비에서 **Run all**로 선택 단계를 함께 실행하지 않습니다. Federation을 준비할 때 참가자별 Fabric 작업 영역 ID·Lakehouse ID도 실제 값으로 채웁니다.
 

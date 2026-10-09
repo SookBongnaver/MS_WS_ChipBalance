@@ -21,12 +21,13 @@
 # MAGIC %md
 # MAGIC ## 0. 관리자 실행 환경 준비
 # MAGIC Notebook Serverless를 선택합니다. Classic Compute를 쓰면 Databricks Runtime 18.0 이상, Standard access mode를 사용합니다.
-# MAGIC 기본 SDK 버전은 Runtime마다 달라 service credential API가 없을 수 있으므로, 아래에서 API 계약을 확인한 `databricks-sdk==0.81.0`을 설치합니다.
+# MAGIC 기본 SDK 버전은 Runtime마다 다릅니다. 실제 Serverless의 `databricks-connect 19.1`은 SDK `>=0.122.0,<1`을 요구하므로, 아래에서 이 범위를 확인합니다. 이미 만족하는 내장 SDK는 유지하며 0.81.0으로 낮추지 않습니다.
 # MAGIC 설치 셀을 실행한 뒤 다음 Python 재시작 셀을 실행하고, 1. 설정값부터 진행합니다.
+# MAGIC 설치 결과에 `incompatible` 또는 core package 변경 경고가 있으면 계속 진행하지 말고 Runtime의 의존성 조건을 관리자에게 확인합니다.
 # MAGIC [공식 SDK 설치·재시작 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)
 
 # COMMAND ----------
-# MAGIC %pip install databricks-sdk==0.81.0
+# MAGIC %pip install "databricks-sdk>=0.122.0,<1"
 
 # COMMAND ----------
 dbutils.library.restartPython()

@@ -80,6 +80,7 @@ class DocumentTests(unittest.TestCase):
                 self.assertEqual(1, len(re.findall(r"^# ", text, re.MULTILINE)))
                 self.assertNotRegex(text, r"(?m)^[^\n#]*\bTroubleshooting[ \t]+-{3,}")
                 self.assertNotRegex(text, r"(?m)^\s*\.\. (?:image|list-table|code-block)::")
+                self.assertNotRegex(text, r"[\u3040-\u30ff]", "Korean guide contains unexpected Japanese text")
 
     def test_scenario_duration_matches_chapter_estimates(self):
         text = (DOCS / "00-scenario.md").read_text(encoding="utf-8")
