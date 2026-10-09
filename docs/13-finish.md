@@ -17,13 +17,14 @@
 | 11 | Eventhouse `eh_chipbalance`, Operations agent `oa_chipbalance`, Notebook `nb_record_decision` | Teams에서 `OPT-2`를 승인하면 `RiskEventStatus`에 `approved` 행이, `dbo.chip_decision_log`에 승인 내역이 생깁니다. |
 | 12 | Foundry 프로젝트 `chipbalance-p001`, 에이전트 `fa-chipbalance` | 에이전트가 Fabric IQ 도구로 `ont_chipbalance`에 물어, `OPT-2`를 반영한 BNK-L1-2의 최저 기말재고 16,763 kg이 안전재고 6,000 kg 이상이라고 답합니다. |
 
-같은 Gold를 Ontology agent, Power BI, Operations agent, Foundry agent가 함께 씁니다. Genie는 선택 확장으로 같은 Gold를 볼 수 있습니다. 계산은 Databricks에서 한 번 하고, 결정은 담당자가 Teams에서 합니다.
+같은 Gold를 Ontology agent, Power BI, Foundry agent가 읽습니다. 11장 Operations agent는 Gold 위험 이벤트를 직접 감시하는 것이 아니라 Eventhouse에 보낸 `RiskEventStatus`를 감시합니다. Genie는 선택 확장으로 같은 Gold를 볼 수 있습니다. 계산은 Databricks에서 하고, 결정은 담당자가 Teams에서 합니다.
 
 ## 2. 에이전트 멈추기
 
 1.  Fabric 작업 영역 `chipbalance-p001`에서 `oa_chipbalance`를 엽니다. 도구 모음에 **Start**가 보이면 멈춘 상태입니다. **Stop**이 보이면 **Stop**을 누릅니다.
 2.  Foundry 에이전트 `fa-chipbalance`는 질문할 때만 모델을 호출하므로 따로 멈추지 않습니다.
 3.  Databricks Serverless는 Notebook을 실행하지 않으면 별도로 종료할 Compute가 없습니다.
+4.  Genie 또는 SQL 미리보기에 사용한 SQL warehouse `chipbalance-pro`는 Notebook Serverless와 별개입니다. **SQL Warehouses**에서 해당 warehouse를 **Stop**합니다.
 
 **예상 결과:** `oa_chipbalance`의 도구 모음에 **Start**가 보입니다.
 
@@ -33,7 +34,7 @@
 
 1.  Fabric 작업 영역 `chipbalance-p001`: `oa_chipbalance` → `nb_record_decision` → `eh_chipbalance` → `rpt_chipbalance` → `sm_chipbalance` → `ont_chipbalance`. 항목의 **...** \> **Delete**를 누릅니다. `ont_chipbalance`를 지우면 함께 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…`도 지웁니다.
 2.  Foundry: `fa-chipbalance` 에이전트 목록의 **작업** \> **삭제**로 에이전트를 지웁니다. 프로젝트와 Foundry 리소스 `fdy-chipbalance-p001`은 관리자가 Azure portal에서 지웁니다.
-3.  Databricks: Unity Catalog 스키마 `lab_factory_p001.chipbalance_p001`(Bronze·Silver)은 관리자가 지웁니다. Gold는 Fabric Lakehouse에 있습니다.
+3.  Databricks: Unity Catalog 스키마 `lab_factory_p001.chipbalance_p001`(Bronze·Silver)은 관리자가 지웁니다. Genie 선택 단계를 만들었다면 `fabric_chipbalance_p001`과 `onelake_connection_p001`도 사용 의존성을 확인한 뒤 관리자가 정리합니다. Gold 원본은 Fabric Lakehouse에 있습니다.
 
 Fabric 용량 일시 중지는 관리자가 합니다.
 

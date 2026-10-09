@@ -359,7 +359,10 @@ display(spark.sql("SELECT option_id, option_name, qty_kg, first_arrival_date, ad
 # MAGIC | C1 안전재고 | 모든 Bunker의 매일 기말 재고 ≥ 안전재고 |
 # MAGIC | C2 용량 | 모든 Bunker의 매일 기초 재고 + 입고 + 이송 입고 ≤ 용량 |
 # MAGIC | C3 납기 | 모든 판매오더의 생산 완료일 ≤ 납기 |
-# MAGIC | C4 이송 한도 | 하루 이송량 ≤ 경로의 하루 한도 |
+# MAGIC | C4 이송 한도 | 생성된 각 이송 행의 수량 ≤ 경로의 하루 한도 |
+# MAGIC
+# MAGIC 이 데이터는 등록된 같은 원료 경로 R-01에 하루 한 건을 생성합니다. C4는 행별 한도만 검사하며,
+# MAGIC 임의 입력의 미등록 경로, Bunker·원료 일치, 경로·일자별 여러 건 합계를 검증하는 범용 검사기는 아닙니다.
 # MAGIC
 # MAGIC **예상 결과:** 4행. `OPT-2`(Bunker 간 이송)가 추천 1순위, `OPT-3`(추가 구매)가 2순위입니다.
 # MAGIC `OPT-1`은 C1(10/06부터 미달), `OPT-4`는 C1과 C3(`SO-10322` 완료 10/12, 납기 10/08)을 만족하지 못합니다.
@@ -508,6 +511,7 @@ display(spark.table("risk_event").select("event_id", "detected_at", "sales_order
 # MAGIC ## 12. Gold 테이블 저장
 # MAGIC 긴급 오더 결과를 OneLake의 Gold 테이블에 넣고, 바뀐 테이블 9개를 Fabric Lakehouse의 `gold` 스키마에 다시 저장합니다. 05와 같은 방법입니다.
 # MAGIC 다시 실행하면 `emergency` 행과 긴급 판매오더를 지우고 다시 넣습니다. 대응안, 대응안별 재고, 위험 이벤트는 새 Gold 테이블입니다.
+# MAGIC 위험 이벤트도 덮어쓰므로 `detected_at`은 실행 시각, `status`는 `open`으로 초기화됩니다. 승인·종결된 이벤트가 있으면 재실행 전에 관리자에게 확인합니다.
 # MAGIC Unity Catalog에는 만들지 않습니다.
 # MAGIC
 # MAGIC **예상 결과:** 9행 (1~2분)

@@ -2,7 +2,7 @@
 
 [목차](../README.md) \| 이전: [08. Ontology](08-ontology.md) \| 다음: [10. Power BI 보고서](10-power-bi.md)
 
-Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질문을 쿼리로 바꿔 Lakehouse의 Gold를 조회하고 답합니다. 이 장에서는 업무 규칙을 Ontology 설명에 넣은 뒤, 07장에서 Genie에 한 질문을 Ontology agent에 하고 정답과 비교합니다.
+Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질문을 쿼리로 바꿔 Lakehouse의 Gold를 조회하고 답합니다. Ontology 항목 안에서 여는 이 에이전트는 별도로 만드는 Fabric Data agent와 다릅니다. 이 장에서는 업무 규칙을 Ontology 설명에 넣은 뒤, 07장에서 Genie에 한 질문을 Ontology agent에 하고 정답과 비교합니다. 08장의 엔터티·바인딩 점검을 마쳐야 하며, Graph 생성은 필수가 아닙니다.
 
 | 구분 | Genie (07장) | Ontology agent (이 장) |
 |----|----|----|
@@ -12,7 +12,9 @@ Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질�
 
 ## 1. 업무 규칙을 Ontology 설명에 넣기
 
-코드 값의 뜻(예: `change_type`의 `moved`는 미룬 생산)과 판단 기준은 테이블 열만 봐서는 알 수 없습니다. 이런 업무 규칙을 해당 엔터티 타입의 설명에 넣으면 Ontology agent가 질문의 단어를 정확한 조건으로 바꿉니다.
+코드 값의 뜻(예: `change_type`의 `moved`는 미룬 생산)과 판단 기준은 테이블 열만 봐서는 알 수 없습니다. 이런 업무 규칙을 해당 엔터티 타입의 **Description**에 넣어 질문 해석의 참고 근거로 제공합니다. 설명은 계산이나 승인 동작을 실행하지 않으며, 안전재고·판정·추천 순위는 Notebook이 계산한 Gold 값을 조회해 검증합니다.
+
+Ontology의 **Overview > Rules**에 등록하는 Business rule도 자연어 정의이며 실행 규칙이 아닙니다. 현재 알려진 제한으로 `ask_ontology`는 Rules를 답에 반영하지 않습니다. 이 실습에서는 **Description**을 유지하고 아래 내용을 덧붙입니다([Rules의 역할](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-rules#limitations-and-considerations), [현재 질의 제한](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-agent#current-limitations)).
 
 1.  `ont_chipbalance`의 **Home** 화면에서 리본의 **Ontology agent**를 누릅니다. 오른쪽에 **Ontology Agent** 창이 열립니다.
 
@@ -34,7 +36,7 @@ Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질�
 
     <img src="../assets/screenshots/d09-rules-prompt.png" width="400" alt="Ontology Agent 창. 입력 칸에 업무 규칙 요청의 끝부분 OrderFulfillment와 RiskEvent 규칙이 보이고, 아래 스위치는 Act가 선택되어 있습니다." />
 
-**예상 결과:** "완료했습니다" 아래에 설명만 덧붙였고 이름·키·속성·데이터 바인딩·관계는 바꾸지 않았다는 내용과, 수정한 엔터티 8개(Scenario, ProductionPlan, DailyBalance, OptionBalance, ResponseOption, TransferRoute, OrderFulfillment, RiskEvent)가 보입니다. (5~15분)
+**예상 결과:** "완료했습니다" 아래에 설명만 덧붙였고 이름·키·속성·데이터 바인딩·관계는 바꾸지 않았다는 내용과, 수정한 엔터티 8개(Scenario, ProductionPlan, DailyBalance, OptionBalance, ResponseOption, TransferRoute, OrderFulfillment, RiskEvent)가 보입니다. 참고 시간은 5~15분이며, 응답과 용량 상태에 따라 달라집니다. 변경 요약에서 설명 이외의 수정이 없는지 확인합니다.
 
 <img src="../assets/screenshots/d09-rules-done.png" width="400" alt="Ontology Agent의 답. 완료했습니다 아래에 설명만 한국어로 덧붙였습니다, 이름, 키, 속성, 데이터 바인딩, 관계는 변경하지 않았습니다, 수정한 엔터티 Scenario, ProductionPlan, DailyBalance, OptionBalance, ResponseOption, TransferRoute, OrderFulfillment, RiskEvent가 보입니다." />
 
@@ -44,7 +46,7 @@ Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질�
 
 1.  브라우저를 새로 고칩니다(**F5**). 에이전트 대화가 지워지고 새 대화로 시작합니다.
 
-2.  리본의 **Ontology agent**를 누르고, 스위치가 **Plan**인지 확인합니다. Plan 모드에서는 조회만 하고 Ontology를 바꾸지 않습니다.
+2.  리본의 **Ontology agent**를 누르고, 스위치가 **Plan**인지 확인합니다. Plan 모드에서는 조회·설명·초안 검토가 가능하지만 Ontology에 변경을 적용하지 않습니다.
 
 3.  **Say something** 칸에 아래 질문을 Q1부터 하나씩 입력하고 화살표를 눌러 보냅니다. 답이 끝나면 다음 질문을 같은 대화에 이어서 합니다.
 
@@ -61,7 +63,7 @@ Ontology agent는 Ontology의 엔터티 타입, 관계, 설명을 근거로 질�
 | Q5 | BNK-L3-2에 10월 6일 뒤 처음 들어오는 PET-SD 입고는 언제, 어느 공급사에서, 몇 kg이야? | 10/09, SUP-PET-B(세미폴리머), 25,000 kg |
 | Q6 | 대응안 4개 가운데 판단 기준을 모두 만족하는 안과 추천안은? | OPT-2(1순위), OPT-3(2순위). 추천안은 OPT-2 |
 
-**예상 결과:** 6개 질문에 모두 정답과 같은 값으로 답합니다. 질문 하나에 20초~1분 걸리고, 문장은 매번 조금씩 다를 수 있습니다.
+**검증 목표:** 6개 질문의 핵심 값을 정답과 비교합니다. AI 응답은 정확성을 보장하지 않으며 문장·도구 호출·처리 시간은 달라질 수 있습니다. 질문 하나의 참고 시간은 20초~1분입니다. 값이 다르면 아래 **답의 근거 확인**으로 시나리오와 쿼리를 확인한 뒤 다시 묻습니다.
 
 Q2는 부족한 Bunker, 처음 미달하는 날, 필요 보충량, 최저 재고, 미달 일수를 답합니다.
 
@@ -79,7 +81,7 @@ Q6은 판단 기준을 모두 만족하는 안과 추천 순위를 답합니다.
 
 ## 3. 답의 근거 확인
 
-답 위의 **Reasoning**을 누르면 에이전트가 거친 단계와 실행한 쿼리가 펼쳐집니다. Ontology agent는 Ontology와 함께 만들어진 Eventhouse에서 `sql_request`로 Lakehouse의 `gold` 테이블을 조회합니다.
+답 위의 **Reasoning**을 누르면 에이전트가 거친 단계와 실행한 쿼리가 펼쳐집니다. 아래 화면에서는 Ontology와 함께 만들어진 child Eventhouse에서 `sql_request`로 Lakehouse의 `gold` 테이블을 조회했습니다. 모든 질문이 이 경로를 사용하는 것은 아닙니다. 에이전트는 바인딩과 질문에 따라 SQL·KQL·DAX·GQL 중 실행 경로를 고르며, Graph 관계 탐색은 Graph model이 있을 때 사용합니다([공식 질의 설명](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-agent#query-the-ontology)).
 
 <img src="../assets/screenshots/d09-reasoning.png" width="400" alt="Q6 답의 Reasoning을 펼친 화면. 2 steps completed 아래에 Executing scenario query와 Executing unified query on the child Eventhouse 단계가 있고, Query head에 Eventhouse 주소와 let options = evaluate sql_request 쿼리가 보입니다." />
 
@@ -91,6 +93,13 @@ Q6은 판단 기준을 모두 만족하는 안과 추천 순위를 답합니다.
 - 첫 질문으로 Q6을 하면 대응안을 알려 달라고 되묻기도 합니다. Q1부터 차례로 묻거나, "긴급 오더 대응안 4개(OPT-1~OPT-4) 가운데"처럼 대상을 밝혀 묻습니다.
 - 대화를 처음부터 다시 하려면 브라우저를 새로 고칩니다(**F5**). 1단계에서 넣은 설명은 Ontology에 남아 있습니다.
 - 1단계 요청 뒤 아무 변화가 없으면 스위치가 **Act**인지 확인하고 다시 보냅니다.
+- 설명을 넣었는데 답이 다르면 해당 엔터티의 **Description**에 문장이 저장됐는지, 쿼리가 올바른 속성과 조건을 썼는지 확인합니다. Rules에만 같은 문장을 넣어도 `ask_ontology`의 현재 제한은 해결되지 않습니다.
+- 조회 오류가 나면 질문을 Bunker·시나리오·기간별로 나눠 다시 묻고, 본인 계정으로 원본 테이블을 읽을 수 있는지와 08장의 데이터 바인딩을 확인합니다.
+
+## 공식 문서
+
+- [Ontology agent 사용과 현재 제한](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-agent)
+- [자연어 Business rules와 MCP 조회](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-rules)
 
 ## 다음 단계
 

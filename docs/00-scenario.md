@@ -60,7 +60,7 @@ Bunker ──이송 경로──▶ 같은 원료를 보관하는 다른 라인�
 
 ## 데이터 흐름
 
-<img src="../assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent가 Ontology를 데이터 원본으로 질문에 답합니다. Operations agent는 Ontology의 위험 이벤트를 감시해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답하고, Work IQ 도구를 붙이면 Teams·Outlook 메일의 업무 맥락도 함께 봅니다(점선). Microsoft 365 Copilot·Cowork는 기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용하고, Data agent는 Agent Store에 게시해 Teams에서 대화할 수 있습니다(점선)." />
+<img src="../assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 RiskEventStatus 위험 이벤트를 감시해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답하고, Work IQ 도구를 붙이면 Teams·Outlook 메일의 업무 맥락도 함께 봅니다(점선). Microsoft 365 Copilot·Cowork는 기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용하고, Data agent는 Agent Store에 게시해 Teams에서 대화할 수 있습니다(점선)." />
 
 09장은 Ontology agent로, 11장은 Eventhouse `eh_chipbalance`를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 연결은 운영에 적용할 때 붙입니다. Foundry agent에 Work IQ 도구를 붙여 Teams·Outlook 메일의 업무 맥락을 함께 묻는 연결, Microsoft 365 Copilot·Cowork(기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용), Data agent를 Microsoft 365 Copilot의 Agent Store에 게시해 Teams에서 대화하는 연결입니다.
 

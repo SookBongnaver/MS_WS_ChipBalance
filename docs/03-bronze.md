@@ -11,7 +11,7 @@ Bronze는 원본을 바꾸지 않습니다. 값은 모두 문자로 두고, 어�
 | 원천 | Volume `raw` | SAP·FPIMS·PVSS 추출 파일 (CSV, JSON) |
 | **Bronze** | `bronze_*` 테이블 14개 | 파일 내용 그대로 + 원천 위치·적재 시각 |
 | Silver | `silver_*` 테이블 15개 | 형식·단위를 맞추고 문제 행을 격리 (04장) |
-| Gold | `gold_*` 테이블과 OneLake | 업무 계산 결과 (05·06장) |
+| Gold | Fabric OneLake의 `gold.<테이블>` | 업무 계산 결과 (05·06장). Databricks의 `gold_*`는 세션 임시 뷰이며 Unity Catalog에 저장하지 않음 |
 
 ## 1. Notebook 열고 실행
 
@@ -55,7 +55,7 @@ Bronze는 원본을 바꾸지 않습니다. 값은 모두 문자로 두고, 어�
 
     <img src="../assets/screenshots/d03-types.png" width="900" alt="5. 열 형식 확인 결과. bronze_fpims_production_plan의 col_name, data_type, comment 9행입니다. plan_id부터 sales_order_id까지 string, _source_file string, _source_row int, _ingested_at timestamp입니다." />
 
-Bronze·Silver·Gold 테이블 목록은 05장 마지막에 Catalog에서 한 번에 확인합니다.
+Bronze·Silver는 Unity Catalog에서 확인합니다. Gold는 05장 마지막에 Fabric Lakehouse에서 확인하며, 선택 연결이 준비된 경우에만 Unity Catalog의 Foreign Catalog에서도 읽을 수 있습니다.
 
 ## Troubleshooting
 

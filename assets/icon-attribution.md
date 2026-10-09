@@ -2,7 +2,7 @@
 
 [목차](../README.md)
 
-`architecture.svg`·`architecture.png`는 Workshop 구성을 설명하는 개념도입니다. 상자·선·글자·아이콘을 고치려면 `architecture.excalidraw`를 <https://excalidraw.com> 에서 엽니다.
+`architecture.svg`·`architecture.png`는 Workshop 구성을 설명하는 개념도입니다. 상자·선·글자·아이콘을 고치려면 `architecture.excalidraw`를 <https://aka.ms/excalidraw> 에서 엽니다.
 
 ## 아이콘 출처
 
@@ -27,6 +27,7 @@ Azure·Fabric·Power Platform 아이콘 페이지는 아키텍처 그림과 문�
 | `data-agent.svg` | Fabric `data_agent_64_item.svg` |
 | `fabric.svg` | Fabric `fabric_48_color.svg` |
 | `lakehouse.svg` | Fabric `lakehouse_64_item.svg` |
+| `notebook.svg` | Fabric `notebook_64_item.svg` (공식 Icons.zip v6.1.0 원본과 동일) |
 | `semantic-model.svg` | Fabric `semantic_model_64_item.svg` |
 | `power-bi.svg` | Fabric `power_bi_48_color.svg` |
 | `operations-agent.svg` | Fabric `operations_agent_64_item.svg` |

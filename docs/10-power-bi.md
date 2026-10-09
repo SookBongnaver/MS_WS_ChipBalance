@@ -7,12 +7,14 @@ Lakehouse의 Gold 테이블로 Direct Lake semantic model을 만들고, 관계�
 | 페이지 | 보여 주는 것 |
 |----|----|
 | 원료 수급 현황 | 현재 계획과 긴급 수주에서 안전재고 아래로 내려가는 Bunker 수, 처음 미달하는 날, 필요 보충량. 선택한 Bunker의 날짜별 기말 재고와 안전재고 |
-| 긴급 오더 대응안 | 대응안 4개의 판단 기준(C1~C4) 결과와 추천 순위, 추천안과 추가 비용, 추천안을 적용한 뒤의 기말 재고 |
+| 긴급 오더 대응안 | 대응안 4개의 판단 기준(C1~C4) 결과와 추천 순위, 추천안과 추가 비용 |
 
 이 장에서 쓰는 파일은 00장에서 압축을 푼 폴더의 `fabric` 폴더에 있습니다.
 
 - `fabric\sm_chipbalance.tmdl` — 관계와 측정값을 만드는 TMDL 스크립트
 - `fabric\chipbalance-theme.json` — 보고서 테마(색, 글꼴 크기, 배경, 테두리)
+
+**시작 전:** 06장까지 완료해 Gold 테이블 21개가 있어야 합니다. 본인의 참가자 번호로 작업 영역과 Lakehouse를 선택합니다(`p001`은 예시). Power BI Pro 또는 PPU 라이선스와 모델·보고서 작성 권한이 필요합니다. 6~7단계는 활성 유료 F2 이상 용량과 Copilot 설정이 필요하며, 수동 보고서 작성만 할 때는 Trial도 가능합니다.
 
 ## 1. Semantic model 만들기
 
@@ -59,7 +61,7 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
 
     <img src="../assets/screenshots/d10-tmdl-applied.png" width="1000" alt="Apply를 누른 뒤의 TMDL View. 편집기 위에 Changes applied to the model.이 있고, 아래 Output에 [success] Successfully applied TMDL script.가 보입니다. 아래 Script 1 탭에 초록색 체크가 있습니다." />
 
-5.  화면 아래 **Model view** 탭을 누릅니다. 리본에서 **Refresh** 아래 화살표를 누르고 **Data**를 누른 뒤, **Refresh** 확인 창에서 **Refresh**를 누릅니다. 새로 만든 관계로 Direct Lake 데이터를 다시 읽습니다. (1분 이내)
+5.  화면 아래 **Model view** 탭을 누릅니다. 리본에서 **Refresh** 아래 화살표를 누르고 **Data**를 누른 뒤, **Refresh** 확인 창에서 **Refresh**를 누릅니다. Direct Lake의 새로 고침은 원본 파일의 최신 상태를 반영하는 작업이며 Import처럼 행을 복사하는 작업은 아닙니다. 완료 알림을 확인합니다(시간은 용량 상태에 따라 달라집니다).
 
     <img src="../assets/screenshots/d10-refresh.png" width="500" alt="Model view의 Home 리본. Refresh 아래 메뉴에 Schema and data, Schema, Data, Schedule refresh, Refresh history, Create advanced refresh (preview)가 있습니다." />
 
@@ -106,7 +108,7 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
 
 4.  슬라이서를 선택한 채로 캔버스 오른쪽의 접힌 **Filters** 창을 눌러 펼칩니다. **Filters on this visual**의 `bunker_id` 카드에서 **Select all**을 체크하고 **(Blank)**의 체크를 풉니다.
 
-    Direct Lake 모델에서는 관계가 있는 차원의 목록에 빈 항목 **(Blank)**가 함께 보이므로, 이 필터로 슬라이서 목록에서 뺍니다.
+    **(Blank)**가 보이는 경우에만 체크를 풉니다. 빈 항목은 데이터의 null 값이나 관계 키 불일치 등에 의해 나타날 수 있으며, 모든 Direct Lake 차원에서 반드시 생기는 항목은 아닙니다.
 
     **예상 결과:** 카드 제목 아래에 `is not (Blank)`가 보입니다.
 
@@ -118,6 +120,8 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
 
     - `fact_balance`의 `현재 계획 재고 (kg)`, `긴급 오더 재고 (kg)` → **Y-axis**
     - `dim_date`의 `date_key` → **X-axis**
+
+    필드가 다른 칸에 들어가면 위 칸으로 끌어 옮깁니다. 날짜 계층이 들어간 경우 필드 메뉴에서 **date_key** 자체를 선택하고 날짜 오름차순으로 정렬합니다. 잔고는 날짜별 값이므로 날짜를 빼고 여러 날의 기말재고를 합산하지 않습니다.
 
     **Format visual** → **General** 탭 → **Title**을 펼치고, **Title**의 **Text**에 아래 제목을 입력합니다. 그 아래 **Subtitle**은 **Off**로 합니다.
 
@@ -173,9 +177,11 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
 
 ## 6. Copilot으로 대응안 페이지 만들기
 
-2페이지는 직접 배치하지 않고 Fabric Copilot에게 말로 요청해 만듭니다. 이 단계에는 **F2 이상의 유료 Fabric 용량**과 Copilot을 켠 테넌트 설정이 필요합니다. (Trial 용량에서는 Copilot을 쓸 수 없습니다. 관리자에게 `admin/README`의 Copilot 항목을 확인합니다.)
+2페이지는 직접 배치하지 않고 Power BI 보고서의 Copilot에게 말로 요청해 만듭니다. 이 단계에는 **활성 F2 이상의 유료 Fabric 용량**, 지원 지역과 Copilot 테넌트 설정이 필요합니다. Trial 용량이나 Pro/PPU 사용자 라이선스만으로는 Copilot을 쓸 수 없습니다. [관리자 준비 가이드](../admin/README.md)의 Copilot 항목과 [공식 요구 사항](https://learn.microsoft.com/power-bi/create-reports/copilot-introduction#requirements-at-a-glance)을 확인합니다.
 
 1.  위쪽 도구 모음의 **Copilot**을 눌러 오른쪽에 Copilot 창을 엽니다.
+
+    보고서가 편집 보기인지 확인합니다. 모델의 Q&A 기능과 암시적 측정값(implicit measures)을 꺼 놓은 환경에서는 보고서 생성이 제한될 수 있으므로, 관리자는 [보고서 생성 제한](https://learn.microsoft.com/power-bi/create-reports/copilot-create-reports#considerations-and-limitations)을 확인합니다.
 
 2.  아래 입력 칸에 다음을 입력하고 Enter를 누릅니다.
 
@@ -183,17 +189,19 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
     긴급 오더 대응안 4개의 판단 기준(C1 안전재고, C2 용량, C3 납기, C4 이송 한도) 결과와 추천 순위, 추천안과 추가 비용을 보여주는 보고서 페이지를 만들어줘. fact_response_option 테이블을 중심으로 사용해.
     ```
 
-3.  1분 안에 새 페이지가 만들어집니다. 제목, 슬라이서, 카드, 표, 차트가 들어 있습니다.
+3.  페이지 생성이 완료될 때까지 기다립니다. 표·차트·카드의 종류와 배치는 생성 결과에 따라 다릅니다. 기존 `원료 수급 현황` 페이지를 유지하고 새 대응안 페이지가 생겼는지 확인합니다.
 
 4.  **Ctrl+S**를 눌러 저장합니다.
 
 **예상 결과:** 대응안 4개의 판단 기준과 추천 순위, 추가 비용이 보이는 페이지가 추가됩니다. 위치와 구성은 Copilot이 정하므로 사람마다 다를 수 있고, 필드 이름이 `Count of option_id`처럼 원시 이름으로 보일 수 있습니다.
 
+표에서 대응안 ID 4개, C1~C4, 추천 순위와 추가 비용을 06장 결과와 비교합니다. ID·추천 순위가 Count나 Sum으로 집계되어 판단이 어려우면 Copilot에게 `대응안별 option_id, c1_safety_pass, c2_capacity_pass, c3_due_date_pass, c4_route_limit_pass, recommendation_rank, added_cost_krw를 집계하지 않은 표로 보여줘`라고 보완 요청합니다. 시각적 개체의 생김새보다 이 값이 맞는지 확인합니다.
+
 <img src="../assets/screenshots/d10-copilot-page.png" width="600" alt="Copilot이 만든 긴급 오더 대응안 평가 및 추천 페이지. 위쪽 카드 2개, 가운데 표, 아래 막대 차트와 산점도가 있습니다." />
 
 ## 7. Copilot에게 질문하고 인사이트 얻기
 
-Copilot 창에서 보고서와 데이터에 대해 바로 물을 수 있습니다. **질문은 한 번에 하나씩** 합니다. 두 가지를 함께 물으면 어느 것부터 볼지 되묻습니다.
+Copilot 창에서 보고서와 데이터에 대해 바로 물을 수 있습니다. 이 실습에서는 답을 비교하기 쉽도록 **질문을 한 번에 하나씩** 합니다. 여러 질문을 항상 처리하지 못한다는 제한은 아닙니다.
 
 1.  새 대화에서 `추천 순위 1위 대응안과 그 추가 비용은?`을 묻습니다.
 
@@ -201,11 +209,13 @@ Copilot 창에서 보고서와 데이터에 대해 바로 물을 수 있습니�
 
 2.  이어서 `이 보고서 페이지의 핵심 인사이트를 요약해줘`를 묻습니다.
 
-    **예상 결과:** 4개 대응안 가운데 `OPT-2`, `OPT-3`만 네 기준을 모두 만족하고, 추천 1순위 `OPT-2`(1,000,000원), 2순위 `OPT-3`(3,750,000원)입니다. `OPT-1`과 `OPT-4`는 안전재고(C1)나 납기(C3)를 지키지 못해 제외됩니다. 숫자는 답마다 조금씩 다른 말로 나올 수 있습니다.
+    **비교할 기준:** 4개 대응안 가운데 `OPT-2`, `OPT-3`만 네 기준을 모두 만족하고, 추천 1순위 `OPT-2`(1,000,000원), 2순위 `OPT-3`(3,750,000원)입니다. `OPT-1`은 안전재고(C1), `OPT-4`는 안전재고(C1)와 납기(C3)를 지키지 못해 제외됩니다. 표현은 달라도 수치·기준 결과가 다르면 정답으로 처리하지 않습니다.
 
     <img src="../assets/screenshots/d10-copilot-insight.png" width="900" alt="Copilot 창에서 추천 1순위 대응안을 묻자 OPT-2 Bunker 간 이송, 추가 비용 1,000,000원이라고 답하고, 이어서 보고서 인사이트를 요약해 달라고 하자 OPT-2와 OPT-3만 네 기준을 충족하며 OPT-1과 OPT-4는 C1 또는 C3 때문에 제외된다고 설명합니다." />
 
-Copilot의 답은 생성된 내용이므로 Ontology agent와 마찬가지로 06장 값과 비교해 확인합니다. Troubleshooting ---------------
+Copilot의 답은 생성된 내용이므로 Ontology agent와 마찬가지로 06장 값과 비교해 확인합니다.
+
+## Troubleshooting
 
 - **Apply** 뒤 오류가 나면 아래 **Problems** 탭에서 오류가 난 줄을 확인합니다. 테이블이 없다는 오류이면 **Model view** 리본의 **Edit tables**에서 1단계의 테이블 7개가 모두 체크되어 있는지 확인하고 다시 **Apply**를 누릅니다.
 - 시각적 개체에 관계를 다시 계산해야 한다는 오류가 보이면 2단계의 **Refresh** → **Data**를 다시 실행하고, 1분 뒤 보고서 탭을 새로 고칩니다.
@@ -215,6 +225,8 @@ Copilot의 답은 생성된 내용이므로 Ontology agent와 마찬가지로 06
 - 막대 색이 다르면 **Y-axis**의 필드 순서를 확인합니다. 필드를 끌어서 순서를 바꿀 수 있습니다.
 - 점선이 0에 그어지면 **Y-Axis Constant Line**의 **Value**에 **fx**로 `안전재고 (kg)`를 지정했는지 확인합니다.
 - 시각적 개체가 겹쳐 선택하기 어려우면 먼저 위치와 크기를 입력해 자리를 옮깁니다.
+- Copilot이 비활성화되면 작업 영역의 용량이 활성 유료 F2 이상인지, 참가자가 Copilot 허용 그룹에 속하는지, 지역·테넌트 설정이 맞는지 확인합니다. 새 용량·증설을 Copilot이 인식하는 데 최대 24시간이 걸릴 수 있습니다.
+- AI 생성 표나 답이 06장과 다르면 테이블·필터·집계를 확인하고 다시 요청합니다. 화면 생성 성공만으로 업무 결과가 정확하다고 판단하지 않습니다.
 
 ## 다음 단계
 

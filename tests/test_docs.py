@@ -1,5 +1,6 @@
 """Checks for the workshop documents and participant notebooks (stdlib only)."""
 import importlib.util
+import ast
 import json
 import re
 import types
@@ -51,8 +52,8 @@ def strip_comments(text):
 
 
 def md_files():
-    files = [ROOT / "README.md", ROOT / "admin" / "README.md", *sorted(DOCS.glob("*.md"))]
-    return [path for path in files if path.is_file()]
+    return sorted([ROOT / "README.md", *DOCS.glob("*.md"), *(ROOT / "admin").glob("*.md"),
+                   ROOT / "assets" / "icon-attribution.md"])
 
 
 def is_pending(path):
@@ -61,7 +62,8 @@ def is_pending(path):
 
 class DocumentTests(unittest.TestCase):
     def test_required_documents_exist(self):
-        for path in (ROOT / "README.md", ROOT / "admin" / "README.md"):
+        for path in (ROOT / "README.md", ROOT / "admin" / "README.md",
+                     ROOT / "admin" / "data-design.md", ROOT / "assets" / "icon-attribution.md"):
             with self.subTest(document=rel(path)):
                 self.assertTrue(path.is_file(), f"{rel(path)} is missing")
         for name in CHAPTERS:
@@ -71,6 +73,13 @@ class DocumentTests(unittest.TestCase):
                     self.skipTest(f"{rel(path)} is not written yet")
                 self.assertTrue(path.is_file(), f"{rel(path)} is missing")
 
+    def test_markdown_structure_has_headings_not_embedded_rst_titles(self):
+        for path in md_files():
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(document=rel(path)):
+                self.assertEqual(1, len(re.findall(r"^# ", text, re.MULTILINE)))
+                self.assertNotRegex(text, r"(?m)^[^\n#]*\bTroubleshooting[ \t]+-{3,}")
+                self.assertNotRegex(text, r"(?m)^\s*\.\. (?:image|list-table|code-block)::")
     def test_relative_links_resolve(self):
         for path in md_files():
             for target in LINK.findall(strip_comments(path.read_text(encoding="utf-8"))):
@@ -145,6 +154,29 @@ class NotebookTests(unittest.TestCase):
                 cells = json.loads(target.read_text(encoding="utf-8"))["cells"]
                 self.assertEqual(cells, build_notebooks.cells_from_source(source),
                                  f"{rel(target)} differs from {rel(source)}; run python tools/build_notebooks.py")
+
+    def test_administrator_notebook_matches_source(self):
+        spec = importlib.util.spec_from_file_location("build_notebooks", ROOT / "tools" / "build_notebooks.py")
+        builder = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(builder)
+        notebook = json.loads((ROOT / "admin" / "00_admin_setup.ipynb").read_text(encoding="utf-8"))
+        self.assertEqual(notebook["cells"], builder.cells_from_source(ROOT / "admin" / "00_admin_setup.py"))
+
+    def test_fabric_notebook_is_clean_and_syntactically_valid(self):
+        notebook = json.loads((ROOT / "fabric" / "nb_record_decision.ipynb").read_text(encoding="utf-8"))
+        self.assertEqual(4, notebook["nbformat"])
+        parameter_cells = []
+        for cell in notebook["cells"]:
+            if cell["cell_type"] != "code":
+                continue
+            self.assertEqual([], cell["outputs"])
+            self.assertIsNone(cell["execution_count"])
+            ast.parse("".join(cell["source"]))
+            if "parameters" in cell["metadata"].get("tags", []):
+                parameter_cells.append(cell)
+        self.assertEqual(1, len(parameter_cells))
+        self.assertIn('event_id = "EVT-20261001-001"', "".join(parameter_cells[0]["source"]))
+        self.assertIn('option_id = "OPT-2"', "".join(parameter_cells[0]["source"]))
 
     def test_import_archive_matches_notebooks(self):
         archive = NOTEBOOKS / "ChipBalance.zip"

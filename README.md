@@ -3,17 +3,19 @@
 필름 공장의 원료 칩 재고와 긴급 수주 대응을 주제로 한 hands-on Workshop입니다.
 
 - **Azure Databricks:** SAP·FPIMS·PVSS 원천 파일을 만들고 메달리온 아키텍처(Bronze → Silver → Gold)로 정제·계산합니다. Gold는 Unity Catalog에 만들지 않고 Microsoft Fabric OneLake에만 저장합니다(인증 방식: Managed Identity). 같은 Gold로 질문 6개의 정답을 계산합니다. Genie로 질문하려면 OneLake를 Unity Catalog에 연결하는 선택 확장이 필요합니다.
-- **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. data agent가 Ontology를 근거로 질문에 답합니다.
+- **Microsoft Fabric:** Gold로 Fabric IQ Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. 이 실습에서는 Ontology에 내장된 Ontology agent가 질문에 답합니다.
 - **의사결정:** Fabric Operations agent가 Eventhouse에 들어온 위험 이벤트를 감시해 대응안을 Microsoft Teams로 제안하고, 담당자가 Teams에서 승인하면 Notebook이 승인 기록을 남깁니다.
 - **Microsoft Foundry:** Foundry agent에 Fabric IQ 도구로 Ontology를 연결해, 담당자가 승인하기 전에 대응안의 근거를 묻습니다.
 
 ## 전체 구성
 
-<img src="assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Data agent가 Ontology를 데이터 원본으로 질문에 답합니다. Operations agent는 Ontology의 위험 이벤트를 감시해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답하고, Work IQ 도구를 붙이면 Teams·Outlook 메일의 업무 맥락도 함께 봅니다(점선). Microsoft 365 Copilot·Cowork는 기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용하고, Data agent는 Agent Store에 게시해 Teams에서 대화할 수 있습니다(점선)." />
+<img src="assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 Bronze와 Silver를 정제하고 Gold를 계산해 OneLake에 저장합니다. Fabric은 Gold로 Semantic model, Power BI 보고서, Ontology를 만듭니다. 내장 Ontology agent가 질문에 답하고, Operations agent는 Eventhouse의 RiskEventStatus를 감시해 Teams로 대응안을 제안합니다. 담당자가 Proceed와 Confirm으로 승인하면 Fabric Notebook이 승인 상태와 내역을 기록합니다. Foundry agent는 Fabric IQ 도구로 Ontology에 질문합니다. 점선은 이 실습 범위 밖의 선택 연결 예시입니다." />
 
 [그림 크게 보기](assets/architecture.png)
 
-09장은 Ontology agent로, 11장은 Eventhouse `eh_chipbalance`를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 연결은 운영에 적용할 때 붙입니다. Foundry agent에 Work IQ 도구를 붙여 Teams·Outlook 메일의 업무 맥락을 함께 묻는 연결, Microsoft 365 Copilot·Cowork(기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용), Data agent를 Microsoft 365 Copilot의 Agent Store에 게시해 Teams에서 대화하는 연결입니다.
+구성도는 운영에 적용할 수 있는 연결을 포함한 개념도입니다. **실습에서는 09장의 Ontology agent로 질문하고, 11장은 Gold 위험 이벤트를 Eventhouse `eh_chipbalance`에 직접 보내 Operations agent가 감시합니다.** 별도의 Data agent 생성이나 Ontology를 Operations agent에 직접 연결하는 단계는 포함하지 않습니다.
+
+점선의 Work IQ, Microsoft 365 Copilot·Cowork, Agent Store 연결은 이 가이드의 실행 범위 밖입니다. 적용할 때 해당 제품의 지원 상태, 인증, 라이선스와 테넌트 정책을 확인합니다.
 
 실선은 실습에서 만들고 실행하는 흐름입니다. 점선의 원천 시스템 연계, Power Apps, Power Automate는 운영에 적용할 때 연결합니다. 승인은 Teams에서 끝나므로 Power Apps가 없어도 됩니다.
 
@@ -39,6 +41,19 @@
 `notebooks/ChipBalance.zip`은 Databricks로 한 번에 가져오는 Notebook 8개입니다. 같은 내용을 `notebooks/*.ipynb`로도 볼 수 있습니다. 원천 데이터는 02장에서 Notebook을 실행해 만듭니다. `fabric` 폴더에는 10장의 semantic model 스크립트(`sm_chipbalance.tmdl`)와 보고서 테마(`chipbalance-theme.json`), 11장의 승인 기록 Notebook(`nb_record_decision.ipynb`)이 있습니다.
 
 관리자에게 받을 값은 Databricks 주소와 참가자 번호(예: `p001`)입니다.
+
+## 시작 전 확인
+
+문서와 캡처의 `p001`은 예시입니다. 명령·설정·작업 영역 선택에서는 본인의 참가자 번호로 바꿉니다. `sm_chipbalance`, `ont_chipbalance` 같은 항목 이름은 참가자별 작업 영역 안에서 그대로 씁니다.
+
+| 실행 범위 | 필요한 준비 |
+|---|---|
+| 01~07 | Databricks의 Notebook Serverless, Unity Catalog 권한, OneLake 접근 권한, 활성 Fabric 용량. Gold 생성·조회는 Trial로도 할 수 있습니다. |
+| 07 Genie 선택 단계 | OneLake Federation 설정, SQL warehouse **Can use** 권한. Notebook Serverless와 SQL warehouse는 별도 Compute입니다. |
+| 08~09, 10 Copilot, 11, 12 Fabric IQ 연결 | 활성 **유료 F2 이상 용량**, 기능별 테넌트 설정·권한. Trial에서는 이 가이드의 AI 단계를 진행하지 않습니다. |
+| 10 보고서 작성 | Power BI Pro 또는 PPU 사용자 라이선스, 모델·보고서 작성 권한 |
+
+관리자는 [관리자 준비 가이드](admin/README.md)의 사전 점검을 마친 뒤 참가자에게 안내합니다. AI가 만드는 구조·페이지·답변은 매번 달라질 수 있으므로, 각 장의 예상 결과는 비교할 기준이지 성공 보장이 아닙니다.
 
 ## 관리자용
 

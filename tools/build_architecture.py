@@ -129,13 +129,13 @@ class Diagram:
 def architecture():
     d = Diagram("architecture", 1800, 1360)
     d.text(45, 26, "원료 칩 수급과 긴급 수주 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
-    d.text(45, 78, "Databricks에서 정제·계산한 Gold를 Fabric에서 활용합니다. "
-                   "Data agent와 Foundry agent는 Ontology를 근거로 답하고, Operations agent는 Ontology를 감시해 Teams로 대응안을 제안합니다", 20, 1700)
+    d.text(45, 78, "Databricks에서 계산한 Gold로 Ontology agent와 Foundry agent가 답합니다. "
+                   "Operations agent는 Eventhouse의 위험 이벤트를 감시해 Teams로 대응안을 제안합니다", 20, 1700)
 
     steps = [("① 현재 계산", "Databricks 05·06 계산 · Power BI 현황"),
              ("② 판단 기준", "Databricks 06 · 대응안별 기준 충족 여부"),
              ("③ Agent 제안", "Fabric Operations agent → Teams로 제안"),
-             ("④ 사람 승인", "Teams에서 Yes/No · 승인 기록 저장")]
+             ("④ 사람 승인", "Teams에서 Proceed / Confirm · 승인 기록")]
     xs = [45, 480, 915, 1350]
     for i, (title, detail) in enumerate(steps):
         x, w = xs[i], (380 if i < 3 else 405)
@@ -173,24 +173,25 @@ def architecture():
     d.text(750, 304, "Gold로 현황을 파악하고, Agent가 대응안을 제안하고 질문에 답합니다", 17, 640)
     d.arrow([(620, 700), (680, 700), (680, 460), (750, 460)])
     d.card(750, 360, 270, 180, "OneLake Gold",
-           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\nUnity Catalog에는 만들지 않음\nGold 저장은 Databricks만",
+           "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\n계산·저장: Databricks\n승인 상태 갱신: Fabric Notebook",
            "lakehouse.svg")
     d.card(750, 565, 270, 160, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안\n위험 이벤트 (RiskEvent)", "ontology.svg")
     d.card(750, 790, 270, 150, "Notebook · 승인 기록", "승인하면 실행\n위험 이벤트 approved로 변경\ndbo.chip_decision_log", "notebook.svg")
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
     d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 수주 비교\n대응안 검토", "power-bi.svg")
-    d.card(1060, 640, 330, 125, "Data agent", "09 Ontology를 데이터 원본으로\n자연어 질문에 답변", "data-agent.svg")
-    d.card(1060, 790, 330, 140, "Operations agent", "③ Ontology의 위험 이벤트 감시\nopen이 되면 대응안 제안",
+    d.card(1060, 640, 330, 125, "Ontology agent", "09 Ontology에 내장된 agent\n자연어 질문에 답변", "ontology.svg")
+    d.card(1060, 790, 330, 140, "Operations agent", "11 Eventhouse RiskEventStatus\n③ open 전이 감시·대응안 제안",
            "operations-agent.svg")
     d.arrow([(1020, 395), (1060, 395)])
     d.arrow([(885, 540), (885, 565)])
     d.arrow([(750, 860), (735, 860), (735, 500), (750, 500)])
     d.text(690, 790, "기록", 15, 40)
     d.arrow([(1020, 660), (1060, 660)])
-    d.arrow([(1020, 705), (1040, 705), (1040, 830), (1060, 830)])
+    d.arrow([(1020, 505), (1040, 505), (1040, 830), (1060, 830)])
+    d.text(750, 738, "11 Gold 이벤트를 Eventhouse에 전송", 15, 280)
     d.arrow([(1060, 905), (1020, 905)])
-    d.text(1024, 912, "Yes", 14, 34)
+    d.text(1024, 912, "승인", 14, 34)
 
     # Microsoft Foundry
     d.rect(1450, 222, 310, 338, GRAY, True)
@@ -205,11 +206,9 @@ def architecture():
     # Microsoft 365
     d.rect(1450, 580, 310, 432, GRAY, True)
     d.text(1470, 596, "Microsoft 365", 23, 270, True)
-    d.card(1470, 628, 270, 125, "Copilot · Cowork", "Work IQ 기본 · 메일·Teams 맥락\n+ Fabric IQ 플러그인 → Ontology", "copilot.svg", dashed=True)
+    d.card(1470, 628, 270, 125, "Copilot · Cowork", "업무 맥락·데이터 연결 예시\n지원·인증·라이선스 확인 필요", "copilot.svg", dashed=True)
     d.arrow([(1470, 662), (1440, 662), (1440, 626), (1020, 626)], True, GRAY)
-    d.card(1470, 765, 270, 125, "Microsoft Teams", "④ 채팅으로 제안 수신\nYes / No 승인", "teams.svg")
-    d.arrow([(1470, 775), (1430, 775), (1430, 715), (1390, 715)], True, GRAY)
-    d.text(1394, 728, "Agent\nStore", 14, 50)
+    d.card(1470, 765, 270, 125, "Microsoft Teams", "④ 채팅으로 제안 수신\nProceed → Confirm 승인", "teams.svg")
     d.card(1470, 902, 270, 100, "Outlook 메일", "공급사·고객 메일", "outlook.svg", dashed=True)
     d.text(1696, 560, "Work IQ", 14, 70)
     d.arrow([(1740, 455), (1752, 455), (1752, 952), (1740, 952)], True, GRAY)
@@ -234,7 +233,7 @@ def architecture():
     d.arrow([(885, 940), (885, 1140)], True, GRAY)
     d.text(897, 1104, "승인 이력", 15, 120)
     d.arrow([(1300, 930), (1300, 1140)], True, GRAY)
-    d.text(1312, 1104, "승인 후 조치", 15, 150)
+    d.text(1312, 1104, "승인한 조치", 15, 150)
     d.arrow([(65, 1330), (130, 1330)])
     d.text(145, 1315, "실선: 실습에서 만들고 실행하는 흐름", 17, 420)
     d.arrow([(620, 1330), (685, 1330)], True, GRAY)

@@ -283,7 +283,7 @@ print("OneLake 경로:", f"{ONELAKE_ROOT}/Tables/gold")
 # MAGIC ## 10. (선택) Unity Catalog에서 같은 Gold 보기
 # MAGIC Genie(07장)는 Unity Catalog의 테이블만 씁니다. 관리자가 OneLake의 Lakehouse를 Unity Catalog의 Foreign catalog `fabric_chipbalance_<참가자 번호>`\로 연결해 두었으면, 복사 없이 같은 Gold를 `fabric_chipbalance_<참가자 번호>.gold.<테이블 이름>`\으로 읽을 수 있습니다. 읽기 전용입니다.
 # MAGIC
-# MAGIC **예상 결과:** 18행 이상(06장까지 실행했다면 21행). 행 수가 9번 셀의 `OneLake 행 수`와 같습니다. 연결이 준비되지 않았으면 안내 문구가 나오고 끝납니다.
+# MAGIC **예상 결과:** 이 셀은 `GOLD_TABLES`의 18개만 확인하므로 06장까지 실행해도 18행입니다. 테이블별 행 수는 실행 시점의 OneLake와 같습니다. 06장 전에는 9번 셀의 `OneLake 행 수`와 같습니다. 06장이 추가한 3개 테이블은 교재 07장의 SQL로 확인합니다. 연결이 준비되지 않았으면 안내 문구가 나오고 끝납니다.
 
 # COMMAND ----------
 foreign_catalog = f"fabric_chipbalance_{participant}"

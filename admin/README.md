@@ -11,7 +11,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 | Azure Databricks | Premium workspace, Unity Catalog 사용 |
 | Unity Catalog | 참가자별 카탈로그 `lab_factory_pNNN`, 스키마 `chipbalance_pNNN`, 스키마 안의 Volume `raw` |
 | Databricks Serverless | 참가자 Notebook 실행에 사용. `deltalake==1.6.6`은 `01_setup`이 Notebook 범위에 설치 |
-| SQL warehouse | (선택) Pro SQL warehouse `chipbalance-pro` (2X-Small, 15분 자동 종료). 07장 선택 확장의 Genie Agent가 사용 |
+| SQL warehouse | (선택) `chipbalance-pro` (이름), Serverless 또는 Pro, 2X-Small, 15분 자동 종료. 07장 Genie와 Catalog의 데이터 미리보기에 사용 |
 | Managed Identity | Access Connector for Azure Databricks `ac-chipbalance-onelake`, Unity Catalog service credential `chipbalance_onelake_hyosung` |
 | Microsoft Fabric | F 용량, 작업 영역 `chipbalance-pNNN`, Lakehouse `lh_chipbalance_pNNN` (Lakehouse schemas 켬) |
 | Microsoft Teams | 참가자 계정에 Teams 라이선스, Teams 앱 **Fabric Operations Agent** 허용 (11장) |
@@ -25,7 +25,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 |----|----|----|----|
 | Microsoft Fabric 용량 | 참가자마다 F16 하루(24시간): 16 CU × \$0.19 × 24 = \$72.96 | \$364.80 | \$729.60 |
 | Databricks Serverless Notebook (DBU) | 참가자 1명이 02~07장을 실행하는 계획 비용 약 \$20. 실제 비용은 Serverless 사용 시간과 지역 단가에 따라 확인 | \$100 | \$200 |
-| Databricks SQL warehouse `chipbalance-pro` | 07장 선택 확장의 Genie에서만 켜짐, 2X-Small Pro, 15분 자동 종료. 1명 실행한 날 약 \$3.3 | \$5 | \$10 |
+| Databricks SQL warehouse `chipbalance-pro` | Genie·SQL·Catalog 미리보기에 사용. 아래 금액은 2X-Small Pro 기준 계획 예산이며, Serverless로 선택하면 해당 지역의 단가로 다시 계산 | \$5 | \$10 |
 | Microsoft Foundry (`gpt-5` 토큰) | 12장 질문 몇 개, 참가자당 \$1 미만 | \$5 | \$10 |
 | Storage (Unity Catalog, OneLake) | GB·월당 약 \$0.02 | \$1 미만 | \$1 미만 |
 | **하루 합계** |  | **약 \$475** | **약 \$950** |
@@ -35,9 +35,13 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 - 한국 중부(Korea Central)는 CU·시간당 \$0.21이라 F16 하루가 \$80.64입니다.
 - Databricks 비용은 02~07장을 여러 번 다시 실행한 날의 값이라 넉넉하게 잡은 값입니다. Microsoft Defender for Cloud처럼 구독 설정에 따라 붙는 비용은 넣지 않았습니다.
 
+위 금액은 명시한 지역·SKU·가동 시간의 계획 예시이며 현재 구독의 견적이나 성능 보장이 아닙니다. 참가자마다 F16을 만드는 것은 이 비용 예시의 배치 방식입니다. 작업 영역 여러 개를 한 용량에 할당할 수도 있으며, 동시 실행과 AI 사용량에 맞춰 관리자가 용량을 정합니다. 일시 중지해도 OneLake 저장소와 다른 Azure 리소스의 비용은 별도입니다.
+
 ## 1. Unity Catalog와 Serverless
 
 Databricks 쪽 준비(2장의 service credential 등록, 이 장의 Catalog·스키마·Volume과 권한)는 Notebook `admin/00_admin_setup.ipynb`로 한 번에 할 수 있습니다. Databricks에서 **Import**로 가져와 설정값만 채워 실행합니다. Azure의 Access Connector와 Fabric 작업 영역·Lakehouse·Contributor 권한은 직접 만듭니다.
+
+최초 준비에는 Notebook **1~5단계**를 순서대로 실행합니다. **6단계는 Genie를 사용할 때만** 05장의 Gold 생성 뒤에 실행하므로, 최초 준비에서 **Run all**로 선택 단계를 함께 실행하지 않습니다. Federation을 준비할 때 참가자별 Fabric 작업 영역 ID·Lakehouse ID도 실제 값으로 채웁니다.
 
 1.  Pricing tier가 **Premium**인 Azure Databricks workspace를 Unity Catalog 메타스토어에 연결합니다.
 2.  참가자의 Microsoft Entra ID 계정을 workspace에 추가합니다.
@@ -46,7 +50,7 @@ Databricks 쪽 준비(2장의 service credential 등록, 이 장의 Catalog·스
 ``` sql
 CREATE CATALOG IF NOT EXISTS lab_factory_p001;
 CREATE SCHEMA IF NOT EXISTS lab_factory_p001.chipbalance_p001
-  COMMENT '원료 칩 수급 Workshop 참가자 p001: 원천 파일 Volume raw와 Bronze·Silver·Gold 테이블';
+  COMMENT '원료 칩 수급 Workshop 참가자 p001: 원천 파일 Volume raw와 Bronze·Silver 테이블';
 CREATE VOLUME IF NOT EXISTS lab_factory_p001.chipbalance_p001.raw;
 
 GRANT USE CATALOG ON CATALOG lab_factory_p001 TO `p001@contoso.com`;
@@ -54,7 +58,7 @@ GRANT USE SCHEMA, CREATE TABLE, MODIFY, SELECT ON SCHEMA lab_factory_p001.chipba
 GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory_p001.chipbalance_p001.raw TO `p001@contoso.com`;
 ```
 
-- Catalog 이름은 참가자 번호가 붙은 `lab_factory_pNNN`입니다. 같은 Entra 테넌트의 같은 지역 작업 영역은 하나의 메타스토어를 공유하므로, 참가자(또는 실습 회차)마다 Catalog를 따로 두어 이름 충돌과 권한 문제를 피합니다.
+- Catalog 이름은 참가자 번호가 붙은 `lab_factory_pNNN`입니다. 같은 Unity Catalog 메타스토어에 연결된 Databricks workspace는 카탈로그를 공유하므로, 참가자(또는 실습 회차)마다 Catalog를 따로 두어 이름 충돌과 권한 문제를 피합니다.
 
 - 메타스토어에 기본 저장소가 없으면 `CREATE CATALOG`에 `MANAGED LOCATION`을 지정합니다.
 
@@ -73,24 +77,26 @@ GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory_p001.chipbalance_p001.raw 
 
 참가자는 별도 Classic Compute 없이 Notebook의 기본 **Serverless**를 사용합니다.
 
-- Workspace에서 Serverless notebook 사용이 활성화되어 있어야 합니다.
-- 참가자에게 **Serverless compute access** entitlement를 줍니다.
+- Unity Catalog가 켜져 있고 Notebook Serverless를 지원하는 지역인지 확인합니다. 지원 workspace에서는 Serverless가 기본 제공됩니다.
+- 참가자에게 **Workspace access** entitlement를 줍니다. **Serverless compute access**라는 별도 entitlement를 만들거나 찾지 않습니다. [Serverless 요구 사항](https://learn.microsoft.com/azure/databricks/compute/serverless/)과 [entitlement 목록](https://learn.microsoft.com/azure/databricks/security/auth/entitlements)을 확인합니다.
 - `01_setup` 첫 셀이 `deltalake==1.6.6`을 Notebook 범위에 설치하므로 Compute 라이브러리를 미리 설치하지 않습니다.
 
 (선택) 07장의 Genie 확장을 쓸 때만 SQL warehouse를 하나 만들어 모든 참가자가 함께 씁니다. Genie Agent가 이 warehouse로 SQL을 실행합니다.
 
-- **SQL Warehouses** \> **Create SQL warehouse**: 이름 `chipbalance-pro`, Type **Pro**, Cluster size **2X-Small**, Auto stop 15분
+- **SQL Warehouses** \> **Create SQL warehouse**: 이름 `chipbalance-pro`, Type **Serverless**(네트워크 접근이 준비된 경우) 또는 **Pro**, Cluster size **2X-Small**, Auto stop 15분. 이름의 `pro`는 Type을 결정하지 않습니다.
 - **Permissions**에서 참가자에게 **Can use**를 줍니다.
-- Unity Catalog 저장소를 private endpoint로 연결한 환경에서는 Serverless warehouse가 저장소에 접근하지 못합니다. Pro 또는 Classic warehouse를 씁니다.
+- 저장소에 private endpoint가 있으면 Serverless의 NCC와 private endpoint 접근을 먼저 준비합니다. 네트워크 구성이 없는 Serverless에서 접근이 실패할 수 있지만, private endpoint 저장소를 모두 지원하지 않는다는 뜻은 아닙니다. Pro를 고르는 경우에도 해당 Compute의 네트워크 접근을 확인합니다.
 - Genie Code와 Genie Agent는 **Partner-powered AI features**가 켜져 있어야 합니다(계정 콘솔 **Settings** \> **Feature enablement**). 데이터 처리 지역 제한(**Enforce data processing within workspace Geography for AI features**)이 켜져 있으면 Genie Code를 쓸 수 없는 지역이 있습니다. 참가자에게는 Databricks SQL 사용 권한(**Databricks SQL access** entitlement)이 필요합니다.
 
-(선택) 07장의 Genie는 Unity Catalog의 테이블만 읽습니다. Gold는 OneLake에만 있으므로, OneLake Lakehouse를 **Foreign catalog**`fabric_chipbalance_pNNN`으로 연결합니다. 복사하지 않고 읽기 전용으로 연결합니다. 이 연결은 `admin/00_admin_setup` Notebook의 6단계가 만듭니다. 05장에서 Gold를 만든 뒤에 실행합니다.
+(선택) 07장의 Genie는 Unity Catalog의 테이블만 읽습니다. Gold는 OneLake에만 있으므로, OneLake Lakehouse를 **Foreign catalog** `fabric_chipbalance_pNNN`으로 연결합니다. 복사하지 않고 읽기 전용으로 연결합니다. 이 연결은 `admin/00_admin_setup` Notebook의 6단계가 만듭니다. 05장에서 Gold를 만든 뒤에 실행하고, 06장까지 완료했을 때 `gold`에 21개 테이블이 있는지 SQL로 확인합니다.
 
 - Fabric 테넌트 설정 3개를 켭니다: **Service principals can call Fabric public APIs**, **Users can access data stored in OneLake with apps external to Fabric**, **Use short-lived user-delegated SAS tokens**.
 - 작업 영역 `chipbalance-pNNN`의 **Workspace settings** \> **Delegated Settings** \> **OneLake settings**에서 **Authenticate with OneLake user-delegated SAS tokens**를 켭니다.
 - 2장의 Access Connector를 작업 영역의 **Contributor**로 추가합니다.
 - Notebook 설정값에 참가자별 Fabric 작업 영역 ID와 Lakehouse ID(Lakehouse 주소 `.../lakehouses/<Lakehouse ID>`)를 넣습니다.
 - 6단계가 storage credential(service credential과 다른 종류), 참가자별 Connection, Foreign catalog를 만들고 참가자에게 `USE CATALOG`, `USE SCHEMA`, `SELECT`를 줍니다. Connection은 만든 뒤 작업 영역을 바꿀 수 없어 참가자마다 따로 만듭니다.
+- 관리자는 storage credential·Connection·Foreign catalog 생성과 권한 부여 권한이 있어야 합니다. 기존 객체의 Access Connector·작업 영역·Lakehouse가 설정값과 다르면 Notebook은 오류로 멈춥니다. 올바른 설정값·권한을 확인하고 다시 실행하며, 다른 참가자의 객체를 삭제하지 않습니다.
+- OneLake Federation용 SQL warehouse는 **2025.40 이상**이어야 합니다. Classic Compute로 이 연결을 조회할 때는 **Databricks Runtime 18.0 이상, Standard access mode**가 필요합니다. Notebook Serverless는 버전 번호를 직접 선택하지 않습니다. 최신 [OneLake Federation 요구 사항](https://learn.microsoft.com/azure/databricks/query-federation/onelake)을 확인합니다.
 
 ## 2. Managed Identity와 service credential
 
@@ -130,7 +136,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 
 ## 3. Microsoft Fabric
 
-1.  Fabric 용량을 만듭니다. 참가자마다 F16 하나를 기준으로 합니다(위 "예상 비용"). F2 이상이면 실습할 수 있습니다. 10장에서 Copilot으로 보고서를 만들고 질문하려면 **F2 이상의 유료 용량**이 필요합니다. Trial 용량에서는 Copilot을 쓸 수 없습니다.
+1.  Fabric 용량을 만듭니다. 전체 AI 실습은 **활성 유료 F2 이상 용량**에 작업 영역을 할당합니다. 01~07장의 Gold 생성·조회와 10장의 수동 보고서 작성은 Trial로도 가능하지만, 08~09장 AI, 10장 Copilot, 11장 Operations agent, 12장 Ontology MCP 연결은 Trial로 진행하지 않습니다. F2는 기능을 쓸 최소 SKU이지 동시 참가자 수를 보장하는 크기가 아닙니다(위 "예상 비용").
 2.  참가자마다 작업 영역 `chipbalance-p001`을 만들고 위 용량에 할당합니다.
 3.  작업 영역의 **Manage access**에서 참가자를 **Contributor**로 추가합니다.
 4.  **New item** \> **Lakehouse**에서 `lh_chipbalance_p001`을 만듭니다. **Lakehouse schemas** 옵션을 켭니다.
@@ -143,9 +149,12 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 |----|----|
 | Users can access data stored in OneLake with apps external to Fabric | Databricks가 OneLake에 Gold 저장 |
 | Service principals can call Fabric public APIs | Managed Identity가 Fabric 작업 영역 권한으로 접근 |
+| Users can create Fabric items | 새 Ontology 환경을 포함한 Fabric 항목 생성 |
 | Users can create Ontology items | Fabric IQ Ontology |
 | Users can use Copilot, AI Agents and other AI experiences powered by Azure OpenAI | Power BI Copilot(10장), Ontology agent, Operations agent |
-| Data sent to Azure OpenAI can be processed / stored outside your capacity's geographic region | 용량이 미국·EU 밖에 있을 때 Operations agent 사용 |
+| Data sent to Azure OpenAI can be processed / stored outside your capacity's geographic region | 해당 지역에서 필요한 Copilot·AI 기능 사용. 조직의 지역 간 데이터 처리 정책에 따라 관리자가 승인 |
+
+설정의 표시 이름은 UI 언어와 배포 상태에 따라 다를 수 있습니다. 참가자와 Managed Identity가 허용된 보안 그룹 범위에 포함되는지 확인합니다. [Ontology 테넌트 설정](https://learn.microsoft.com/fabric/iq/ontology/overview-tenant-settings), [Copilot 요구 사항과 지역](https://learn.microsoft.com/fabric/fundamentals/copilot-fabric-overview#available-regions), [Operations agent 요구 사항](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent#prerequisites)을 기준으로 점검합니다. 용량 생성·증설 뒤 Copilot 인식에 최대 24시간이 걸릴 수 있습니다.
 
 Teams 관리 센터의 **Teams 앱** \> **앱 관리**에서 **Fabric Operations Agent**가 차단되어 있지 않은지 확인합니다. Operations agent는 이 앱의 **Fabric operations agent** 채팅으로 참가자에게 제안을 보냅니다.
 
@@ -153,14 +162,15 @@ Teams 관리 센터의 **Teams 앱** \> **앱 관리**에서 **Fabric Operations
 
 12장에서 참가자가 Foundry 프로젝트 `chipbalance-pNNN`과 에이전트 `fa-chipbalance`를 만들고, Fabric IQ 도구로 Ontology `ont_chipbalance`를 연결합니다.
 
-1.  Fabric 용량과 같은 지역(이 환경: Sweden Central)에 리소스 그룹을 준비합니다. 이 환경은 Fabric 용량과 같은 `rg-factory-onelake-lab-0922`를 씁니다.
+1.  Azure 구독과 리소스 그룹을 준비합니다. Foundry 리소스는 Agent Service와 사용할 모델을 지원하는 지역에 만듭니다. 리소스 그룹의 위치와 리소스 배포 지역은 별개입니다. Fabric과 같은 지역은 데이터 배치 정책에 따른 선택이지 연결의 필수 조건은 아닙니다.
 2.  참가자에게 리소스 그룹의 **Contributor** 역할을 줍니다. 참가자가 Foundry 리소스 `fdy-chipbalance-pNNN`과 프로젝트를 직접 만듭니다. 관리자가 프로젝트를 미리 만들어 두려면 참가자에게 프로젝트의 **Foundry User**와 **Foundry Project Manager** 역할을 줍니다. Fabric IQ 연결을 만들 때 **Foundry Project Manager**가 필요합니다.
-3.  구독에 `gpt-5` 글로벌 표준 배포 할당량이 있는지 확인합니다. 에이전트를 만들면 `gpt-5`가 자동으로 배포됩니다.
+3.  `gpt-5` 등 Fabric IQ/MCP를 지원하는 모델의 배포 가용성과 구독 할당량을 확인합니다. 새 에이전트 화면의 기본 모델·자동 배포는 환경마다 다를 수 있으므로, 생성 뒤 연결된 모델 배포를 확인합니다.
+4.  Fabric IQ 도구의 **managed OAuth** 또는 **BYO Microsoft Entra** 인증 경로를 준비합니다. 같은 계정으로 로그인한 것만으로 OAuth 연결·동의가 모두 준비되지는 않습니다. 최초 인증과 조직 동의 정책은 [Fabric IQ 인증·권한 요구 사항](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq#authentication-and-security)에 따릅니다.
 
 - Fabric IQ 도구는 로그인한 참가자의 Fabric 권한으로 Ontology를 읽습니다. 참가자는 작업 영역 `chipbalance-pNNN`의 **Contributor**이면 됩니다.
 - Fabric IQ 도구가 Ontology에 주는 기능은 `ask_ontology`(질문을 Ontology에 넘겨 연결된 데이터로 답), `list_ontology_entities`, `list_ontology_rules`입니다. 12장 에이전트는 `ask_ontology`로 `OPT-2`를 반영한 BNK-L1-2의 최저 기말재고 같은 값을 답합니다. Ontology 엔드포인트의 도구 목록은 `https://api.fabric.microsoft.com/v1/mcp/dataPlane/workspaces/<작업 영역 ID>/items/<Ontology ID>/ontologyEndpoint`에 MCP `tools/list`를 보내 확인할 수 있습니다.
-- 비용은 모델 토큰 사용량만큼 나옵니다. 프로젝트를 만들 때 권장 리소스(App Insights)를 끄므로 추적 저장 비용은 없습니다.
-- Work IQ 도구(Teams, Mail 등)는 Microsoft 365 Copilot 라이선스가 있는 사용자만 조회할 수 있습니다. 라이선스가 없으면 도구 호출이 `WorkIQ license check failed`로 실패하므로, 12장에서는 붙이는 화면만 보여 줍니다.
+- 모델 토큰 비용 외에 Fabric IQ 도구가 실행하는 Fabric 쿼리·AI·Graph 사용량은 Fabric 용량을 소비합니다. Application Insights를 연결하면 수집·보관 비용도 별도입니다. 즉시 대화 실행 내역과 지속 저장되는 추적은 구분합니다.
+- Work IQ의 조건은 연결 경로에 따라 다릅니다. API(A2A/REST/MCP)는 Copilot Credits 과금이고, 커넥터 기반 도구는 해당 커넥터가 Microsoft 365 Copilot 사용자 라이선스 등을 요구할 수 있습니다. [Work IQ 요구 사항](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/work-iq#prerequisites)을 확인합니다. 12장에서는 추가 화면만 확인하고 취소합니다.
 
 ## 5. 네트워크
 
@@ -168,6 +178,7 @@ Databricks Serverless 환경에서 아래 주소로 HTTPS(443) 연결이 되어�
 
 - `onelake.dfs.fabric.microsoft.com`: Gold 저장
 - `pypi.org`, `files.pythonhosted.org`: `01_setup` 첫 셀에서 `deltalake` 설치
+- `login.microsoftonline.com`: Microsoft Entra 토큰 발급. 서비스별 연결에는 Fabric API·Kusto 엔드포인트 접근도 필요합니다.
 
 Unity Catalog 저장소를 private endpoint로 연결했다면 Serverless가 저장소에 접근할 수 있도록 Network Connectivity Configuration(NCC)과 private endpoint를 구성합니다.
 
@@ -178,7 +189,9 @@ Unity Catalog 저장소를 private endpoint로 연결했다면 Serverless가 저
 - GitHub 저장소 접근 권한 또는 저장소 ZIP 파일
 - Foundry 프로젝트를 만들 구독과 리소스 그룹 (12장)
 
-Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이름은 참가자 번호로 정해지므로 따로 알려 주지 않습니다.
+Unity Catalog 스키마와 Fabric 작업 영역·Lakehouse 이름은 참가자 번호로 정합니다. Service credential은 이 가이드에서 `chipbalance_onelake_hyosung`으로 고정한 공용 이름이며 참가자 번호로 생성되지 않습니다. 다른 이름이나 참가자별 credential을 준비했다면 `01_setup`의 `service_credential`에 넣을 값을 별도로 알려 줍니다.
+
+전체 진행 전, 관리자 계정뿐 아니라 참가자 계정으로도 `01_setup` 실행과 OneLake 연결을 확인합니다. 06장 뒤 Gold 21개 테이블, 07장 정답 6개, 10장 모델 작성 권한, 11장 KQL 생성·Notebook 실행 권한, 12장 OAuth 동의·모델 배포까지 각 장의 조건을 확인합니다.
 
 ## 7. 종료 후 정리
 
@@ -189,6 +202,7 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
 3.  (선택) 실습 데이터를 지웁니다. Fabric 항목은 용량을 일시 중지하기 전에 지웁니다.
 
     - Unity Catalog Catalog `lab_factory_pNNN`, 스키마 `chipbalance_pNNN`과 Volume `raw`
+    - Genie 선택 단계를 만들었다면 Foreign catalog `fabric_chipbalance_pNNN`, Connection `onelake_connection_pNNN`. 다른 소비자가 없는지 확인한 뒤 해당 참가자의 객체만 지웁니다.
     - Fabric 작업 영역 `chipbalance-pNNN`: `oa_chipbalance`, `nb_record_decision`, `eh_chipbalance`, `rpt_chipbalance`, `sm_chipbalance`, `ont_chipbalance`(자동으로 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…` 포함), `lh_chipbalance_pNNN`. 작업 영역을 지우면 한 번에 지워집니다.
     - Foundry: Azure portal의 리소스 그룹에서 Foundry 리소스 `fdy-chipbalance-pNNN`을 삭제합니다. 프로젝트, 에이전트 `fa-chipbalance`, 모델 배포, Fabric IQ 연결이 함께 지워집니다. 같은 이름으로 다시 만들려면 Azure portal에서 삭제된 Foundry 리소스를 제거(purge)합니다.
 
@@ -198,7 +212,7 @@ Unity Catalog 스키마, Fabric 작업 영역·Lakehouse, service credential 이
     az resource invoke-action --action suspend --ids /subscriptions/<구독 ID>/resourceGroups/rg-factory-onelake-lab-0922/providers/Microsoft.Fabric/capacities/<용량 이름>
     ```
 
-5.  Workshop 환경을 더 쓰지 않으면 Fabric 작업 영역 권한에서 `ac-chipbalance-onelake`를 빼고, service credential `chipbalance_onelake_hyosung`와 Access Connector를 삭제합니다.
+5.  Workshop 환경을 더 쓰지 않으면 Fabric 작업 영역 권한에서 `ac-chipbalance-onelake`를 뺍니다. 공용 service credential `chipbalance_onelake_hyosung`, Federation용 storage credential과 Access Connector는 모든 참가자의 Connection·사용 의존성이 없어졌을 때만 삭제합니다.
 
 ## 8. 유지보수
 

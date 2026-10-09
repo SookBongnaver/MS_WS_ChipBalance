@@ -17,6 +17,14 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 | ResponseOption, OptionBalance | `gold.fact_response_option`, `gold.fact_option_balance` | 긴급 수주 대응안 4개와 대응안별 Bunker 재고 |
 | RiskEvent | `gold.fact_risk_event` (`event_id`) | 06장에서 감지한 부족 이벤트와 추천 대응안 |
 
+## 시작 전 확인
+
+- 05·06장을 실행해 같은 작업 영역의 Lakehouse에 Gold 테이블 21개를 준비합니다. 이 중 업무 질문에 쓸 17개를 엔터티 타입으로 선택합니다.
+- 참가자에게 작업 영역 **Contributor** 이상 권한과 원본 테이블 읽기 권한이 있어야 합니다. 관리자가 **Users can create Fabric items**, **Users can create ontology (preview) items**, Azure OpenAI 기반 Copilot·AI 기능 설정을 참가자에게 허용했는지 확인합니다.
+- 이 실습의 Ontology agent와 12장의 Ontology MCP 연결에는 **유료 Fabric F2 이상** 또는 **Fabric이 활성화된 Power BI Premium P1 이상** 용량을 준비합니다. Trial 용량은 이 AI 기능·MCP 경로의 대체 환경이 아닙니다. 지역·테넌트 설정은 [관리자 준비 가이드](../admin/README.md)의 "3. Microsoft Fabric"을 따릅니다([Ontology 테넌트 설정](https://learn.microsoft.com/en-us/fabric/iq/ontology/overview-tenant-settings), [Copilot 지역·용량 조건](https://learn.microsoft.com/en-us/fabric/fundamentals/copilot-fabric-overview#available-regions), [Ontology MCP 조건](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-mcp-server#prerequisites)).
+
+아래 **예상 결과**는 확인할 목표와 화면 예시입니다. AI가 생성하는 설명·검증 결과와 처리 시간은 달라질 수 있으므로, 완료 문구만 믿지 말고 엔터티·관계·바인딩을 직접 확인합니다.
+
 ## 1. Ontology 만들기
 
 1.  Fabric 작업 영역 `chipbalance-p001`에서 **+ New item**을 누릅니다.
@@ -97,7 +105,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 
     <img src="../assets/screenshots/d08-agent-prompt.png" width="400" alt="Ontology Agent 창. Hi, how can I help you? 아래 입력 칸에 프롬프트 끝부분 EventRecommends 관계와 먼저 초안을 만들고 검증 결과와 미리 보기를 보여줘 문장이 보이고, 아래에 Plan과 Act 스위치와 보내기 화살표가 있습니다." />
 
-    관계는 연결 열이 있는 테이블의 엔터티에서 출발합니다. 예를 들어 `dim_bunker.line_id`로 잇는 `BunkerOnLine`은 Bunker → Line입니다. 이렇게 정해야 6단계에서 Graph를 만들 때 모든 관계가 데이터에 연결됩니다.
+    이 실습은 관계 이름과 방향을 일관되게 읽기 위해 연결 열이 있는 테이블의 엔터티에서 출발하도록 정합니다. 예를 들어 `dim_bunker.line_id`로 잇는 `BunkerOnLine`은 Bunker → Line입니다. 이는 실습의 모델링 규칙이지 Fabric의 필수 제약은 아닙니다. [공식 관계 만들기 예시](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-create-relationship-types)는 `DriverId`가 Truck 테이블에 있어도 Driver → Truck으로 정의하고 매핑 테이블을 연결합니다. Graph 적격성은 방향만이 아니라 양쪽 속성·키와 데이터 매핑으로 확인합니다.
 
 3.  오른쪽 아래 화살표를 눌러 보냅니다. 에이전트가 Lakehouse의 열과 샘플 행을 살펴보고 초안을 만든 뒤 검증합니다. (3~5분)
 
@@ -147,9 +155,9 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 
 5.  아무것도 바꾸지 않고 오른쪽 아래 **Cancel**을 누른 뒤, 왼쪽 위 **Home**을 누릅니다.
 
-## 5. Graph 만들기
+## 5. Graph 만들기 (선택)
 
-Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여러 단계의 관계를 따라가며 조회하게 합니다. 리본의 **Explore graph**에서 Graph를 조회할 수 있습니다.
+Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여러 단계의 관계를 따라가며 조회하게 합니다. 별도로 **Materialize**해야 만들어지는 선택 기능이며, 앞 단계의 **Instances** 조회나 Ontology agent의 모든 질문에 필요한 것은 아닙니다. Graph를 만들면 데이터 적재·조회에 용량을 사용합니다. 관계 탐색이 필요할 때 만들고 리본의 **Explore graph**에서 조회합니다.
 
 1.  리본의 **Manage graph**를 누릅니다. **Choose what to project** 화면이 열립니다.
 
@@ -161,18 +169,27 @@ Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여�
 
 3.  왼쪽 아래 **Continue**를 누르고, **Configure projection** 화면에서 왼쪽 아래 **Materialize**를 누릅니다.
 
-**예상 결과:** 오른쪽 위에 **Creating graph model** 알림이 보이고, 위쪽 탭에 `ont_chipbalance_graph_`로 시작하는 Graph model이 열립니다. 데이터를 불러오는 데 5~15분 걸립니다.
+**예상 결과:** 오른쪽 위에 **Creating graph model** 알림이 보이고, 위쪽 탭에 `ont_chipbalance_graph_`로 시작하는 Graph model이 열립니다. 참고 시간은 5~15분이며, 데이터량과 용량 상태에 따라 수분~수시간 걸릴 수 있습니다. 알림만으로 완료를 판단하지 말고 Graph의 노드·에지가 조회되는지 확인합니다.
 
 <img src="../assets/screenshots/d08-materialize.png" width="1000" alt="Configure projection 화면. 오른쪽 위에 Creating graph model, This process may take a few minutes 알림이 있고, 위쪽 탭에 ont_chipbalance_graph_로 시작하는 Graph model이 열려 있습니다. Entities 표의 엔터티와 관계는 모두 Eligible입니다." />
 
 ## Troubleshooting
 
-- 초안에 엔터티 타입이 17개보다 적으면 답의 참고 내용에서 빠진 테이블을 확인합니다. 06장을 실행하고 Lakehouse에 `fact_response_option`, `fact_option_balance`, `fact_risk_event`가 있는지 확인한 뒤, "빠진 테이블을 lh_chipbalance_p001의 gold 스키마에서 다시 찾아서 초안에 추가해줘"라고 요청합니다.
-- **Manage graph**에서 관계의 **Source**가 **Not mapped**이면 그 관계의 방향을 확인합니다. 연결 열이 있는 테이블의 엔터티가 **Origin entity type**이어야 합니다.
+- 초안에 엔터티 타입이 17개보다 적으면 빠진 테이블을 확인합니다. Lakehouse에 `fact_response_option`, `fact_option_balance`, `fact_risk_event`가 있으면 "빠진 테이블을 lh_chipbalance_p001의 gold 스키마에서 다시 찾아서 초안에 추가해줘"라고 요청합니다. 원본 테이블이 실제로 없을 때만 06장을 실행합니다. 06장 재실행은 승인된 위험 이벤트도 `open`으로 덮어쓰므로 단순한 화면 목록 문제에 사용하지 않습니다.
+- **Manage graph**에서 관계의 **Source**가 **Not mapped**이면 방향부터 뒤집지 말고 관계 설정을 엽니다.
+  - 양쪽 엔터티의 키와 데이터 바인딩, **Origin/Target entity type**의 **Property**를 확인합니다. `BalanceOfBunker`는 DailyBalance의 `bunker_id`와 Bunker의 `bunker_id`를 연결하며, 두 속성의 원본 열과 형식·값이 맞아야 합니다.
+  - **Use mapping table?**가 **Off**이면 양쪽 속성을 직접 연결합니다. **On**이면 매핑 테이블의 각 열이 양쪽 속성에 올바르게 연결됐는지 확인하고 **Save**합니다.
+  - **Status**가 **Ineligible**이면 마우스를 올려 사유를 봅니다. 키 누락, 미바인딩, 여러 원본 테이블, 지원하지 않는 원본도 원인입니다. 현재 Graph는 Lakehouse·Mirrored Database의 Delta 테이블을 지원합니다([Graph 제한 사항](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-graph#limitations)).
 - 적용을 요청했는데 아무 변화가 없으면 입력 칸 아래 스위치가 **Act**인지 확인합니다.
 - 브라우저를 새로 고치면 에이전트 대화가 사라집니다. 이미 적용한 엔터티 타입과 관계는 Ontology에 남아 있습니다.
 - 에이전트가 답하지 않거나 오류를 보이면 같은 대화에 `Try again`을 보냅니다.
 - **Instances**에 데이터가 없으면 05장 **3. Fabric Lakehouse에서 Gold 확인**으로 Lakehouse에 `gold` 테이블이 있는지 확인합니다.
+
+## 공식 문서
+
+- [Ontology agent 사용·권한·Plan/Act 모드](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-agent)
+- [관계 타입과 양쪽 속성·매핑 테이블](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-create-relationship-types)
+- [선택적 Graph 생성과 제한 사항](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-graph)
 
 ## 다음 단계
 
