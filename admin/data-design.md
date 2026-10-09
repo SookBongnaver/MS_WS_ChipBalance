@@ -121,7 +121,7 @@ L3 기준계획에는 2026-10-11부터 2026-10-15까지 5개 예비일이 있으
 - 필요 보충량은 긴급 시나리오의 대상 Bunker `max(0, safety - min_closing)`입니다. 값은 **35,630kg**입니다.
 - OPT-1은 대상 Bunker에서 최초 안전재고 미만일 이후 도착하는 가장 빠른 PO를 공급사 `max_pull_in_days`만큼 앞당깁니다. 예상 도착일은 `max(TODAY+1, expected_date - max_pull_in_days)`입니다. 25,000kg을 10/09에서 10/07로 당기며 추가 비용은 수량 × `pull_in_fee_krw_per_kg` = 500,000원입니다.
 - OPT-2는 동일 원료이며 대상 Bunker로 향하는 경로 중 `cost_krw_per_kg` 최저, 동률 시 `from_bunker_id` 오름차순을 선택합니다. 수량은 필요 보충량을 5,000kg 단위로 올림한 **40,000kg**입니다. `TODAY+1`부터 경로의 일별 한도 이하로 나눠 출고합니다. R-01은 10/02 출고, 10/03 도착이며 추가 비용은 1,000,000원입니다.
-- OPT-3은 필요 보충량을 공급사 `order_unit_kg`로 올림한 50,000kg을 추가 구매합니다. 예상 도착일은 `TODAY + standard_lead_time_days + planning_delay_days`로 10/05입니다. `added_cost_krw`는 구매 총액이 아니라 **수량 × 단가 × 긴급 할증률**(6%) = 3,750,000원입니다.
+- OPT-3은 판단 기준일 `TODAY` 당일 발주가 가능하다고 가정하고, 필요 보충량을 공급사 `order_unit_kg`로 올림한 50,000kg을 추가 구매합니다. 예상 도착일은 `TODAY + standard_lead_time_days + planning_delay_days`로 10/05입니다. 이송 출고는 다음 날부터 가능하다는 OPT-2의 조건과 구분합니다. `added_cost_krw`는 구매 총액이 아니라 **수량 × 단가 × 긴급 할증률**(6%) = 3,750,000원입니다.
 - OPT-4는 대상 Bunker의 다음 예상 입고일 이후 첫 L3 예비일들로 긴급 생산을 이동합니다.
 - C1은 모든 Bunker, 모든 일자의 잔량이 안전재고 이상인지 확인합니다.
 - C2는 모든 Bunker, 모든 일자의 `previous_closing + receipts + transfers_in` 이 용량 이하인지 확인합니다.

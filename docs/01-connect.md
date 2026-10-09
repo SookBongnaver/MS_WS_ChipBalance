@@ -56,7 +56,7 @@ Notebook끼리 `%run`으로 불러오므로 8개를 같은 폴더에 둡니다.
 
 ## 4. 참가자 번호 입력
 
-**2. 설정값 — 참가자 번호만 바꿉니다** 아래 코드 셀의 첫 줄 `participant = "p001"`에서 `p001`을 본인 번호로 바꿉니다. 나머지 이름은 참가자 번호로 정해지므로 바꾸지 않습니다.
+**2. 설정값 — 참가자 번호만 바꿉니다** 아래 코드 셀의 `participant = "p001"`에서 `p001`을 본인 번호로 바꿉니다. 나머지 이름은 참가자 번호로 정해집니다. `service_credential`은 공용 이름 `chipbalance_onelake_hyosung`을 그대로 쓰되, 관리자가 다른 credential 이름을 안내한 경우 그 값도 입력합니다.
 
 <img src="../assets/screenshots/d01-settings.png" width="900" alt="2. 설정값 셀. 설명 표와 코드 셀이 있고, 코드 셀 첫 줄은 participant = &quot;p001&quot;입니다. 아래 줄에서 catalog, schema, raw_volume, fabric_workspace, fabric_lakehouse, service_credential이 정해집니다." />
 
@@ -105,7 +105,7 @@ Notebook끼리 `%run`으로 불러오므로 8개를 같은 폴더에 둡니다.
 
 ## Managed Identity로 저장하는 방식
 
-- 관리자가 Azure에 Access Connector(`unity-catalog-access-connector`)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
+- 관리자가 Azure에 Access Connector(`ac-chipbalance-onelake`)를 만들었습니다. 이 리소스에는 Managed Identity가 붙어 있습니다.
 - 이 Managed Identity를 Unity Catalog service credential `chipbalance_onelake_hyosung`로 등록하고, 참가자에게 사용 권한을 주었습니다.
 - Fabric 작업 영역 `chipbalance-p001`에는 이 Managed Identity를 Contributor로 추가했습니다.
 - Notebook은 `dbutils.credentials.getServiceCredentialsProvider`로 토큰을 받아 OneLake에 씁니다. 토큰은 화면에 표시하지 않습니다.

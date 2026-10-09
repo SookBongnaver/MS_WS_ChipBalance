@@ -122,6 +122,16 @@ class GuideDataTests(unittest.TestCase):
         self.assertEqual(risk["next_inbound_key"], risk_rows["next_inbound_key"].replace(r"\|", "|"))
         self.assertEqual("open", risk_rows["status"])
 
+    def test_purchase_and_transfer_have_explicit_distinct_start_days(self):
+        purchase = next(row for row in self.emergency["fact_response_option"] if row["option_id"] == "OPT-3")
+        supplier = next(row for row in self.gold["dim_supplier"] if row["supplier_id"] == purchase["supplier_id"])
+        from datetime import timedelta
+        self.assertEqual(rp.TODAY + timedelta(days=supplier["standard_lead_time_days"] +
+                                             supplier["planning_delay_days"]), purchase["first_arrival_date"])
+        source = (ROOT / "src" / "notebooks" / "06_emergency_order.py").read_text(encoding="utf-8")
+        self.assertIn("이송 출고는 다음 날부터, 신규 구매 발주는 당일부터", source)
+        self.assertIn("판단 기준일 `TODAY` 당일 발주", self.design)
+
     def test_bunker_capacity_safety_and_margin_match_reference(self):
         bunkers = {r["bunker_id"]: r for r in self.gold["dim_bunker"]}
         for bid in ("BNK-L1-2", "BNK-L3-2"):

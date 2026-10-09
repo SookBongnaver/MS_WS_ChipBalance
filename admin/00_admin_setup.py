@@ -5,6 +5,7 @@
 # MAGIC
 # MAGIC | 단계 | 하는 일 |
 # MAGIC |---|---|
+# MAGIC | 0 | 관리자 SDK 준비와 Python 재시작 |
 # MAGIC | 2 | Access Connector의 Managed Identity를 service credential `chipbalance_onelake_hyosung`로 등록 |
 # MAGIC | 3 | 참가자별 Catalog·스키마·Volume 만들기 |
 # MAGIC | 4 | 참가자에게 service credential, Catalog, 스키마, Volume 권한 주기 |
@@ -15,6 +16,20 @@
 # MAGIC **이 Notebook으로 할 수 없는 일 (Fabric):** 작업 영역 `chipbalance-pNNN`, Lakehouse `lh_chipbalance_pNNN`(Lakehouse schemas 켬) 만들기, 그리고 작업 영역 **Manage access**에서 Access Connector와 참가자를 **Contributor**로 추가하기.
 # MAGIC
 # MAGIC 필요한 권한: 메타스토어의 `CREATE SERVICE CREDENTIAL`, `CREATE CATALOG`, (6단계) `CREATE STORAGE CREDENTIAL`, `CREATE CONNECTION`. 메타스토어 관리자로 실행합니다.
+
+# COMMAND ----------
+# MAGIC %md
+# MAGIC ## 0. 관리자 실행 환경 준비
+# MAGIC Notebook Serverless를 선택합니다. Classic Compute를 쓰면 Databricks Runtime 18.0 이상, Standard access mode를 사용합니다.
+# MAGIC 기본 SDK 버전은 Runtime마다 달라 service credential API가 없을 수 있으므로, 아래에서 API 계약을 확인한 `databricks-sdk==0.81.0`을 설치합니다.
+# MAGIC 설치 셀을 실행한 뒤 다음 Python 재시작 셀을 실행하고, 1. 설정값부터 진행합니다.
+# MAGIC [공식 SDK 설치·재시작 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)
+
+# COMMAND ----------
+# MAGIC %pip install databricks-sdk==0.81.0
+
+# COMMAND ----------
+dbutils.library.restartPython()
 
 # COMMAND ----------
 # MAGIC %md

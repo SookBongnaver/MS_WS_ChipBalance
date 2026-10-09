@@ -56,13 +56,13 @@ Bunker ──이송 경로──▶ 같은 원료를 보관하는 다른 라인�
 
 - **안전재고 미만:** 마감 재고가 Bunker의 안전재고보다 적은 날입니다.
 - **부족:** 마감 재고가 0kg보다 적은 날입니다. 음수는 계획대로 생산하면 모자라는 양입니다.
-- **필요 보충량:** 4분기 내내 안전재고를 지키려면 더 있어야 하는 양입니다. (안전재고 − 최저 마감 재고)
+- **필요 보충량:** 4분기 내내 안전재고를 지키려면 더 있어야 하는 양입니다. `max(0, 안전재고 − 최저 마감 재고)`로 계산합니다.
 
 ## 데이터 흐름
 
-<img src="../assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 원천 파일을 Bronze, Silver로 정제하고 Gold를 계산해 OneLake에 저장합니다. Microsoft Fabric은 같은 Gold로 Semantic model과 Power BI 보고서, Ontology를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 Eventhouse의 RiskEventStatus 위험 이벤트를 감시해 Microsoft Teams로 대응안을 제안하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. Microsoft Foundry의 Foundry agent는 Fabric IQ 도구로 Ontology를 읽어 대응안의 근거를 답하고, Work IQ 도구를 붙이면 Teams·Outlook 메일의 업무 맥락도 함께 봅니다(점선). Microsoft 365 Copilot·Cowork는 기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용하고, Data agent는 Agent Store에 게시해 Teams에서 대화할 수 있습니다(점선)." />
+<img src="../assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 Bronze와 Silver를 정제하고 Gold를 계산해 OneLake에 저장합니다. Fabric은 Gold로 Semantic model, Power BI 보고서, Ontology를 만듭니다. 내장 Ontology agent가 질문에 답하고, Operations agent는 Eventhouse의 RiskEventStatus를 감시해 Teams로 대응안을 제안합니다. Foundry agent가 Fabric IQ로 근거를 조회하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. 점선은 실습 범위 밖의 선택 연결 예시입니다." />
 
-09장은 Ontology agent로, 11장은 Eventhouse `eh_chipbalance`를 거쳐 구성도와 같은 흐름을 실습합니다. 점선의 연결은 운영에 적용할 때 붙입니다. Foundry agent에 Work IQ 도구를 붙여 Teams·Outlook 메일의 업무 맥락을 함께 묻는 연결, Microsoft 365 Copilot·Cowork(기본으로 들어 있는 Work IQ에 Fabric IQ 플러그인을 더해 Ontology를 함께 활용), Data agent를 Microsoft 365 Copilot의 Agent Store에 게시해 Teams에서 대화하는 연결입니다.
+09장은 내장 Ontology agent로 질문하고, 11장은 Eventhouse `eh_chipbalance`를 거쳐 제안을 받습니다. Teams 제안의 근거를 12장 Foundry agent로 검토한 뒤, 11장으로 돌아와 승인·결과 확인을 마칩니다. 점선의 Work IQ·Microsoft 365·Power Platform 연결은 이 실습 범위 밖이며, 적용 시 지원 상태·인증·라이선스·정책을 별도로 확인합니다.
 
 - **Azure Databricks** — 원천 파일을 Bronze → Silver로 정제하고, 재고와 대응안을 계산해 Gold 21개를 OneLake에만 저장합니다.
 - **Microsoft Fabric** — Gold로 Ontology와 Power BI 보고서를 만들어 원료 수급 현황과 부족 지점을 파악합니다. Ontology agent는 질문에 답하고, Operations agent는 Eventhouse의 위험 이벤트를 감시해 대응안을 제안합니다.
@@ -78,7 +78,7 @@ Bunker ──이송 경로──▶ 같은 원료를 보관하는 다른 라인�
 
 ## 실습 순서
 
-전체 약 6시간 40분입니다.
+아래 시간의 합계는 약 6시간 20분입니다. 휴식·환경 준비 대기·AI 응답 대기는 별도이며, 처리 시간은 달라질 수 있습니다.
 
 - 00\. 시나리오와 실습 순서 — 15분 (이 문서)
 - [01. Databricks 접속과 설정](01-connect.md) — Databricks, 20분
@@ -99,13 +99,13 @@ Bunker ──이송 경로──▶ 같은 원료를 보관하는 다른 라인�
 
 1.  브라우저에서 GitHub 저장소를 엽니다: <https://github.com/SookBongnaver/MS_WS_ChipBalance>
 
-    비공개 저장소이므로 접근 권한이 있는 GitHub 계정으로 로그인합니다.
+    저장소가 비공개인 경우 접근 권한이 있는 GitHub 계정으로 로그인합니다.
 
 2.  파일 목록 위의 **Code** \> **Download ZIP**을 누릅니다.
 
 3.  내려받은 ZIP 파일의 압축을 풉니다.
 
-**예상 결과:** 압축을 푼 폴더에 `notebooks\ChipBalance.zip`과 `fabric` 폴더가 있습니다. `ChipBalance.zip`은 01장에서 Databricks로 가져오는 Notebook 8개이고, `fabric` 폴더의 파일은 10장에서 씁니다.
+**예상 결과:** 압축을 푼 폴더에 `notebooks\ChipBalance.zip`과 `fabric` 폴더가 있습니다. `ChipBalance.zip`은 01장에서 Databricks로 가져오는 Notebook 8개이고, `fabric` 폴더의 모델·테마는 10장, 승인 기록 Notebook은 11장에서 씁니다.
 
 ## 다음 단계
 

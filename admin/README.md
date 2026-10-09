@@ -41,7 +41,9 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 
 Databricks 쪽 준비(2장의 service credential 등록, 이 장의 Catalog·스키마·Volume과 권한)는 Notebook `admin/00_admin_setup.ipynb`로 한 번에 할 수 있습니다. Databricks에서 **Import**로 가져와 설정값만 채워 실행합니다. Azure의 Access Connector와 Fabric 작업 영역·Lakehouse·Contributor 권한은 직접 만듭니다.
 
-최초 준비에는 Notebook **1~5단계**를 순서대로 실행합니다. **6단계는 Genie를 사용할 때만** 05장의 Gold 생성 뒤에 실행하므로, 최초 준비에서 **Run all**로 선택 단계를 함께 실행하지 않습니다. Federation을 준비할 때 참가자별 Fabric 작업 영역 ID·Lakehouse ID도 실제 값으로 채웁니다.
+관리자 Notebook은 **Notebook Serverless** 또는 **Databricks Runtime 18.0 이상 / Standard access mode**에서 실행합니다. 먼저 **0단계**의 `databricks-sdk==0.81.0` 설치와 Python 재시작 셀을 실행한 뒤 **1~5단계**를 순서대로 실행합니다. Runtime 기본 SDK가 service credential API를 지원한다고 가정하지 않습니다([공식 SDK 설치 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)).
+
+**6단계는 Genie를 사용할 때만** 05장의 Gold 생성 뒤에 실행하므로, 최초 준비에서 **Run all**로 선택 단계를 함께 실행하지 않습니다. Federation을 준비할 때 참가자별 Fabric 작업 영역 ID·Lakehouse ID도 실제 값으로 채웁니다.
 
 1.  Pricing tier가 **Premium**인 Azure Databricks workspace를 Unity Catalog 메타스토어에 연결합니다.
 2.  참가자의 Microsoft Entra ID 계정을 workspace에 추가합니다.
@@ -163,9 +165,10 @@ Teams 관리 센터의 **Teams 앱** \> **앱 관리**에서 **Fabric Operations
 12장에서 참가자가 Foundry 프로젝트 `chipbalance-pNNN`과 에이전트 `fa-chipbalance`를 만들고, Fabric IQ 도구로 Ontology `ont_chipbalance`를 연결합니다.
 
 1.  Azure 구독과 리소스 그룹을 준비합니다. Foundry 리소스는 Agent Service와 사용할 모델을 지원하는 지역에 만듭니다. 리소스 그룹의 위치와 리소스 배포 지역은 별개입니다. Fabric과 같은 지역은 데이터 배치 정책에 따른 선택이지 연결의 필수 조건은 아닙니다.
-2.  참가자에게 리소스 그룹의 **Contributor** 역할을 줍니다. 참가자가 Foundry 리소스 `fdy-chipbalance-pNNN`과 프로젝트를 직접 만듭니다. 관리자가 프로젝트를 미리 만들어 두려면 참가자에게 프로젝트의 **Foundry User**와 **Foundry Project Manager** 역할을 줍니다. Fabric IQ 연결을 만들 때 **Foundry Project Manager**가 필요합니다.
+2.  참가자에게 리소스 그룹의 **Contributor** 역할을 줍니다. 참가자가 Foundry 리소스 `fdy-chipbalance-pNNN`과 프로젝트를 직접 만듭니다. **생성이 끝난 뒤 에이전트 만들기로 넘어가기 전에**, 역할 부여 권한이 있는 관리자가 참가자의 **Foundry User**와 연결 생성에 필요한 **Foundry Project Manager** 역할을 해당 Foundry 리소스·프로젝트 범위에서 확인·부여합니다. 관리자가 프로젝트를 미리 만드는 경우에도 같은 확인이 필요합니다. RG Contributor만으로 에이전트 데이터 작업 권한이나 자신의 역할 부여가 보장되지 않습니다([Foundry RBAC](https://learn.microsoft.com/azure/foundry/concepts/rbac-foundry#minimum-role-assignments-to-get-started)).
 3.  `gpt-5` 등 Fabric IQ/MCP를 지원하는 모델의 배포 가용성과 구독 할당량을 확인합니다. 새 에이전트 화면의 기본 모델·자동 배포는 환경마다 다를 수 있으므로, 생성 뒤 연결된 모델 배포를 확인합니다.
 4.  Fabric IQ 도구의 **managed OAuth** 또는 **BYO Microsoft Entra** 인증 경로를 준비합니다. 같은 계정으로 로그인한 것만으로 OAuth 연결·동의가 모두 준비되지는 않습니다. 최초 인증과 조직 동의 정책은 [Fabric IQ 인증·권한 요구 사항](https://learn.microsoft.com/azure/foundry/agents/how-to/tools/fabric-iq#authentication-and-security)에 따릅니다.
+    이 인증 경로에서 프로젝트 Managed Identity를 사용한다면, 실행 ID의 Foundry 역할도 확인합니다. 역할 부여가 전파되고 참가자 계정으로 에이전트와 연결을 만들 수 있을 때 12장을 이어 갑니다.
 
 - Fabric IQ 도구는 로그인한 참가자의 Fabric 권한으로 Ontology를 읽습니다. 참가자는 작업 영역 `chipbalance-pNNN`의 **Contributor**이면 됩니다.
 - Fabric IQ 도구가 Ontology에 주는 기능은 `ask_ontology`(질문을 Ontology에 넘겨 연결된 데이터로 답), `list_ontology_entities`, `list_ontology_rules`입니다. 12장 에이전트는 `ask_ontology`로 `OPT-2`를 반영한 BNK-L1-2의 최저 기말재고 같은 값을 답합니다. Ontology 엔드포인트의 도구 목록은 `https://api.fabric.microsoft.com/v1/mcp/dataPlane/workspaces/<작업 영역 ID>/items/<Ontology ID>/ontologyEndpoint`에 MCP `tools/list`를 보내 확인할 수 있습니다.

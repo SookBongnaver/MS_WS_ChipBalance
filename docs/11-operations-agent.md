@@ -198,7 +198,7 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
 <img src="../assets/screenshots/d11-publish-open.png" width="1000" alt="eh_chipbalance_queryset에서 .set-or-append RiskEventStatus 명령을 실행한 화면. 결과 창의 RowCount가 1입니다." />
 
-## 7. Teams에서 승인하기
+## 7. Teams 제안 확인·근거 검토·승인
 
 1.  Teams에서 **Fabric operations agent** 채팅을 엽니다. 에이전트는 약 5분마다 조회하며 메시지 생성·전송 시간이 추가될 수 있습니다. 5분 이내 도착을 보장하지는 않습니다.
 
@@ -212,7 +212,9 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
     <img src="../assets/screenshots/d11-teams-details.png" width="520" alt="Show details를 펼친 메시지. Timestamp, Id EVT-20261001-001, EventStatusText open, EventId EVT-20261001-001, RecommendedOptionId OPT-2, Rule Condition, Data Source eh_chipbalance가 보입니다." />
 
-3.  **Proceed**를 누릅니다. **Confirm details for RecordDecision**에서 `event_id`가 `EVT-20261001-001`, `option_id`가 `OPT-2`인지 확인하고 **Confirm**을 누릅니다.
+3.  **아직 Proceed·Confirm을 누르지 않습니다.** 제안을 열어 둔 채 [12. Foundry agent](12-foundry-agent.md)의 **1~5단계**로 이동해 같은 `OPT-2`의 근거를 확인합니다. 검토가 끝나면 이 장의 아래 4번으로 돌아옵니다. 에이전트나 위험 이벤트를 새로 만들거나 다시 보내지 않습니다.
+
+4.  **Proceed**를 누릅니다. **Confirm details for RecordDecision**에서 `event_id`가 `EVT-20261001-001`, `option_id`가 `OPT-2`인지 확인하고 **Confirm**을 누릅니다.
 
     <img src="../assets/screenshots/d11-teams-confirm.png" width="520" alt="You selected Proceed 아래에 Confirm details for RecordDecision 카드가 있습니다. event_id는 EVT-20261001-001, option_id는 OPT-2이고 Confirm과 Cancel 버튼이 있습니다." />
 
@@ -253,4 +255,4 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
 ## 다음 단계
 
-[12. Foundry agent](12-foundry-agent.md)
+12장의 근거 검토를 마친 뒤 이 장의 승인·결과 확인·Stop까지 끝냈으면 [13. 마무리](13-finish.md)로 갑니다. [12. Foundry agent](12-foundry-agent.md)의 Work IQ 참고 단계는 선택 사항이며, 이미 만든 Foundry 프로젝트와 에이전트를 다시 만들지 않습니다.

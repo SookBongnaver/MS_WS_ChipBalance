@@ -80,6 +80,22 @@ class DocumentTests(unittest.TestCase):
                 self.assertEqual(1, len(re.findall(r"^# ", text, re.MULTILINE)))
                 self.assertNotRegex(text, r"(?m)^[^\n#]*\bTroubleshooting[ \t]+-{3,}")
                 self.assertNotRegex(text, r"(?m)^\s*\.\. (?:image|list-table|code-block)::")
+
+    def test_scenario_duration_matches_chapter_estimates(self):
+        text = (DOCS / "00-scenario.md").read_text(encoding="utf-8")
+        durations = re.findall(r"(?m)^- .*?(\d+)분(?: \(이 문서\))?$", text)
+        self.assertEqual(len(CHAPTERS), len(durations))
+        total = sum(map(int, durations))
+        self.assertIn(f"약 {total // 60}시간 {total % 60}분", text)
+
+    def test_foundry_review_precedes_teams_approval(self):
+        operations = (DOCS / "11-operations-agent.md").read_text(encoding="utf-8")
+        foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
+        self.assertLess(operations.index("**아직 Proceed·Confirm을 누르지 않습니다.**"),
+                        operations.index("4.  **Proceed**를 누릅니다."))
+        self.assertIn("**5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가", foundry)
+        self.assertIn("이미 만든 Foundry 프로젝트와 에이전트를 다시 만들지 않습니다.", operations)
+
     def test_relative_links_resolve(self):
         for path in md_files():
             for target in LINK.findall(strip_comments(path.read_text(encoding="utf-8"))):

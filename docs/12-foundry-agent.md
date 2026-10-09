@@ -2,7 +2,7 @@
 
 [목차](../README.md) \| 이전: [11. Operations agent](11-operations-agent.md) \| 다음: [13. 마무리](13-finish.md)
 
-11장에서 Operations agent가 Teams로 대응안 `OPT-2`를 제안했습니다. 이 장에서는 Microsoft Foundry에 에이전트 `fa-chipbalance`를 만들고, **Fabric IQ** 도구로 08장의 Ontology `ont_chipbalance`를 연결합니다. 담당자는 승인하기 전에 이 에이전트에게 대응안의 근거를 묻습니다. 승인은 그대로 Teams에서 합니다.
+11장에서 Operations agent가 Teams로 대응안 `OPT-2`를 제안한 상태에서 **승인을 보류하고** 이 장으로 옵니다. Microsoft Foundry에 에이전트 `fa-chipbalance`를 만들고, **Fabric IQ** 도구로 08장의 Ontology `ont_chipbalance`를 연결해 근거를 검토합니다. **5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가 Teams 승인·결과 확인·Stop을 완료합니다.**
 
 | 항목 | 역할 |
 |----|----|
@@ -40,6 +40,8 @@
     <img src="../assets/screenshots/d12-create-project.png" width="600" alt="프로젝트 만들기 창. 프로젝트 이름 chipbalance-p001, 고급 옵션의 Foundry 리소스 fdy-chipbalance-p001, 지역 Sweden Central, 구독과 리소스 그룹이 선택되어 있고, 권장 리소스 스위치는 꺼져 있습니다. 아래에 만들기 버튼이 있습니다." />
 
 4.  **프로젝트를 만드는 중** 창이 닫히고 **모두 완료했습니다. 에이전트를 구성해 보겠습니다.**가 보이면 **그럼 시작합시다.**를 누릅니다.
+
+5.  에이전트를 만들기 전에 관리자가 새 리소스·프로젝트의 **Foundry User**, 연결 생성에 필요한 **Foundry Project Manager** 역할을 부여했는지 확인합니다. RG Contributor만 받았다면 역할 확인이 끝날 때까지 기다립니다. 자동 역할 부여나 전파 완료를 가정하지 않습니다([관리자 준비 가이드](../admin/README.md)의 "4. Microsoft Foundry").
 
 **예상 결과:** 위쪽에 `chipbalance-p001`이 보이고, **환영합니다** 아래에 **에이전트 빌드** 카드와 **프로젝트 엔드포인트**가 있습니다. (2~3분)
 
@@ -115,6 +117,8 @@
 
 3.  오른쪽 위 **X**를 눌러 추적 창을 닫습니다.
 
+**검토 완료:** 답과 도구 출력의 근거가 정답과 일치하면 [11장 7단계 4번](11-operations-agent.md#7-teams-제안-확인근거-검토승인)으로 돌아가 **Proceed → Confirm**, 승인 결과 확인과 에이전트 **Stop**까지 진행합니다. 답이 확인되지 않았으면 승인하지 않습니다.
+
 Fabric IQ 도구는 질문에 따라 Ontology의 엔터티 정의를 읽거나(`list_ontology_entities`), 질문을 Ontology에 넘겨 연결된 데이터로 답을 받습니다(`ask_ontology`).
 
 ## 6. (참고) Work IQ 도구 붙이기
@@ -152,4 +156,4 @@ Fabric IQ 도구는 질문에 따라 Ontology의 엔터티 정의를 읽거나(`
 
 ## 다음 단계
 
-[13. 마무리](13-finish.md)
+11장으로 돌아가 승인·결과 확인·Stop을 마쳤으면 [13. 마무리](13-finish.md)로 갑니다.

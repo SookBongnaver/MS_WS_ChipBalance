@@ -22,7 +22,7 @@
 # MAGIC %md
 # MAGIC ## 2. 설정값 — 참가자 번호만 바꿉니다
 # MAGIC `participant`에 관리자에게 받은 참가자 번호(예: `p001`)를 넣습니다.
-# MAGIC 나머지 이름은 참가자 번호로 정해지므로 바꾸지 않습니다.
+# MAGIC 나머지 리소스 이름은 참가자 번호로 정해집니다. 공용 `service_credential`은 그대로 쓰되, 관리자가 다른 credential 이름을 안내하면 그 값으로 입력합니다.
 # MAGIC
 # MAGIC | 이름 | 값 (`p001`일 때) | 용도 |
 # MAGIC |---|---|---|
@@ -87,7 +87,7 @@ print("원천 파일 Volume:", raw_volume)
 # MAGIC 임시 뷰는 이 Notebook 세션 안에서만 보입니다. 세션이 끊겨도 OneLake의 Gold는 그대로 남습니다.
 
 # COMMAND ----------
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, timezone
 
 import pyarrow as pa
 from pyspark.sql import functions as F
@@ -118,13 +118,16 @@ def to_arrow(df):
     unsupported = [f"{f.name} {f.dataType.simpleString()}" for f in fields if type(f.dataType) not in ARROW_TYPES]
     if unsupported:
         raise TypeError("OneLake에 저장할 수 없는 형식입니다: " + ", ".join(unsupported))
-    zone = ZoneInfo(spark.conf.get("spark.sql.session.timeZone"))
-    rows = [row.asDict() for row in df.collect()]
+    # Spark Connect collect() uses the Python client's time zone, not the SQL session's.
+    exported = df.select([F.unix_micros(F.col(f.name)).alias(f.name)
+                          if isinstance(f.dataType, T.TimestampType) else F.col(f.name) for f in fields])
+    rows = [row.asDict() for row in exported.collect()]
+    epoch = datetime(1970, 1, 1, tzinfo=timezone.utc)
     for field in fields:
         if isinstance(field.dataType, T.TimestampType):
             for row in rows:
                 if row[field.name] is not None:
-                    row[field.name] = row[field.name].replace(tzinfo=zone)
+                    row[field.name] = epoch + timedelta(microseconds=row[field.name])
     schema = pa.schema([pa.field(f.name, ARROW_TYPES[type(f.dataType)]) for f in fields])
     return pa.Table.from_pylist(rows, schema=schema)
 

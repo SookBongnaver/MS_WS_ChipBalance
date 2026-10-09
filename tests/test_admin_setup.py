@@ -53,6 +53,15 @@ def catalog(number="p001"):
 
 
 class AdminSetupTests(unittest.TestCase):
+    def test_sdk_preparation_precedes_configuration_and_api_imports(self):
+        install = next(i for i, cell in enumerate(CODE) if "%pip install databricks-sdk==0.81.0" in cell)
+        restart = next(i for i, cell in enumerate(CODE) if "dbutils.library.restartPython()" in cell)
+        configuration = next(i for i, cell in enumerate(CODE) if "participants = {" in cell)
+        service = CODE.index(SERVICE_CELL)
+        self.assertLess(install, restart)
+        self.assertLess(restart, configuration)
+        self.assertLess(configuration, service)
+
     def setUp(self):
         self.client = types.SimpleNamespace(
             credentials=types.SimpleNamespace(get_credential=Mock(return_value=credential()), create_credential=Mock()),
