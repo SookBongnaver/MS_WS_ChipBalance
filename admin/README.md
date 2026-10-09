@@ -224,7 +224,9 @@ python -m unittest discover tests
 
   확인 방법: Operations agent에서 **Knowledge**를 `ont_chipbalance`로 두고 **Generate playbook**이 성공하는지, Data agent에서 데이터 원본으로 `ont_chipbalance`를 추가할 수 있는지 봅니다.
 
-  2026-10-02 확인 결과: 두 곳 모두 아직 열리지 않았습니다.
+  2026-10-02 실제 확인 결과: 두 곳 모두 아직 열리지 않았습니다.
 
   - Operations agent: **Generate playbook**이 "No playbook generated"로 끝나고, 에이전트는 Ontology의 스키마만 읽을 수 있다고 답합니다.
   - Data agent: `ont_chipbalance`를 추가하면 "Failed to add ontology"가 뜨고, 알림에 `Ontology support is not enabled.`가 남습니다.
+
+  2026-10-09 Microsoft Learn 확인: Operations agent 문서(2026-09-14 갱신)는 Eventhouse 또는 Ontology를 Knowledge 원본으로 쓸 수 있다고 적고, Data agent 문서는 원본에 Ontology를 포함합니다. Operations agent는 Trial 용량을 지원하지 않습니다. 이 환경에서 실제로 동작하는지는 아직 다시 확인하지 않았으므로, 위 확인 방법으로 다시 시도한 뒤 구성을 바꿉니다.
