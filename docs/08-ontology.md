@@ -21,7 +21,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 
 - 05·06장을 실행해 같은 작업 영역의 Lakehouse에 Gold 테이블 21개를 준비합니다. 이 중 업무 질문에 쓸 17개를 엔터티 타입으로 선택합니다.
 - 참가자에게 작업 영역 **Contributor** 이상 권한과 원본 테이블 읽기 권한이 있어야 합니다. 관리자가 **Users can create Fabric items**, **Users can create ontology (preview) items**, Azure OpenAI 기반 Copilot·AI 기능 설정을 참가자에게 허용했는지 확인합니다.
-- 이 실습의 Ontology agent와 12장의 Ontology MCP 연결에는 **유료 Fabric F2 이상** 또는 **Fabric이 활성화된 Power BI Premium P1 이상** 용량을 준비합니다. Trial 용량은 이 AI 기능·MCP 경로의 대체 환경이 아닙니다. 지역·테넌트 설정은 [관리자 준비 가이드](../admin/README.md)의 "3. Microsoft Fabric"을 따릅니다([Ontology 테넌트 설정](https://learn.microsoft.com/en-us/fabric/iq/ontology/overview-tenant-settings), [Copilot 지역·용량 조건](https://learn.microsoft.com/en-us/fabric/fundamentals/copilot-fabric-overview#available-regions), [Ontology MCP 조건](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-mcp-server#prerequisites)).
+- 전체 실습에 준비된 **활성 유료 Fabric 용량**을 사용합니다. 지역·테넌트 설정은 [관리자 준비 가이드](../admin/README.md)의 "3. Microsoft Fabric"을 따릅니다([Ontology 테넌트 설정](https://learn.microsoft.com/en-us/fabric/iq/ontology/overview-tenant-settings), [Copilot 지역·용량 조건](https://learn.microsoft.com/en-us/fabric/fundamentals/copilot-fabric-overview#available-regions), [Ontology MCP 조건](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-mcp-server#prerequisites)).
 
 아래 **예상 결과**는 확인할 목표와 화면 예시입니다. AI가 생성하는 설명·검증 결과와 처리 시간은 달라질 수 있으므로, 완료 문구만 믿지 말고 엔터티·관계·바인딩을 직접 확인합니다.
 

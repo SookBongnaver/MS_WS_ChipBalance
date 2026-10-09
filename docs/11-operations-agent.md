@@ -4,7 +4,7 @@
 
 06장에서 만든 위험 이벤트(`gold.fact_risk_event`)를 이 장의 명령으로 Eventhouse에 보냅니다. Operations agent는 Lakehouse를 직접 감시하지 않고 Eventhouse의 `RiskEventStatus`를 감시합니다. 상태가 `open`이 되면 Teams로 담당자에게 알리고, 추천 대응안 `OPT-2`의 승인을 요청합니다. 담당자가 Teams에서 승인하면 Notebook `nb_record_decision`이 실행되어 승인 내역을 남깁니다. 자동 수집 파이프라인을 구성하는 단계는 아닙니다.
 
-**시작 전:** 본인의 작업 영역에 06장의 Gold 테이블이 있어야 하고, **활성 유료 Fabric 용량**에 할당되어 있어야 합니다. Operations agent는 Trial 용량을 지원하지 않습니다. 참가자는 작업 영역 Contributor 이상과 KQL 데이터베이스·Notebook·Lakehouse의 작업 권한, Teams 라이선스와 앱 사용 권한이 필요합니다. [공식 요구 사항](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent#prerequisites)과 [관리자 준비 가이드](../admin/README.md)를 확인합니다.
+**시작 전:** 본인의 작업 영역에 06장의 Gold 테이블이 있어야 합니다. 전체 실습에 준비된 **활성 유료 Fabric 용량**을 사용합니다. 참가자는 작업 영역 Contributor 이상과 KQL 데이터베이스·Notebook·Lakehouse의 작업 권한, Teams 라이선스와 앱 사용 권한이 필요합니다. [공식 요구 사항](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent#prerequisites)과 [관리자 준비 가이드](../admin/README.md)를 확인합니다.
 
 | 항목 | 역할 |
 |----|----|

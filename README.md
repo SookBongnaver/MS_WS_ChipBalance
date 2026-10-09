@@ -46,11 +46,13 @@
 
 문서와 캡처의 `p001`은 예시입니다. 명령·설정·작업 영역 선택에서는 본인의 참가자 번호로 바꿉니다. `sm_chipbalance`, `ont_chipbalance` 같은 항목 이름은 참가자별 작업 영역 안에서 그대로 씁니다.
 
+**전체 실습은 관리자가 준비한 활성 유료 Fabric 용량에 작업 영역을 할당한 상태로 진행합니다.** 필요한 최소 SKU와 동시 참가자 수에 따른 용량 배치는 관리자 준비 가이드를 따릅니다.
+
 | 실행 범위 | 필요한 준비 |
 |---|---|
-| 01~07 | Databricks의 Notebook Serverless, Unity Catalog 권한, OneLake 접근 권한, 활성 Fabric 용량. Gold 생성·조회는 Trial로도 할 수 있습니다. |
+| 01~07 | Databricks의 Notebook Serverless, Unity Catalog 권한, OneLake 접근 권한 |
 | 07 Genie 선택 단계 | OneLake Federation 설정, SQL warehouse **Can use** 권한. Notebook Serverless와 SQL warehouse는 별도 Compute입니다. |
-| 08~09, 10 Copilot, 11, 12 Fabric IQ 연결 | 활성 **유료 F2 이상 용량**, 기능별 테넌트 설정·권한. Trial에서는 이 가이드의 AI 단계를 진행하지 않습니다. |
+| 08~09, 10 Copilot, 11, 12 Fabric IQ 연결 | 기능별 테넌트 설정·권한, 지원 지역과 인증 연결 |
 | 10 보고서 작성 | Power BI Pro 또는 PPU 사용자 라이선스, 모델·보고서 작성 권한 |
 
 관리자는 [관리자 준비 가이드](admin/README.md)의 사전 점검을 마친 뒤 참가자에게 안내합니다. AI가 만드는 구조·페이지·답변은 매번 달라질 수 있으므로, 각 장의 예상 결과는 비교할 기준이지 성공 보장이 아닙니다.

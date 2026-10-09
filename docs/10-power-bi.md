@@ -14,7 +14,7 @@ Lakehouse의 Gold 테이블로 Direct Lake semantic model을 만들고, 관계�
 - `fabric\sm_chipbalance.tmdl` — 관계와 측정값을 만드는 TMDL 스크립트
 - `fabric\chipbalance-theme.json` — 보고서 테마(색, 글꼴 크기, 배경, 테두리)
 
-**시작 전:** 06장까지 완료해 Gold 테이블 21개가 있어야 합니다. 본인의 참가자 번호로 작업 영역과 Lakehouse를 선택합니다(`p001`은 예시). Power BI Pro 또는 PPU 라이선스와 모델·보고서 작성 권한이 필요합니다. 6~7단계는 활성 유료 F2 이상 용량과 Copilot 설정이 필요하며, 수동 보고서 작성만 할 때는 Trial도 가능합니다.
+**시작 전:** 06장까지 완료해 Gold 테이블 21개가 있어야 합니다. 본인의 참가자 번호로 작업 영역과 Lakehouse를 선택합니다(`p001`은 예시). 전체 실습에 준비된 활성 유료 Fabric 용량을 사용하며, Power BI Pro 또는 PPU 라이선스와 모델·보고서 작성 권한, Copilot 설정이 필요합니다.
 
 ## 1. Semantic model 만들기
 
@@ -177,7 +177,7 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
 
 ## 6. Copilot으로 대응안 페이지 만들기
 
-2페이지는 직접 배치하지 않고 Power BI 보고서의 Copilot에게 말로 요청해 만듭니다. 이 단계에는 **활성 F2 이상의 유료 Fabric 용량**, 지원 지역과 Copilot 테넌트 설정이 필요합니다. Trial 용량이나 Pro/PPU 사용자 라이선스만으로는 Copilot을 쓸 수 없습니다. [관리자 준비 가이드](../admin/README.md)의 Copilot 항목과 [공식 요구 사항](https://learn.microsoft.com/power-bi/create-reports/copilot-introduction#requirements-at-a-glance)을 확인합니다.
+2페이지는 직접 배치하지 않고 Power BI 보고서의 Copilot에게 말로 요청해 만듭니다. 관리자가 전체 실습의 유료 용량·지원 지역·Copilot 테넌트 설정을 준비합니다. [관리자 준비 가이드](../admin/README.md)의 Copilot 항목과 [공식 요구 사항](https://learn.microsoft.com/power-bi/create-reports/copilot-introduction#requirements-at-a-glance)을 확인합니다.
 
 1.  위쪽 도구 모음의 **Copilot**을 눌러 오른쪽에 Copilot 창을 엽니다.
 

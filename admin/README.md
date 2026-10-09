@@ -136,7 +136,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 
 ## 3. Microsoft Fabric
 
-1.  Fabric 용량을 만듭니다. 전체 AI 실습은 **활성 유료 F2 이상 용량**에 작업 영역을 할당합니다. 01~07장의 Gold 생성·조회와 10장의 수동 보고서 작성은 Trial로도 가능하지만, 08~09장 AI, 10장 Copilot, 11장 Operations agent, 12장 Ontology MCP 연결은 Trial로 진행하지 않습니다. F2는 기능을 쓸 최소 SKU이지 동시 참가자 수를 보장하는 크기가 아닙니다(위 "예상 비용").
+1.  Fabric 용량을 만듭니다. **01~13장 전체 실습은 활성 유료 Fabric 용량에 작업 영역을 할당한 상태**를 전제로 합니다. AI 기능을 포함한 최소 SKU는 F2이며, 위 비용 예시는 참가자마다 F16을 사용하는 배치입니다. F2는 기능을 쓸 최소 SKU이지 동시 참가자 수를 보장하는 크기가 아니므로 예상 동시 실행량에 맞춰 용량을 준비합니다.
 2.  참가자마다 작업 영역 `chipbalance-p001`을 만들고 위 용량에 할당합니다.
 3.  작업 영역의 **Manage access**에서 참가자를 **Contributor**로 추가합니다.
 4.  **New item** \> **Lakehouse**에서 `lh_chipbalance_p001`을 만듭니다. **Lakehouse schemas** 옵션을 켭니다.
@@ -243,4 +243,4 @@ python -m unittest discover tests
   - Operations agent: **Generate playbook**이 "No playbook generated"로 끝나고, 에이전트는 Ontology의 스키마만 읽을 수 있다고 답합니다.
   - Data agent: `ont_chipbalance`를 추가하면 "Failed to add ontology"가 뜨고, 알림에 `Ontology support is not enabled.`가 남습니다.
 
-  2026-10-09 Microsoft Learn 확인: Operations agent 문서(2026-09-14 갱신)는 Eventhouse 또는 Ontology를 Knowledge 원본으로 쓸 수 있다고 적고, Data agent 문서는 원본에 Ontology를 포함합니다. Operations agent는 Trial 용량을 지원하지 않습니다. 이 환경에서 실제로 동작하는지는 아직 다시 확인하지 않았으므로, 위 확인 방법으로 다시 시도한 뒤 구성을 바꿉니다.
+  2026-10-09 Microsoft Learn 확인: Operations agent 문서(2026-09-14 갱신)는 Eventhouse 또는 Ontology를 Knowledge 원본으로 쓸 수 있다고 적고, Data agent 문서는 원본에 Ontology를 포함합니다. 이 환경에서 실제로 동작하는지는 아직 다시 확인하지 않았으므로, 위 확인 방법으로 다시 시도한 뒤 구성을 바꿉니다.

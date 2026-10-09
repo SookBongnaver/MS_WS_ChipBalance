@@ -15,7 +15,7 @@
 ## 시작 전 확인
 
 - 08장에서 적용·게시한 `ont_chipbalance`와 09장의 업무 설명을 준비합니다. 연결에 인증할 사용자는 Ontology뿐 아니라 바인딩된 Lakehouse 등 각 데이터 원본도 읽을 수 있어야 합니다.
-- Ontology MCP에는 **유료 Fabric F2 이상** 또는 **Fabric이 활성화된 Power BI Premium P1 이상** 용량이 필요합니다. Trial 용량으로 대체하지 않습니다([Ontology MCP 조건](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-mcp-server#prerequisites)). Fabric 지역·테넌트 설정은 [관리자 준비 가이드](../admin/README.md)의 "3. Microsoft Fabric"을 확인합니다.
+- 전체 실습에 준비된 **활성 유료 Fabric 용량**과 Ontology MCP 설정을 사용합니다([Ontology MCP 조건](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-use-ontology-mcp-server#prerequisites)). Fabric 지역·테넌트 설정은 [관리자 준비 가이드](../admin/README.md)의 "3. Microsoft Fabric"을 확인합니다.
 - 프로젝트를 만들 Azure 권한, 프로젝트의 **Foundry User** 역할, 연결을 만들 **Foundry Project Manager** 역할과 사용 가능한 모델 배포·할당량을 관리자에게 확인합니다. OAuth에 참여하는 사용자·에이전트 실행 ID에도 필요한 Foundry 역할이 있어야 합니다([Fabric IQ 사전 조건](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/fabric-iq#prerequisites)).
 - 관리자가 준비한 **BYO Entra 앱 또는 managed OAuth** 위임 인증 연결을 사용합니다. Foundry와 Fabric에 같은 계정으로 로그인하는 것만으로 연결 인증·동의가 끝나는 것은 아닙니다. 연결이 없으면 먼저 [관리자 준비 가이드](../admin/README.md)의 "4. Microsoft Foundry"에 따라 준비합니다. **BYO Entra**를 쓰는 관리자는 Power BI Service의 위임 권한 `Item.Execute.All`, `Item.Read.All`, 관리자 동의, Foundry가 제공하는 OAuth redirect URI 등록까지 완료해야 합니다. 준비된 managed OAuth 연결을 쓰는 참가자는 앱을 직접 만들지 않습니다([공식 인증 안내](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/fabric-iq#authentication-and-security)).
 
