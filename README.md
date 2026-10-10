@@ -13,7 +13,7 @@
 
 [그림 크게 보기](assets/architecture.png)
 
-구성도는 운영에 적용할 수 있는 연결을 포함한 개념도입니다. **실습에서는 09장의 Ontology agent로 질문하고, 11장은 Gold 위험 이벤트를 Eventhouse `eh_chipbalance`에 직접 보내 Operations agent가 감시합니다.** 별도의 Data agent 생성이나 Ontology를 Operations agent에 직접 연결하는 단계는 포함하지 않습니다.
+구성도는 운영에 적용할 수 있는 연결을 포함한 개념도입니다. **실습에서는 09장의 Ontology agent로 질문하고, 11장은 Gold 위험 이벤트를 Eventhouse `eh_chipbalance`에 직접 보내 Operations agent가 감시합니다.**
 
 점선의 Work IQ, Microsoft 365 Copilot·Cowork, Agent Store 연결은 이 가이드의 실행 범위 밖입니다. 적용할 때 해당 제품의 지원 상태, 인증, 라이선스와 테넌트 정책을 확인합니다.
 
