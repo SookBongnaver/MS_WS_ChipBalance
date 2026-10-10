@@ -7,7 +7,7 @@ Lakehouse의 Gold 테이블로 Direct Lake semantic model을 만들고, 관계�
 | 페이지 | 보여 주는 것 |
 |----|----|
 | 원료 수급 현황 | 현재 계획과 긴급 수주에서 안전재고 아래로 내려가는 Bunker 수, 처음 미달하는 날, 필요 보충량. 선택한 Bunker의 날짜별 기말 재고와 안전재고 |
-| 긴급 오더 대응안 | 대응안 4개의 판단 기준(C1~C4) 결과와 추천 순위, 추천안과 추가 비용 |
+| 긴급 오더 대응안 | 대응안 4개의 판단 기준(C1–C4) 결과와 추천 순위, 추천안과 추가 비용 |
 
 이 장에서 쓰는 파일은 00장에서 압축을 푼 폴더의 `fabric` 폴더에 있습니다.
 
@@ -197,11 +197,11 @@ TMDL(Tabular Model Definition Language)은 semantic model의 테이블, 관계, 
 
 **예상 결과:** 대응안 4개의 판단 기준과 추천 순위, 추가 비용이 보이는 페이지가 추가됩니다. 위치와 구성은 Copilot이 정하므로 사람마다 다를 수 있고, 필드 이름이 `Count of option_id`처럼 원시 이름으로 보일 수 있습니다.
 
-표에서 대응안 ID 4개, C1~C4, 추천 순위와 추가 비용을 06장 결과와 비교합니다. ID·추천 순위가 Count나 Sum으로 집계되어 판단이 어려우면 Copilot에게 `대응안별 option_id, c1_safety_pass, c2_capacity_pass, c3_due_date_pass, c4_route_limit_pass, recommendation_rank, added_cost_krw를 집계하지 않은 표로 보여줘`라고 보완 요청합니다. 시각적 개체의 생김새보다 이 값이 맞는지 확인합니다.
+표에서 대응안 ID 4개, C1–C4, 추천 순위와 추가 비용을 06장 결과와 비교합니다. ID·추천 순위가 Count나 Sum으로 집계되어 판단이 어려우면 Copilot에게 `대응안별 option_id, c1_safety_pass, c2_capacity_pass, c3_due_date_pass, c4_route_limit_pass, recommendation_rank, added_cost_krw를 집계하지 않은 표로 보여줘`라고 보완 요청합니다. 시각적 개체의 생김새보다 이 값이 맞는지 확인합니다.
 
 아래는 후속 측정값 요청과 카드 배치 보정을 마치고 저장·다시 열어 확인한 실제 화면입니다. 최초 생성 결과가 항상 이 구성·값으로 나오는 것은 아닙니다.
 
-<img src="../assets/screenshots/d10-copilot-page.png" width="1000" alt="실제 생성·보정 후 다시 연 대응안 평가 페이지. 상단 카드 3개에 기준 충족 대응안 수 2, 추천안 OPT-2 Bunker 간 이송, 추천안 추가 비용 1,000,000원이 보입니다. 아래에는 대응안별 C1~C4 표와 비용·추천 순위 차트가 있으며 카드가 겹치지 않습니다." />
+<img src="../assets/screenshots/d10-copilot-page.png" width="1000" alt="실제 생성·보정 후 다시 연 대응안 평가 페이지. 상단 카드 3개에 기준 충족 대응안 수 2, 추천안 OPT-2 Bunker 간 이송, 추천안 추가 비용 1,000,000원이 보입니다. 아래에는 대응안별 C1–C4 표와 비용·추천 순위 차트가 있으며 카드가 겹치지 않습니다." />
 
 ## 7. Copilot에게 질문하고 인사이트 얻기
 

@@ -50,9 +50,9 @@
 
 | 실행 범위 | 필요한 준비 |
 |---|---|
-| 01~07 | Databricks의 Notebook Serverless, Unity Catalog 권한, OneLake 접근 권한 |
+| 01–07 | Databricks의 Notebook Serverless, Unity Catalog 권한, OneLake 접근 권한 |
 | 07 Genie 선택 단계 | OneLake Federation 설정, SQL warehouse **Can use** 권한. Notebook Serverless와 SQL warehouse는 별도 Compute입니다. |
-| 08~09, 10 Copilot, 11, 12 Fabric IQ 연결 | 기능별 테넌트 설정·권한, 지원 지역과 인증 연결 |
+| 08–09, 10 Copilot, 11, 12 Fabric IQ 연결 | 기능별 테넌트 설정·권한, 지원 지역과 인증 연결 |
 | 10 보고서 작성 | Power BI Pro 또는 PPU 사용자 라이선스, 모델·보고서 작성 권한 |
 
 관리자는 [관리자 준비 가이드](admin/README.md)의 사전 점검을 마친 뒤 참가자에게 안내합니다. AI가 만드는 구조·페이지·답변은 매번 달라질 수 있으므로, 각 장의 예상 결과는 비교할 기준이지 성공 보장이 아닙니다.

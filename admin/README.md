@@ -24,7 +24,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 | 항목 | 계산 | 참가자 5명 (강사 1명) | 참가자 10명 (강사 2명) |
 |----|----|----|----|
 | Microsoft Fabric 용량 | 참가자마다 F16 하루(24시간): 16 CU × \$0.19 × 24 = \$72.96 | \$364.80 | \$729.60 |
-| Databricks Serverless Notebook (DBU) | 참가자 1명이 02~07장을 실행하는 계획 비용 약 \$20. 실제 비용은 Serverless 사용 시간과 지역 단가에 따라 확인 | \$100 | \$200 |
+| Databricks Serverless Notebook (DBU) | 참가자 1명이 02–07장을 실행하는 계획 비용 약 \$20. 실제 비용은 Serverless 사용 시간과 지역 단가에 따라 확인 | \$100 | \$200 |
 | Databricks SQL warehouse `chipbalance-pro` | Genie·SQL·Catalog 미리보기에 사용. 아래 금액은 2X-Small Pro 기준 계획 예산이며, Serverless로 선택하면 해당 지역의 단가로 다시 계산 | \$5 | \$10 |
 | Microsoft Foundry (`gpt-5` 토큰) | 12장 질문 몇 개, 참가자당 \$1 미만 | \$5 | \$10 |
 | Storage (Unity Catalog, OneLake) | GB·월당 약 \$0.02 | \$1 미만 | \$1 미만 |
@@ -33,7 +33,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 - Fabric 용량이 합계의 약 77%입니다. 실습이 끝나면 바로 일시 중지합니다. 일시 중지한 동안에는 용량 비용이 나오지 않습니다. 8시간만 켜면 F16 한 개가 \$24.32이므로 참가자 10명의 하루 합계는 약 \$460입니다.
 - 강사 환경은 참가자 환경 하나를 함께 보는 것으로 보고 따로 더하지 않았습니다. 강사도 용량을 따로 쓰면 강사 1명당 약 \$95를 더합니다.
 - 한국 중부(Korea Central)는 CU·시간당 \$0.21이라 F16 하루가 \$80.64입니다.
-- Databricks 비용은 02~07장을 여러 번 다시 실행한 날의 값이라 넉넉하게 잡은 값입니다. Microsoft Defender for Cloud처럼 구독 설정에 따라 붙는 비용은 넣지 않았습니다.
+- Databricks 비용은 02–07장을 여러 번 다시 실행한 날의 값이라 넉넉하게 잡은 값입니다. Microsoft Defender for Cloud처럼 구독 설정에 따라 붙는 비용은 넣지 않았습니다.
 
 위 금액은 명시한 지역·SKU·가동 시간의 계획 예시이며 현재 구독의 견적이나 성능 보장이 아닙니다. 참가자마다 F16을 만드는 것은 이 비용 예시의 배치 방식입니다. 작업 영역 여러 개를 한 용량에 할당할 수도 있으며, 동시 실행과 AI 사용량에 맞춰 관리자가 용량을 정합니다. 일시 중지해도 OneLake 저장소와 다른 Azure 리소스의 비용은 별도입니다.
 
@@ -41,7 +41,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 
 Databricks 쪽 준비(2장의 service credential 등록, 이 장의 Catalog·스키마·Volume과 권한)는 Notebook `admin/00_admin_setup.ipynb`로 한 번에 할 수 있습니다. Databricks에서 **Import**로 가져와 설정값만 채워 실행합니다. Azure의 Access Connector와 Fabric 작업 영역·Lakehouse·Contributor 권한은 직접 만듭니다.
 
-관리자 Notebook은 **Notebook Serverless** 또는 **Databricks Runtime 18.0 이상 / Standard access mode**에서 실행합니다. 먼저 **0단계**의 `databricks-sdk>=0.122.0,<1` 의존성 확인과 Python 재시작 셀을 실행한 뒤 **1~5단계**를 순서대로 실행합니다. 실제 Serverless의 `databricks-connect 19.1` 요구 조건에 맞춘 범위이며, 이를 만족하는 내장 SDK는 낮추지 않습니다. `incompatible` 또는 core package 변경 경고가 있으면 설치 성공으로만 판단하지 말고 해당 Runtime의 의존성을 확인합니다([공식 SDK 설치 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)).
+관리자 Notebook은 **Notebook Serverless** 또는 **Databricks Runtime 18.0 이상 / Standard access mode**에서 실행합니다. 먼저 **0단계**의 `databricks-sdk>=0.122.0,<1` 의존성 확인과 Python 재시작 셀을 실행한 뒤 **1–5단계**를 순서대로 실행합니다. 실제 Serverless의 `databricks-connect 19.1` 요구 조건에 맞춘 범위이며, 이를 만족하는 내장 SDK는 낮추지 않습니다. `incompatible` 또는 core package 변경 경고가 있으면 설치 성공으로만 판단하지 말고 해당 Runtime의 의존성을 확인합니다([공식 SDK 설치 안내](https://learn.microsoft.com/azure/databricks/dev-tools/sdk-python#step-1-install-or-upgrade-the-databricks-sdk-for-python)).
 
 **6단계는 Genie를 사용할 때만** 05장의 Gold 생성 뒤에 실행하므로, 최초 준비에서 **Run all**로 선택 단계를 함께 실행하지 않습니다. Federation을 준비할 때 참가자별 Fabric 작업 영역 ID·Lakehouse ID도 실제 값으로 채웁니다.
 
@@ -64,7 +64,7 @@ GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory_p001.chipbalance_p001.raw 
 
 - 메타스토어에 기본 저장소가 없으면 `CREATE CATALOG`에 `MANAGED LOCATION`을 지정합니다.
 
-- Bronze·Silver 테이블은 참가자가 03~04 Notebook에서 만듭니다. Gold는 05~06 Notebook이 Unity Catalog가 아니라 Fabric Lakehouse(OneLake)에만 저장합니다.
+- Bronze·Silver 테이블은 참가자가 03–04 Notebook에서 만듭니다. Gold는 05–06 Notebook이 Unity Catalog가 아니라 Fabric Lakehouse(OneLake)에만 저장합니다.
 
 - `01_setup`은 설정값을 검증하고 위 세 리소스에 `CREATE ... IF NOT EXISTS`를 실행합니다. 미리 만든 리소스는 바꾸지 않으며, 준비 후 `USE CATALOG`, `USE SCHEMA`, Volume 목록 조회까지 확인합니다.
 
@@ -138,7 +138,7 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 
 ## 3. Microsoft Fabric
 
-1.  Fabric 용량을 만듭니다. **01~13장 전체 실습은 활성 유료 Fabric 용량에 작업 영역을 할당한 상태**를 전제로 합니다. AI 기능을 포함한 최소 SKU는 F2이며, 위 비용 예시는 참가자마다 F16을 사용하는 배치입니다. F2는 기능을 쓸 최소 SKU이지 동시 참가자 수를 보장하는 크기가 아니므로 예상 동시 실행량에 맞춰 용량을 준비합니다.
+1.  Fabric 용량을 만듭니다. **01–13장 전체 실습은 활성 유료 Fabric 용량에 작업 영역을 할당한 상태**를 전제로 합니다. AI 기능을 포함한 최소 SKU는 F2이며, 위 비용 예시는 참가자마다 F16을 사용하는 배치입니다. F2는 기능을 쓸 최소 SKU이지 동시 참가자 수를 보장하는 크기가 아니므로 예상 동시 실행량에 맞춰 용량을 준비합니다.
 2.  참가자마다 작업 영역 `chipbalance-p001`을 만들고 위 용량에 할당합니다.
 3.  작업 영역의 **Manage access**에서 참가자를 **Contributor**로 추가합니다.
 4.  **New item** \> **Lakehouse**에서 `lh_chipbalance_p001`을 만듭니다. **Lakehouse schemas** 옵션을 켭니다.

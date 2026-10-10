@@ -43,19 +43,19 @@
 
     **예상 결과:** 6행. L1과 L3의 Bunker 2(`BNK-L1-2`, `BNK-L3-2`)가 모두 `PET-SD`를 보관합니다.
 
-    <img src="../assets/screenshots/d02-bunker.png" width="900" alt="4. 라인과 Bunker 결과. line_id와 Bunker 1~4 열이 있는 6행 표입니다. L1과 L3의 Bunker 2가 PET-SD입니다." />
+    <img src="../assets/screenshots/d02-bunker.png" width="900" alt="4. 라인과 Bunker 결과. line_id와 Bunker 1–4 열이 있는 6행 표입니다. L1과 L3의 Bunker 2가 PET-SD입니다." />
 
 5.  **5. L3 제품의 레시피**
 
     제품 1kg을 만들 때 드는 원료 칩의 표준량(kg/kg)입니다.
 
-    **예상 결과:** 5행. `P-L3-05`(반광택 75μm 후막)는 PET-SD가 `0.450`으로 다른 L3 제품(0.095~0.150)보다 3배 이상 많고, MB-SL·MB-UV를 쓰지 않아 `null`로 보입니다.
+    **예상 결과:** 5행. `P-L3-05`(반광택 75μm 후막)는 PET-SD가 `0.450`으로 다른 L3 제품(0.095–0.150)보다 3배 이상 많고, MB-SL·MB-UV를 쓰지 않아 `null`로 보입니다.
 
     <img src="../assets/screenshots/d02-recipe.png" width="900" alt="5. L3 제품의 레시피 결과. product_id와 PET-BR, PET-SD, MB-SL, MB-UV 열이 있는 5행 표입니다. P-L3-05는 PET-BR 0.575, PET-SD 0.450이고 MB-SL, MB-UV는 null입니다." />
 
 6.  **6. 생산 실적: Lot과 원료 사용**
 
-    라인은 주간(08~20시)과 야간(20~08시) Lot으로 생산하고, Lot마다 Bunker에서 꺼내 쓴 원료가 기록됩니다.
+    라인은 주간(08–20시)과 야간(20–08시) Lot으로 생산하고, Lot마다 Bunker에서 꺼내 쓴 원료가 기록됩니다.
 
     **예상 결과:** 4행. 9월 30일 L3 주간 Lot `L3-260930-D`는 `P-L3-01`을 24,564kg 생산하면서 PET-SD를 3,031kg 썼습니다. 레시피 기준(24,564 × 0.120 = 2,948kg)보다 조금 많습니다. 이 차이가 실제 손실이며 05장에서 계산합니다.
 
@@ -63,9 +63,9 @@
 
 7.  **7. L3 생산계획과 판매오더**
 
-    10월 1~16일 L3 생산계획에 판매오더의 고객과 납기를 붙여 봅니다. 같은 제품을 며칠씩 이어서 생산하고, 판매오더 하나를 1~3일에 나눠 채웁니다.
+    10월 1–16일 L3 생산계획에 판매오더의 고객과 납기를 붙여 봅니다. 같은 제품을 며칠씩 이어서 생산하고, 판매오더 하나를 1–3일에 나눠 채웁니다.
 
-    **예상 결과:** 11행. 10월 10일 다음 계획이 10월 16일입니다. 10월 11~15일은 계획이 없는 예비일입니다. 모든 행에서 생산일(`plan_date`)이 납기(`due_date`)보다 앞섭니다.
+    **예상 결과:** 11행. 10월 10일 다음 계획이 10월 16일입니다. 10월 11–15일은 계획이 없는 예비일입니다. 모든 행에서 생산일(`plan_date`)이 납기(`due_date`)보다 앞섭니다.
 
     <img src="../assets/screenshots/d02-plan.png" width="900" alt="7. L3 생산계획과 판매오더 결과. plan_date, product_id, planned_output_kg, sales_order_id, customer_name, order_qty_kg, due_date 열이 있는 11행 표입니다. 20261010 다음 행이 20261016입니다." />
 

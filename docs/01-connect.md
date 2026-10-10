@@ -40,7 +40,7 @@ Notebook을 Databricks로 가져오고 Serverless에 연결한 뒤, `01_setup`�
 |----|----|----|
 | `01_setup` | 01 | 설정값과 OneLake 저장 함수. 다른 Notebook이 첫 코드 셀 `%run ./01_setup`으로 불러옵니다. |
 | `02_source_data` | 02 | SAP·FPIMS·PVSS 원천 파일 14개 만들기 |
-| `03_bronze`, `04_silver`, `05_gold` | 03~05 | 메달리온 아키텍처: Bronze → Silver → Gold, Gold를 OneLake에 저장 |
+| `03_bronze`, `04_silver`, `05_gold` | 03–05 | 메달리온 아키텍처: Bronze → Silver → Gold, Gold를 OneLake에 저장 |
 | `06_emergency_order` | 06 | 긴급 수주와 대응안 계산 |
 | `07_answers` | 07 | OneLake의 Gold로 질문 6개의 정답 계산 |
 | `source_systems` | 02 | 원천 데이터 생성 함수. `02_source_data`가 불러오며 직접 실행하지 않습니다. |

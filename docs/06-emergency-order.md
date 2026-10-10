@@ -7,9 +7,9 @@
 | 순서 | 계산 | Gold 테이블 |
 |----|----|----|
 | 1 | 긴급 수주 접수 | `gold_fact_sales_order` |
-| 2 | 긴급 생산계획 (10월 5·6일 긴급 생산, 10월 5~10일 L3 생산을 2일씩 미룸) | `gold_fact_plan` |
+| 2 | 긴급 생산계획 (10월 5·6일 긴급 생산, 10월 5–10일 L3 생산을 2일씩 미룸) | `gold_fact_plan` |
 | 3 | 날짜별 Bunker Balance, Bunker 위험 요약, 판매오더 납기 | `gold_fact_balance`, `gold_fact_bunker_summary`, `gold_fact_order_fulfillment` |
-| 4 | 대응안 4개와 판단 기준 C1~C4 | `gold_fact_response_option`, `gold_fact_option_balance` |
+| 4 | 대응안 4개와 판단 기준 C1–C4 | `gold_fact_response_option`, `gold_fact_option_balance` |
 | 5 | 위험 이벤트와 추천안 | `gold_fact_risk_event` |
 
 긴급 수주를 반영한 결과는 시나리오 `emergency`로 저장합니다. 05장의 현재 계획(`baseline`) 행은 그대로 남아 두 시나리오를 비교할 수 있습니다.
@@ -18,7 +18,7 @@
 
 1.  `ChipBalance` 폴더에서 `06_emergency_order`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다.
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 3~4분 걸립니다.
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 3–4분 걸립니다.
 
 ## 2. 셀별 결과 확인
 
@@ -36,9 +36,9 @@
 
 3.  **3. 긴급 생산계획**
 
-    현재 계획을 복사해 긴급 생산 2행을 넣고, 10월 5~10일 L3 생산을 2일씩 미룹니다. `change_type`은 `urgent`(긴급 생산), `moved`(미룬 생산), `none`(그대로)입니다.
+    현재 계획을 복사해 긴급 생산 2행을 넣고, 10월 5–10일 L3 생산을 2일씩 미룹니다. `change_type`은 `urgent`(긴급 생산), `moved`(미룬 생산), `none`(그대로)입니다.
 
-    **예상 결과:** L3 10월 1~16일 13행. 10월 5·6일은 `P-L3-05` 긴급 생산이고, `P-L3-01` 6행이 10월 7~12일로 밀립니다. 모든 행에서 생산일(`plan_date`)이 납기(`due_date`)보다 앞섭니다.
+    **예상 결과:** L3 10월 1–16일 13행. 10월 5·6일은 `P-L3-05` 긴급 생산이고, `P-L3-01` 6행이 10월 7–12일로 밀립니다. 모든 행에서 생산일(`plan_date`)이 납기(`due_date`)보다 앞섭니다.
 
     <img src="../assets/screenshots/d06-plan.png" width="900" alt="3. 긴급 생산계획 결과. plan_date, original_plan_date, change_type, product_id, planned_output_kg, sales_order_id, due_date 열이 있는 13행 표입니다. 2026-10-05와 10-06은 urgent P-L3-05 50000, 10-07부터 10-12는 moved P-L3-01입니다." />
 
@@ -50,7 +50,7 @@
 
 5.  **5. 긴급 오더를 반영한 Balance**
 
-    `BNK-L3-2`(L3 PET-SD)의 10월 1~12일을 봅니다.
+    `BNK-L3-2`(L3 PET-SD)의 10월 1–12일을 봅니다.
 
     **예상 결과:** 12행. 10월 5·6일 사용량이 23,162kg으로 늘어, 10월 6일 기말 재고 3,733kg이 안전재고 12,000kg보다 적습니다(`below_safety`). 10월 7일에는 -2,560kg으로 부족합니다(`shortage`). 10월 9일 입고 25,000kg으로도 안전재고를 회복하지 못합니다.
 
@@ -83,7 +83,7 @@
     | `OPT-3` 추가 구매 | 판단 기준일 당일 발주가 가능하다고 가정합니다. 공급사 발주 단위로 구매하고, 발주일 + 표준 리드타임 + 계획 지연일에 들어옵니다. | 수량 × 단가 × 긴급 할증률 |
     | `OPT-4` 생산 순서 조정 | 긴급 생산을 다음 입고 뒤 L3 계획이 없는 날로 옮깁니다. | 0 |
 
-    **예상 결과:** 4행. `OPT-1` 25,000kg 10/07 도착 500,000원, `OPT-2` 40,000kg 10/03 도착 1,000,000원, `OPT-3` 50,000kg 10/05 도착 3,750,000원, `OPT-4` 긴급 생산을 10/11~10/12로 이동 0원
+    **예상 결과:** 4행. `OPT-1` 25,000kg 10/07 도착 500,000원, `OPT-2` 40,000kg 10/03 도착 1,000,000원, `OPT-3` 50,000kg 10/05 도착 3,750,000원, `OPT-4` 긴급 생산을 10/11–10/12로 이동 0원
 
     <img src="../assets/screenshots/d06-options.png" width="900" alt="8. 대응안 4개 만들기 결과. option_id, option_name, qty_kg, first_arrival_date, added_cost_krw, action_detail 열이 있는 4행 표입니다. OPT-2는 40000kg, 2026-10-03, 1000000원입니다." />
 
@@ -131,7 +131,7 @@
 ``` text
 긴급 오더 SO-10322 (P-L3-05 100,000kg, 10/5·10/6 생산)
   → BNK-L3-2 PET-SD가 10/06부터 안전재고 미달, 10/07부터 부족, 필요 보충량 35,630kg
-대응안 4개 × 판단 기준 C1~C4
+대응안 4개 × 판단 기준 C1–C4
   OPT-1 입고 앞당김   500,000원  C1 불만족 (10/06부터 미달)
   OPT-2 Bunker 간 이송 1,000,000원 모두 만족 → 추천 1순위
   OPT-3 추가 구매   3,750,000원 모두 만족 → 추천 2순위

@@ -19,7 +19,7 @@
 
 1.  `ChipBalance` 폴더에서 `05_gold`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다.
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 3~4분 걸립니다. Gold 셀은 결과를 OneLake에 저장하고, 저장된 Gold를 같은 이름(`gold_…`)의 임시 뷰로 등록합니다. 다음 셀이 이 뷰를 이어서 씁니다. 저장하느라 셀마다 몇 초 더 걸립니다.
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 3–4분 걸립니다. Gold 셀은 결과를 OneLake에 저장하고, 저장된 Gold를 같은 이름(`gold_…`)의 임시 뷰로 등록합니다. 다음 셀이 이 뷰를 이어서 씁니다. 저장하느라 셀마다 몇 초 더 걸립니다.
 
 ## 2. 셀별 결과 확인
 
@@ -29,7 +29,7 @@
 
 2.  **2. 기준 정보 (Dimension)**
 
-    보고서와 Ontology에서 이름과 속성을 보여 줄 기준 정보 테이블을 만듭니다. 날짜는 4분기(10월 1일~12월 31일) 92일입니다.
+    보고서와 Ontology에서 이름과 속성을 보여 줄 기준 정보 테이블을 만듭니다. 날짜는 4분기(10월 1일–12월 31일) 92일입니다.
 
     **예상 결과:** 결과 없이 끝납니다.
 
@@ -75,7 +75,7 @@
     below_safety = 기말 재고 < 안전재고,  shortage = 기말 재고 < 0
     ```
 
-    **예상 결과:** `BNK-L3-2`의 10월 1~10일 10행. 10월 2일 50,000kg, 10월 9일 25,000kg 입고가 있고, `below_safety`는 모두 `false`입니다.
+    **예상 결과:** `BNK-L3-2`의 10월 1–10일 10행. 10월 2일 50,000kg, 10월 9일 25,000kg 입고가 있고, `below_safety`는 모두 `false`입니다.
 
     <img src="../assets/screenshots/d05-balance.png" width="900" alt="7. 날짜별 Bunker Balance 결과. balance_date, opening_kg, receipt_kg, requirement_kg, closing_kg, safety_stock_kg, below_safety 열이 있는 10행 표입니다. 10월 1일 opening 30370, closing 22898이고 below_safety는 모두 false입니다." />
 
@@ -129,7 +129,7 @@ ORDER BY balance_date;
 - Gold 셀에서 `service credential` 오류가 나면 01장 **5. OneLake 연결 확인**을 다시 실행하고, 오류 메시지를 관리자에게 알립니다.
 - Fabric에 `gold` 테이블이 보이지 않으면 Explorer의 **Tables** 옆 **…** \> **Refresh**를 누릅니다.
 - 쿼리 실행 뒤 `Invalid object name 'gold.fact_balance'` 오류가 나면 **Sync metadata from the Lakehouse**를 누르고 동기화 상태를 확인한 뒤 다시 실행합니다. 이는 편집기 화면이 열리지 않는 오류와 구분합니다.
-- SQL 편집기 화면의 새로 고침 오류는 활성 유료 용량에서도 관찰됐습니다. 2~3절의 Notebook·Lakehouse 결과로 Gold를 확인한 뒤 06장으로 진행하고, SQL 편집기 오류는 별도로 관리자에게 전달합니다.
+- SQL 편집기 화면의 새로 고침 오류는 활성 유료 용량에서도 관찰됐습니다. 2–3절의 Notebook·Lakehouse 결과로 Gold를 확인한 뒤 06장으로 진행하고, SQL 편집기 오류는 별도로 관리자에게 전달합니다.
 
 ## 다음 단계
 

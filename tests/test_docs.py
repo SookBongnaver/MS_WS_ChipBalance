@@ -89,6 +89,13 @@ class DocumentTests(unittest.TestCase):
         total = sum(map(int, durations))
         self.assertIn(f"약 {total // 60}시간 {total % 60}분", text)
 
+    def test_guide_ranges_cannot_be_rendered_as_strikethrough(self):
+        for path in md_files():
+            text = strip_comments(path.read_text(encoding="utf-8"))
+            with self.subTest(document=rel(path)):
+                self.assertNotIn("~", text, "Use an en dash for ranges; GitHub interprets paired tildes as strikethrough.")
+                self.assertNotRegex(text, r"<(?:del|s|strike)(?:\s|>)")
+
     def test_foundry_review_precedes_teams_approval(self):
         operations = (DOCS / "11-operations-agent.md").read_text(encoding="utf-8")
         foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
@@ -141,6 +148,16 @@ class DocumentTests(unittest.TestCase):
 
 
 class NotebookTests(unittest.TestCase):
+    def test_notebook_markdown_ranges_do_not_use_strikethrough_delimiters(self):
+        paths = [*NOTEBOOKS.glob("*.ipynb"), *(ROOT / "admin").glob("*.ipynb"),
+                 *(ROOT / "fabric").glob("*.ipynb")]
+        for path in paths:
+            notebook = json.loads(path.read_text(encoding="utf-8"))
+            for cell in notebook["cells"]:
+                if cell["cell_type"] == "markdown":
+                    with self.subTest(notebook=rel(path), cell=cell.get("id")):
+                        self.assertNotIn("~", "".join(cell["source"]))
+
     def sources(self):
         sources = sorted(SOURCES.glob("*.py"))
         self.assertTrue(sources, "src/notebooks has no .py files")

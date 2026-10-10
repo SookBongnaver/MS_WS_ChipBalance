@@ -33,7 +33,7 @@
 # MAGIC %md
 # MAGIC ## 2. 기준 정보 (Dimension)
 # MAGIC 보고서와 Ontology에서 이름과 속성을 보여 줄 기준 정보 테이블입니다.
-# MAGIC 원료의 공급사는 입고 실적에서 찾습니다. 날짜는 4분기(10월 1일~12월 31일) 92일입니다.
+# MAGIC 원료의 공급사는 입고 실적에서 찾습니다. 날짜는 4분기(10월 1일–12월 31일) 92일입니다.
 # MAGIC
 # MAGIC **예상 결과:** 결과 없이 끝납니다.
 
@@ -72,7 +72,7 @@ for table, query in dimension_tables.items():
 # MAGIC
 # MAGIC `실제 소요량 = 원료 사용량 합계 ÷ 생산량 합계` (소수 6자리 반올림)
 # MAGIC
-# MAGIC 레시피 기준보다 실제 소요량이 1~4% 많습니다. 공정 손실이 있기 때문입니다. Balance는 실제 소요량으로 계산합니다.
+# MAGIC 레시피 기준보다 실제 소요량이 1–4% 많습니다. 공정 손실이 있기 때문입니다. Balance는 실제 소요량으로 계산합니다.
 # MAGIC 아래 결과는 L3 제품의 PET-SD만 보여 줍니다. 테이블에는 제품·원료 118개 조합이 모두 들어 있습니다.
 # MAGIC
 # MAGIC **예상 결과:** 5행. `P-L3-05`의 PET-SD 실제 소요량은 `0.463237`로 레시피 기준 `0.450000`보다 2.94% 많습니다.
@@ -194,7 +194,7 @@ display(spark.sql("SELECT scenario_id, COUNT(*) AS orders, COUNT_IF(NOT on_time)
 # MAGIC | 기말 재고 `closing_kg` | 기초 재고 + 입고 + 이송 입고 − 이송 출고 − 사용량. 다음 날 기초 재고가 됩니다. |
 # MAGIC | 판정 | `below_safety`: 기말 재고 < 안전재고, `shortage`: 기말 재고 < 0, `over_capacity`: 기초 재고 + 입고 + 이송 입고 > 용량 |
 # MAGIC
-# MAGIC **예상 결과:** `BNK-L3-2`의 10월 1~10일 10행. 10월 2일과 9일에 입고가 있고, `below_safety`는 모두 `false`입니다.
+# MAGIC **예상 결과:** `BNK-L3-2`의 10월 1–10일 10행. 10월 2일과 9일에 입고가 있고, `below_safety`는 모두 `false`입니다.
 
 # COMMAND ----------
 publish_gold("fact_balance", spark.sql("""

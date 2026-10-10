@@ -420,7 +420,7 @@ def check_options(s, ctx, affected, orders, emg_plan):
         {"option_id": "OPT-4", "option_name": "생산 순서 조정", "plan": resched, "inbound": inbound, "transfers": [], "extra": [],
          "added_cost_krw": 0, "qty_kg": URGENT["order_qty_kg"], "source_bunker_id": None, "route_id": None, "purchase_order_id": None,
          "supplier_id": None, "first_arrival_date": None,
-         "action_detail": f"긴급 생산을 다음 입고({next_in['expected_date']:%m/%d}) 뒤 {free_days[0]:%m/%d}~{free_days[-1]:%m/%d}로 이동"},
+         "action_detail": f"긴급 생산을 다음 입고({next_in['expected_date']:%m/%d}) 뒤 {free_days[0]:%m/%d}–{free_days[-1]:%m/%d}로 이동"},
     ]
     due = {o["sales_order_id"]: o["due_date"] for o in orders}
     route_limit = {(r["from_bunker_id"], r["to_bunker_id"]): r["max_kg_per_day"] for r in s["transfer_route"]}

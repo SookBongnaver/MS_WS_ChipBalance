@@ -9,7 +9,7 @@
 # MAGIC | 1 | 긴급 오더 접수 | `gold_fact_sales_order` |
 # MAGIC | 2 | 긴급 생산계획 | `gold_fact_plan` |
 # MAGIC | 3 | 날짜별 Bunker Balance, Bunker 위험 요약, 판매오더 납기 | `gold_fact_balance`, `gold_fact_bunker_summary`, `gold_fact_order_fulfillment` |
-# MAGIC | 4 | 대응안 4개와 판단 기준 C1~C4 | `gold_fact_response_option`, `gold_fact_option_balance` |
+# MAGIC | 4 | 대응안 4개와 판단 기준 C1–C4 | `gold_fact_response_option`, `gold_fact_option_balance` |
 # MAGIC | 5 | 위험 이벤트와 추천안 | `gold_fact_risk_event` |
 # MAGIC
 # MAGIC 긴급 오더를 반영한 결과는 시나리오 `emergency`로 저장합니다. 05에서 만든 현재 계획(`baseline`) 행은 그대로 남습니다.
@@ -78,7 +78,7 @@ FROM urgent_order u JOIN gold_dim_customer c USING (customer_id) JOIN gold_dim_p
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 3. 긴급 생산계획
-# MAGIC 현재 계획(`baseline`)을 복사해 긴급 생산 2행을 넣고, 10월 5~10일 L3 생산을 2일씩 미룹니다.
+# MAGIC 현재 계획(`baseline`)을 복사해 긴급 생산 2행을 넣고, 10월 5–10일 L3 생산을 2일씩 미룹니다.
 # MAGIC `change_type`은 `urgent`(긴급 생산), `moved`(미룬 생산), `none`(그대로)입니다.
 # MAGIC
 # MAGIC **예상 결과:** L3 10월 1–16일 13행. 10월 5·6일은 `P-L3-05` 긴급 생산이고, `P-L3-01` 6행이 10월 7–12일로 밀립니다.
@@ -180,7 +180,7 @@ def compute_balance(plan_view, receipt_view, transfer_view):
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 5. 긴급 오더를 반영한 Balance
-# MAGIC 긴급 생산계획과 입고 예정으로 Bunker 24개의 4분기 재고를 계산합니다. `BNK-L3-2`(L3 PET-SD)의 10월 1~12일을 봅니다.
+# MAGIC 긴급 생산계획과 입고 예정으로 Bunker 24개의 4분기 재고를 계산합니다. `BNK-L3-2`(L3 PET-SD)의 10월 1–12일을 봅니다.
 # MAGIC
 # MAGIC **예상 결과:** 12행. 10월 5·6일 사용량이 23,162kg으로 늘어, 10월 6일 기말 재고 3,733kg이 안전재고 12,000kg보다 적습니다(`below_safety`).
 # MAGIC 10월 7일에는 -2,560kg으로 부족합니다(`shortage`). 10월 9일 입고 25,000kg으로도 안전재고를 회복하지 못합니다.
@@ -283,7 +283,7 @@ print(f"납기 지연: {late_orders}개")
 # MAGIC | `OPT-1` | 4500010294-00020 입고일을 10/09에서 10/07로 앞당김 | 25,000kg | 10/07 | 500,000원 |
 # MAGIC | `OPT-2` | BNK-L1-2에서 BNK-L3-2로 PET-SD 40,000kg 이송 (R-01) | 40,000kg | 10/03 | 1,000,000원 |
 # MAGIC | `OPT-3` | 세미폴리머(SUP-PET-B)에 PET-SD 50,000kg 긴급 구매 | 50,000kg | 10/05 | 3,750,000원 |
-# MAGIC | `OPT-4` | 긴급 생산을 10/11~10/12로 이동 | 100,000kg | - | 0원 |
+# MAGIC | `OPT-4` | 긴급 생산을 10/11–10/12로 이동 | 100,000kg | - | 0원 |
 
 # COMMAND ----------
 def ceil_to(value, step):
@@ -341,7 +341,7 @@ options = [
     ("OPT-3", "추가 구매", None, None, None, supplier.supplier_id, spot_qty, spot_date, spot_cost,
      f"{supplier.supplier_name}({supplier.supplier_id})에 {target.material_id} {spot_qty:,} kg 긴급 구매 ({spot_date:%m/%d} 입고)"),
     ("OPT-4", "생산 순서 조정", None, None, None, None, urgent["order_qty_kg"], None, 0,
-     f"긴급 생산을 다음 입고({next_in.expected_date:%m/%d}) 뒤 {free_days[0]:%m/%d}~{free_days[-1]:%m/%d}로 이동"),
+     f"긴급 생산을 다음 입고({next_in.expected_date:%m/%d}) 뒤 {free_days[0]:%m/%d}–{free_days[-1]:%m/%d}로 이동"),
 ]
 spark.createDataFrame(options, "option_id string, option_name string, source_bunker_id string, route_id string, "
                                "purchase_order_id string, supplier_id string, qty_kg bigint, first_arrival_date date, "
@@ -514,7 +514,7 @@ display(spark.table("risk_event").select("event_id", "detected_at", "sales_order
 # MAGIC 위험 이벤트도 덮어쓰므로 `detected_at`은 실행 시각, `status`는 `open`으로 초기화됩니다. 승인·종결된 이벤트가 있으면 재실행 전에 관리자에게 확인합니다.
 # MAGIC Unity Catalog에는 만들지 않습니다.
 # MAGIC
-# MAGIC **예상 결과:** 9행 (1~2분)
+# MAGIC **예상 결과:** 9행 (1–2분)
 # MAGIC
 # MAGIC | Gold 테이블 | OneLake 행 수 | `emergency` 행 수 |
 # MAGIC |---|---|---|

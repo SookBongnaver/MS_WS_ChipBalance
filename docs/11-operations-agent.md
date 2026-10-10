@@ -162,7 +162,7 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 
 Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 규칙입니다. 규칙마다 KQL 쿼리와 조건이 들어 있습니다.
 
-1.  **Agent setup**의 **Generate playbook**을 누릅니다. (2~3분)
+1.  **Agent setup**의 **Generate playbook**을 누릅니다. (2–3분)
 
     **예상 결과:** 오른쪽 **Agent playbook**에 **Business term glossary**가 보입니다. **Class**는 `RiskEvent`(Table: `RiskEventStatus`)이고, `EventId`, `BunkerId`, `RecommendedOptionId` 같은 속성이 `RiskEventStatus`의 열과 연결되어 있습니다.
 
@@ -212,7 +212,7 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
     <img src="../assets/screenshots/d11-teams-details.png" width="520" alt="Show details를 펼친 메시지. Timestamp, Id EVT-20261001-001, EventStatusText open, EventId EVT-20261001-001, RecommendedOptionId OPT-2, Rule Condition, Data Source eh_chipbalance가 보입니다." />
 
-3.  **아직 Proceed·Confirm을 누르지 않습니다.** 제안을 열어 둔 채 [12. Foundry agent](12-foundry-agent.md)의 **1~5단계**로 이동해 같은 `OPT-2`의 근거를 확인합니다. 검토가 끝나면 이 장의 아래 4번으로 돌아옵니다. 에이전트나 위험 이벤트를 새로 만들거나 다시 보내지 않습니다.
+3.  **아직 Proceed·Confirm을 누르지 않습니다.** 제안을 열어 둔 채 [12. Foundry agent](12-foundry-agent.md)의 **1–5단계**로 이동해 같은 `OPT-2`의 근거를 확인합니다. 검토가 끝나면 이 장의 아래 4번으로 돌아옵니다. 에이전트나 위험 이벤트를 새로 만들거나 다시 보내지 않습니다.
 
 4.  **Proceed**를 누릅니다. **Confirm details for RecordDecision**에서 `event_id`가 `EVT-20261001-001`, `option_id`가 `OPT-2`인지 확인하고 **Confirm**을 누릅니다.
 
@@ -265,7 +265,7 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
 - 실습 도중 Fabric 용량이 일시 중지되면 Azure의 **상태**와 **활동 로그**를 확인합니다. 조직 자동화가 중지한 용량은 임의로 재개하지 말고 관리자에게 확인합니다. 용량을 사용할 수 있는 시간 안에 결과 확인과 Operations agent의 **Stop**을 마칩니다. 실행 목록의 성공이나 Eventhouse 조회만으로 Lakehouse 승인 기록·위험 이벤트 상태·agent 중지까지 확인한 것으로 간주하지 않습니다.
 - **Generate playbook** 뒤 **No playbook generated**와 함께 데이터를 어디서 읽을지 알 수 없다는 안내가 보이면, 지침에 `RiskEventStatus.event_status`처럼 테이블 이름과 열 이름이 들어 있는지, **Knowledge**가 `eh_chipbalance`인지 확인합니다. 저장한 뒤 다시 **Generate playbook**을 누릅니다.
-- 데이터 원본이 요청을 제한하고 있다는 안내(rate-limiting)가 보이면 1~2분 뒤 다시 **Generate playbook**을 누릅니다.
+- 데이터 원본이 요청을 제한하고 있다는 안내(rate-limiting)가 보이면 1–2분 뒤 다시 **Generate playbook**을 누릅니다.
 - **Start**를 누를 수 없으면 Playbook을 만든 뒤 저장했는지 확인합니다.
 - Teams 채팅 목록에 **Fabric operations agent**가 없으면 Teams 왼쪽 **앱**에서 `Fabric Operations Agent`를 검색해 추가합니다.
 - 10분이 지나도 메시지가 오지 않으면 에이전트가 시작 상태인지(**Stop**을 누를 수 있는지), 6단계 명령을 **Start** 뒤에 실행했는지 확인합니다. 도구 모음의 **View activity**에서 규칙이 실행된 기록을 볼 수 있습니다.

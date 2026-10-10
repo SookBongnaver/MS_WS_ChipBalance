@@ -8,11 +8,11 @@
 
 | 장 | 만든 것 | 확인할 결과 |
 |----|----|----|
-| 02~04 | 원천 파일 14개, Bronze, Silver | 중복·공란·미등록 코드·센서 이상값 23행이 `silver_quarantine`에 격리됩니다. |
+| 02–04 | 원천 파일 14개, Bronze, Silver | 중복·공란·미등록 코드·센서 이상값 23행이 `silver_quarantine`에 격리됩니다. |
 | 05 | Gold, OneLake 저장 | Lakehouse `lh_chipbalance_p001`의 `gold` 스키마에 Gold 테이블이 있습니다. |
 | 06 | 긴급 수주와 대응안 4개 | 긴급 수주를 반영하면 BNK-L3-2(L3 PET-SD)가 2026-10-06에 안전재고 아래로 내려가고, 판단 기준을 모두 만족하는 추천안은 `OPT-2`입니다. |
-| 07 | 정답 계산 `07_answers` | Q1~Q6의 정답 6행이 표시됩니다. (Genie는 선택 확장) |
-| 08~09 | Ontology `ont_chipbalance`, Ontology agent | Ontology agent가 같은 질문에 답합니다. 예: `OPT-2`를 반영해도 BNK-L1-2의 최저 기말재고는 16,763 kg으로 안전재고 6,000 kg 이상입니다. |
+| 07 | 정답 계산 `07_answers` | Q1–Q6의 정답 6행이 표시됩니다. (Genie는 선택 확장) |
+| 08–09 | Ontology `ont_chipbalance`, Ontology agent | Ontology agent가 같은 질문에 답합니다. 예: `OPT-2`를 반영해도 BNK-L1-2의 최저 기말재고는 16,763 kg으로 안전재고 6,000 kg 이상입니다. |
 | 10 | Semantic model `sm_chipbalance`, 보고서 `rpt_chipbalance` | 원료 수급 현황 페이지에서 부족 지점을 보고, Copilot이 만든 긴급 오더 대응안 페이지와 질문으로 추천안을 확인합니다. |
 | 11 | Eventhouse `eh_chipbalance`, Operations agent `oa_chipbalance`, Notebook `nb_record_decision` | Teams에서 `OPT-2`를 승인하면 `RiskEventStatus`에 `approved` 행이, `dbo.chip_decision_log`에 승인 내역이 생깁니다. |
 | 12 | Foundry 프로젝트 `chipbalance-p001`, 에이전트 `fa-chipbalance` | 에이전트가 Fabric IQ 도구로 `ont_chipbalance`에 물어, `OPT-2`를 반영한 BNK-L1-2의 최저 기말재고 16,763 kg이 안전재고 6,000 kg 이상이라고 답합니다. |

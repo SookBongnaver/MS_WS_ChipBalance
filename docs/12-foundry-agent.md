@@ -45,7 +45,7 @@
 
 5.  에이전트를 만들기 전에 관리자가 새 리소스·프로젝트의 **Foundry User**, 연결 생성에 필요한 **Foundry Project Manager** 역할을 부여했는지 확인합니다. RG Contributor만 받았다면 역할 확인이 끝날 때까지 기다립니다. 자동 역할 부여나 전파 완료를 가정하지 않습니다([관리자 준비 가이드](../admin/README.md)의 "4. Microsoft Foundry").
 
-**예상 결과:** 위쪽에 `chipbalance-p001`이 보이고, **환영합니다** 아래에 **에이전트 빌드** 카드와 **프로젝트 엔드포인트**가 있습니다. (2~3분)
+**예상 결과:** 위쪽에 `chipbalance-p001`이 보이고, **환영합니다** 아래에 **에이전트 빌드** 카드와 **프로젝트 엔드포인트**가 있습니다. (2–3분)
 
 <img src="../assets/screenshots/d12-project-home.png" width="1000" alt="chipbalance-p001 프로젝트 홈. 환영합니다, MOD Administrator 님 아래에 모델 사용, 에이전트 빌드(빌드 시작), 에이전트 코딩 카드와 프로젝트 엔드포인트 https://fdy-chipbalance-p001.services.ai.azure.com, Azure OpenAI 엔드포인트가 보입니다." />
 
@@ -57,7 +57,7 @@
 
     <img src="../assets/screenshots/d12-agent-name.png" width="500" alt="에이전트 만들기 창. 에이전트 이름에 fa-chipbalance가 입력되어 있고, 상호 작용 모드는 텍스트가 선택되어 있습니다. 만들기와 취소 버튼이 있습니다." />
 
-**예상 결과:** `fa-chipbalance`의 **플레이그라운드**가 열립니다. 화면 예시에는 **모델** `gpt-5`와 **웹 검색** 도구가 있습니다. 기본 모델과 자동 배포 여부는 환경에 따라 다릅니다. 모델 선택·배포 안내가 나오면 관리자가 확인한 모델 배포를 선택하고, 완료 후 **모델**에 표시된 배포를 확인합니다. `gpt-5` 자동 배포나 할당량 확보를 가정하지 않습니다. 참고 시간은 1~2분입니다([모델·지역·도구 지원](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/limits-quotas-regions#supported-models)).
+**예상 결과:** `fa-chipbalance`의 **플레이그라운드**가 열립니다. 화면 예시에는 **모델** `gpt-5`와 **웹 검색** 도구가 있습니다. 기본 모델과 자동 배포 여부는 환경에 따라 다릅니다. 모델 선택·배포 안내가 나오면 관리자가 확인한 모델 배포를 선택하고, 완료 후 **모델**에 표시된 배포를 확인합니다. `gpt-5` 자동 배포나 할당량 확보를 가정하지 않습니다. 참고 시간은 1–2분입니다([모델·지역·도구 지원](https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/limits-quotas-regions#supported-models)).
 
 <img src="../assets/screenshots/d12-agent-empty.png" width="1000" alt="fa-chipbalance 플레이그라운드. 모델 gpt-5, 지침 입력 칸은 비어 있고, 도구 아래에 웹 검색이 있습니다. 오른쪽 채팅 창에 메시지를 보내 에이전트 테스트를 시작하세요가 보입니다." />
 
@@ -107,7 +107,7 @@
 
     첫 호출에 `CONSENT_REQUIRED`가 나오면 오류에 표시된 동의 URL을 열어 인증·동의를 완료한 뒤 같은 질문을 다시 보냅니다. 사용자 동의는 관리자 동의나 데이터 원본 권한을 대신하지 않습니다.
 
-    **검증 목표:** 최저 기말재고 16,763 kg(2026-11-01), 안전재고 6,000 kg으로 안전재고 이상인지 확인합니다. 근거는 **ResponseOption** `OPT-2`(BNK-L1-2 → BNK-L3-2, 40,000 kg, 첫 도착일 2026-10-03), **Bunker** BNK-L1-2의 안전재고, **OptionBalance**의 일자별 기말재고이며, 화면 예시에는 근거 표시 `ontchipbalance`가 있습니다. 07장 정답 Notebook과 09장 Q4의 핵심 값에 비교합니다. AI 응답이 항상 맞는 것은 아니므로 다음 단계에서 도구 출력을 확인합니다. 전체 대화의 참고 시간은 1~2분이며, 개별 MCP 호출에는 별도 시간 제한이 있습니다.
+    **검증 목표:** 최저 기말재고 16,763 kg(2026-11-01), 안전재고 6,000 kg으로 안전재고 이상인지 확인합니다. 근거는 **ResponseOption** `OPT-2`(BNK-L1-2 → BNK-L3-2, 40,000 kg, 첫 도착일 2026-10-03), **Bunker** BNK-L1-2의 안전재고, **OptionBalance**의 일자별 기말재고이며, 화면 예시에는 근거 표시 `ontchipbalance`가 있습니다. 07장 정답 Notebook과 09장 Q4의 핵심 값에 비교합니다. AI 응답이 항상 맞는 것은 아니므로 다음 단계에서 도구 출력을 확인합니다. 전체 대화의 참고 시간은 1–2분이며, 개별 MCP 호출에는 별도 시간 제한이 있습니다.
 
     <img src="../assets/screenshots/d12-ask-value.png" width="700" alt="Foundry 채팅의 질문과 답. OPT-2 이송을 반영한 BNK-L1-2의 최저 기말재고는 16,763 kg, 발생일은 2026-11-01 UTC이며 안전재고 6,000 kg 이상입니다. 근거 엔터티 OptionBalance와 bunker_id=BNK-L1-2, option_id=OPT-2, min closing=16,763 kg, date=2026-11-01, safety_stock=6,000 kg가 보입니다. 아래에 gpt-5, 추적, mcp_list_tools, ontchipbalance, message가 있습니다." />
 

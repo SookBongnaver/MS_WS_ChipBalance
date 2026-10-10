@@ -107,7 +107,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 
     이 실습은 관계 이름과 방향을 일관되게 읽기 위해 연결 열이 있는 테이블의 엔터티에서 출발하도록 정합니다. 예를 들어 `dim_bunker.line_id`로 잇는 `BunkerOnLine`은 Bunker → Line입니다. 이는 실습의 모델링 규칙이지 Fabric의 필수 제약은 아닙니다. [공식 관계 만들기 예시](https://learn.microsoft.com/en-us/fabric/iq/ontology/how-to-create-relationship-types)는 `DriverId`가 Truck 테이블에 있어도 Driver → Truck으로 정의하고 매핑 테이블을 연결합니다. Graph 적격성은 방향만이 아니라 양쪽 속성·키와 데이터 매핑으로 확인합니다.
 
-3.  오른쪽 아래 화살표를 눌러 보냅니다. 에이전트가 Lakehouse의 열과 샘플 행을 살펴보고 초안을 만든 뒤 검증합니다. (3~5분)
+3.  오른쪽 아래 화살표를 눌러 보냅니다. 에이전트가 Lakehouse의 열과 샘플 행을 살펴보고 초안을 만든 뒤 검증합니다. (3–5분)
 
 **예상 결과:** "초안과 검증을 완료했습니다"로 시작하는 답에 엔터티 17개, 관계 26개, 이슈 없음이 보입니다. 참고에 나온 4개(`dim_date`, `fact_monthly_usage`, `fact_opening_stock`, `fact_usage_factor`)는 Balance 계산에 쓴 중간 결과이므로 넣지 않습니다. 답의 문장과 제목은 매번 조금씩 다를 수 있습니다. 엔터티 수, 관계 수, 이슈를 확인합니다.
 
@@ -123,7 +123,7 @@ Ontology는 업무에서 쓰는 개념(엔터티 타입)과 개념 사이의 관
 
     <img src="../assets/screenshots/d08-preview.png" width="1000" alt="초안 미리 보기. 위에 You are viewing a proposed ontology from the agent 안내가 있고, 가운데 캔버스에 엔터티 타입 17개와 관계가 선으로 연결되어 있습니다. 아래에 Visible: 17 of 17 entities, 26 of 26 relationships가 보입니다. 오른쪽 에이전트 창에 Switch to &#39;Act&#39; + approve 버튼이 있습니다." />
 
-3.  에이전트 창의 **Switch to 'Act' + approve**를 누릅니다. 스위치가 **Act**로 바뀌고 에이전트가 초안을 적용합니다. (2~3분)
+3.  에이전트 창의 **Switch to 'Act' + approve**를 누릅니다. 스위치가 **Act**로 바뀌고 에이전트가 초안을 적용합니다. (2–3분)
 
     **버튼이 없는 UI:** Plan 답에 텍스트 초안만 있고 **Preview ontology**·**Switch to 'Act' + approve**가 없으면, 답의 엔터티·관계 목록과 검증 결과를 먼저 검토합니다. 캔버스 미리 보기가 열린 것으로 간주하지 않습니다. 문제가 없을 때 직접 **Act**를 선택하고 `검토한 초안을 적용해줘. gold 스키마만 사용하고 엔터티 17개와 관계 26개를 유지해줘.`를 보냅니다. 적용 뒤 아래 Explorer와 4단계의 키·바인딩을 확인합니다.
 
@@ -171,7 +171,7 @@ Graph는 엔터티 인스턴스를 노드로, 관계를 에지로 저장해 여�
 
 3.  왼쪽 아래 **Continue**를 누르고, **Configure projection** 화면에서 왼쪽 아래 **Materialize**를 누릅니다.
 
-**예상 결과:** 오른쪽 위에 **Creating graph model** 알림이 보이고, 위쪽 탭에 `ont_chipbalance_graph_`로 시작하는 Graph model이 열립니다. 참고 시간은 5~15분이며, 데이터량과 용량 상태에 따라 수분~수시간 걸릴 수 있습니다. 알림만으로 완료를 판단하지 말고 Graph의 노드·에지가 조회되는지 확인합니다.
+**예상 결과:** 오른쪽 위에 **Creating graph model** 알림이 보이고, 위쪽 탭에 `ont_chipbalance_graph_`로 시작하는 Graph model이 열립니다. 참고 시간은 5–15분이며, 데이터량과 용량 상태에 따라 수분–수시간 걸릴 수 있습니다. 알림만으로 완료를 판단하지 말고 Graph의 노드·에지가 조회되는지 확인합니다.
 
 <img src="../assets/screenshots/d08-materialize.png" width="1000" alt="Configure projection 화면. 오른쪽 위에 Creating graph model, This process may take a few minutes 알림이 있고, 위쪽 탭에 ont_chipbalance_graph_로 시작하는 Graph model이 열려 있습니다. Entities 표의 엔터티와 관계는 모두 Eligible입니다." />
 

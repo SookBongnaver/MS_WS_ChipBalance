@@ -27,7 +27,7 @@ Ontology의 **Overview > Rules**에 등록하는 Business rule도 자연어 정�
     - Scenario: scenario_id가 baseline이면 현재 계획, emergency면 10월 1일 접수한 긴급 오더(SO-10322)를 반영한 계획입니다. 질문에 시나리오가 없으면 baseline으로 답합니다.
     - ProductionPlan: change_type이 urgent면 긴급 오더 생산, moved면 긴급 오더 때문에 뒤로 미룬 생산(original_plan_date는 미루기 전 날짜), none이면 그대로인 생산입니다.
     - DailyBalance, OptionBalance: below_safety는 기말 재고(closing_kg)가 안전재고보다 적은 날, shortage는 기말 재고가 0보다 적은 날입니다.
-    - ResponseOption: 긴급 오더의 대응안 4개(OPT-1~OPT-4)입니다. 판단 기준 C1 안전재고(c1_safety_pass), C2 용량(c2_capacity_pass), C3 납기(c3_due_date_pass), C4 이송 한도(c4_route_limit_pass)를 모두 만족하면 meets_all이 true이고, 그 안들에만 추가 비용이 낮은 순서로 recommendation_rank를 붙입니다. 1순위가 추천안입니다.
+    - ResponseOption: 긴급 오더의 대응안 4개(OPT-1–OPT-4)입니다. 판단 기준 C1 안전재고(c1_safety_pass), C2 용량(c2_capacity_pass), C3 납기(c3_due_date_pass), C4 이송 한도(c4_route_limit_pass)를 모두 만족하면 meets_all이 true이고, 그 안들에만 추가 비용이 낮은 순서로 recommendation_rank를 붙입니다. 1순위가 추천안입니다.
     - OptionBalance: 대응안(option_id)을 반영한 벙커별 일자 재고입니다. 이송 대응안은 OPT-2입니다.
     - TransferRoute: from_bunker_id(보내는 벙커)에서 to_bunker_id(받는 벙커)로 이송합니다.
     - OrderFulfillment: on_time이 true면 생산 완료일(finish_date)이 납기(due_date) 안입니다.
@@ -36,7 +36,7 @@ Ontology의 **Overview > Rules**에 등록하는 Business rule도 자연어 정�
 
     <img src="../assets/screenshots/d09-rules-prompt.png" width="400" alt="Ontology Agent 창. 입력 칸에 업무 규칙 요청의 끝부분 OrderFulfillment와 RiskEvent 규칙이 보이고, 아래 스위치는 Act가 선택되어 있습니다." />
 
-**예상 결과:** "완료했습니다" 아래에 설명만 덧붙였고 이름·키·속성·데이터 바인딩·관계는 바꾸지 않았다는 내용과, 수정한 엔터티 8개(Scenario, ProductionPlan, DailyBalance, OptionBalance, ResponseOption, TransferRoute, OrderFulfillment, RiskEvent)가 보입니다. 참고 시간은 5~15분이며, 응답과 용량 상태에 따라 달라집니다. 변경 요약에서 설명 이외의 수정이 없는지 확인합니다.
+**예상 결과:** "완료했습니다" 아래에 설명만 덧붙였고 이름·키·속성·데이터 바인딩·관계는 바꾸지 않았다는 내용과, 수정한 엔터티 8개(Scenario, ProductionPlan, DailyBalance, OptionBalance, ResponseOption, TransferRoute, OrderFulfillment, RiskEvent)가 보입니다. 참고 시간은 5–15분이며, 응답과 용량 상태에 따라 달라집니다. 변경 요약에서 설명 이외의 수정이 없는지 확인합니다.
 
 <img src="../assets/screenshots/d09-rules-done.png" width="400" alt="Ontology Agent의 답. 완료했습니다 아래에 설명만 한국어로 덧붙였습니다, 이름, 키, 속성, 데이터 바인딩, 관계는 변경하지 않았습니다, 수정한 엔터티 Scenario, ProductionPlan, DailyBalance, OptionBalance, ResponseOption, TransferRoute, OrderFulfillment, RiskEvent가 보입니다." />
 
@@ -63,7 +63,7 @@ Ontology의 **Overview > Rules**에 등록하는 Business rule도 자연어 정�
 | Q5 | BNK-L3-2에 10월 6일 뒤 처음 들어오는 PET-SD 입고는 언제, 어느 공급사에서, 몇 kg이야? | 10/09, SUP-PET-B(세미폴리머), 25,000 kg |
 | Q6 | 대응안 4개 가운데 판단 기준을 모두 만족하는 안과 추천안은? | OPT-2(1순위), OPT-3(2순위). 추천안은 OPT-2 |
 
-**검증 목표:** 6개 질문의 핵심 값을 정답과 비교합니다. AI 응답은 정확성을 보장하지 않으며 문장·도구 호출·처리 시간은 달라질 수 있습니다. 질문 하나의 참고 시간은 20초~1분입니다. 값이 다르면 아래 **답의 근거 확인**으로 시나리오와 쿼리를 확인한 뒤 다시 묻습니다.
+**검증 목표:** 6개 질문의 핵심 값을 정답과 비교합니다. AI 응답은 정확성을 보장하지 않으며 문장·도구 호출·처리 시간은 달라질 수 있습니다. 질문 하나의 참고 시간은 20초–1분입니다. 값이 다르면 아래 **답의 근거 확인**으로 시나리오와 쿼리를 확인한 뒤 다시 묻습니다.
 
 Q2는 부족한 Bunker, 처음 미달하는 날, 필요 보충량, 최저 재고, 미달 일수를 답합니다.
 
@@ -90,9 +90,9 @@ Q6은 판단 기준을 모두 만족하는 안과 추천 순위를 답합니다.
 ## Troubleshooting
 
 - 답이 시나리오를 잘못 골랐으면 질문에 "긴급 오더를 반영하지 않은 현재 계획"이나 "긴급 오더를 반영하면"처럼 시나리오를 밝혀 다시 묻습니다.
-- 첫 질문으로 Q6을 하면 대응안을 알려 달라고 되묻기도 합니다. Q1부터 차례로 묻거나, "긴급 오더 대응안 4개(OPT-1~OPT-4) 가운데"처럼 대상을 밝혀 묻습니다.
+- 첫 질문으로 Q6을 하면 대응안을 알려 달라고 되묻기도 합니다. Q1부터 차례로 묻거나, "긴급 오더 대응안 4개(OPT-1–OPT-4) 가운데"처럼 대상을 밝혀 묻습니다.
 - Q3의 판매오더 수가 3건보다 많으면 생산계획 행 수를 세거나 시나리오가 다른 이행 행까지 연결했는지 확인합니다. `moved 생산계획의 sales_order_id를 중복 없이 구하고, ProductionPlan과 OrderFulfillment 모두 emergency로 제한해 판매오더별 완료일·납기·on_time을 보여줘`로 다시 확인합니다.
-- Q6에서 OPT-3가 빠지면 **Reasoning**의 Bunker 연결을 확인합니다. 이송 외 대응안의 `source_bunker_id`는 비어 있으므로 `INNER JOIN`하면 제외됩니다. `ResponseOption 4행을 모두 유지하고 Bunker는 LEFT JOIN으로 연결해 C1~C4, meets_all, 추천 순위와 비용을 다시 보여줘`로 확인합니다. 최초 오류 답은 정답으로 처리하지 않습니다.
+- Q6에서 OPT-3가 빠지면 **Reasoning**의 Bunker 연결을 확인합니다. 이송 외 대응안의 `source_bunker_id`는 비어 있으므로 `INNER JOIN`하면 제외됩니다. `ResponseOption 4행을 모두 유지하고 Bunker는 LEFT JOIN으로 연결해 C1–C4, meets_all, 추천 순위와 비용을 다시 보여줘`로 확인합니다. 최초 오류 답은 정답으로 처리하지 않습니다.
 - 대화를 처음부터 다시 하려면 브라우저를 새로 고칩니다(**F5**). 1단계에서 넣은 설명은 Ontology에 남아 있습니다.
 - 1단계 요청 뒤 아무 변화가 없으면 스위치가 **Act**인지 확인하고 다시 보냅니다.
 - 설명을 넣었는데 답이 다르면 해당 엔터티의 **Description**에 문장이 저장됐는지, 쿼리가 올바른 속성과 조건을 썼는지 확인합니다. Rules에만 같은 문장을 넣어도 `ask_ontology`의 현재 제한은 해결되지 않습니다.

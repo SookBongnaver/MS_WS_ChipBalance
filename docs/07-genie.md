@@ -10,7 +10,7 @@ Gold 데이터는 Unity Catalog 관리형 테이블로 저장하지 않습니다
 
 1.  `ChipBalance` 폴더에서 `07_answers`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다.
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. (1~2분)
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. (1–2분)
 
 **예상 결과:** **1. 설정과 Gold 불러오기**에서 `OneLake에서 불러온 Gold: 21개`가 표시되고, **2. Genie 질문의 정답**에서 6행 표가 나옵니다.
 
@@ -34,7 +34,7 @@ Genie는 Unity Catalog의 테이블을 읽고 질문을 SQL로 바꿉니다. Gol
 - **OneLake 테이블 데이터는 읽기 전용입니다.** 이 가이드는 원본 테이블을 바꾸거나 `COMMENT ON`을 실행하지 않습니다. Genie Agent 안의 테이블·열 설명은 별도의 로컬 메타데이터로 편집할 수 있으며, Unity Catalog나 OneLake 원본에 영향을 주지 않습니다. **Configure > Sources**(화면에 따라 **Data**)에서 설명을 보완하고, 공통 업무 규칙은 General Instructions에 적습니다.
 - 연결된 Gold의 이름은 `fabric_chipbalance_<참가자>.gold.<테이블>`입니다.
 - 질문을 실행하려면 **Serverless 또는 Pro SQL warehouse**와 작성자의 **CAN USE** 권한이 필요합니다. `chipbalance-pro`는 이 가이드의 이름 예시이며 Pro만 필수인 것은 아닙니다. 데이터에는 본인의 `USE CATALOG`, `USE SCHEMA`, `SELECT` 권한도 있어야 합니다.
-- OneLake federation용 SQL warehouse는 **SQL 버전 2025.40 이상**이어야 합니다. 클래식 Compute로 Foreign Catalog를 조회할 때는 **Databricks Runtime 18.0 이상, standard access mode**가 필요합니다. 이는 01~07장의 Serverless Notebook으로 Gold를 직접 읽고 쓰는 경로와는 별도의 조건입니다.
+- OneLake federation용 SQL warehouse는 **SQL 버전 2025.40 이상**이어야 합니다. 클래식 Compute로 Foreign Catalog를 조회할 때는 **Databricks Runtime 18.0 이상, standard access mode**가 필요합니다. 이는 01–07장의 Serverless Notebook으로 Gold를 직접 읽고 쓰는 경로와는 별도의 조건입니다.
 - 자세한 연결 방식은 [OneLake catalog federation](https://learn.microsoft.com/azure/databricks/query-federation/onelake)을 따릅니다.
 
 ### 1. 테이블과 행 수 먼저 확인
@@ -79,7 +79,7 @@ baseline은 긴급 오더를 반영하지 않은 현재 계획, emergency는 긴
 scenario_id가 있는 Fact는 fact_plan, fact_order_fulfillment, fact_balance, fact_bunker_summary, fact_response_option, fact_risk_event이다. 이 테이블은 질문의 scenario_id로 필터하고, 서로 조인할 때도 scenario_id를 맞춘다. 현재 계획이나 긴급 오더 미반영 질문은 baseline, 긴급 오더 반영 질문은 emergency로 구분한다.
 fact_sales_order에는 scenario_id가 없고 is_urgent로 긴급 오더를 구분한다. fact_option_balance에도 scenario_id가 없고 option_id로 대응안을 선택한다. 나머지 공통 Fact에 scenario_id 조건을 만들지 않는다.
 안전재고 아래로 내려간 Bunker는 fabric_chipbalance_<참가자>.gold.fact_bunker_summary의 below_safety_days > 0으로 판단한다.
-대응안별 일별 재고는 fact_option_balance를 option_id로 필터한다. 이 테이블은 영향받는 Bunker만 저장하므로 모든 Bunker의 통과 여부는 fact_response_option의 C1~C4와 meets_all로 판단한다. 추천은 recommendation_rank = 1이다.
+대응안별 일별 재고는 fact_option_balance를 option_id로 필터한다. 이 테이블은 영향받는 Bunker만 저장하므로 모든 Bunker의 통과 여부는 fact_response_option의 C1–C4와 meets_all로 판단한다. 추천은 recommendation_rank = 1이다.
 답변은 한국어로, 정답 값과 근거(Bunker, 날짜, kg)를 함께 보여준다.
 ```
 
@@ -89,7 +89,7 @@ fact_sales_order에는 scenario_id가 없고 is_urgent로 긴급 오더를 구�
 
 ### 4. 질문 6개 하기
 
-위 표의 질문 6개를 **하나씩 새 대화**로 묻고, 답을 표의 정답과 비교합니다. 질문마다 1~3분 걸립니다.
+위 표의 질문 6개를 **하나씩 새 대화**로 묻고, 답을 표의 정답과 비교합니다. 질문마다 1–3분 걸립니다.
 
 **검증 목표:** 표의 정답과 같은 값입니다. (Q2 BNK-L3-2 -23,630 kg, Q4 BNK-L1-2 최저 16,763 kg, Q6 OPT-2 등) Genie는 비결정적이므로 Instructions를 넣어도 정답을 보장하지 않습니다. 답이 다르면 생성된 SQL의 테이블·필터·조인을 확인하고 `07_answers`와 비교합니다. **Examples**에 검증한 SQL을 추가하거나 Agent 안의 설명을 보완한 뒤 새 대화에서 다시 평가합니다. [Agent 생성 조건](https://learn.microsoft.com/azure/databricks/genie-agents/set-up), [품질 개선과 로컬 메타데이터](https://learn.microsoft.com/azure/databricks/genie-agents/tune-quality)를 참고합니다.
 
