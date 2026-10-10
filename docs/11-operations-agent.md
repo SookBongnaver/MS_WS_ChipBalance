@@ -236,7 +236,28 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
     <img src="../assets/screenshots/d11-verify.png" width="1000" alt="RiskEventStatus 쿼리 결과 2행. 첫 행은 event_status open, 둘째 행은 approved이고 두 행 모두 EVT-20261001-001, OPT-2, BNK-L3-2, 35,630입니다." />
 
-2.  Notebook은 Lakehouse에도 기록합니다. `dbo.chip_decision_log`에 `EVT-20261001-001`, `OPT-2`, `approved` 행이 생기고, `gold.fact_risk_event`의 `status`가 `approved`가 됩니다.
+2.  Lakehouse의 승인 기록도 직접 확인합니다. `dbo.chip_decision_log`에 `EVT-20261001-001`, `OPT-2`, `approved` 행이 생기고, `gold.fact_risk_event`의 `status`가 `approved`여야 합니다.
+
+    작업 영역에서 확인용 **Notebook** `nb_verify_approval`을 만들고, 3단계와 같은 방법으로 **본인의 Lakehouse를 기본 Lakehouse**로 연결합니다. 아래 읽기 전용 코드 셀만 실행합니다. 승인 Notebook `nb_record_decision`이나 06장을 다시 실행하지 않습니다.
+
+    ``` python
+    approval_log = spark.sql("""
+        SELECT event_id, option_id, decision, decided_at
+        FROM dbo.chip_decision_log
+        WHERE event_id = 'EVT-20261001-001' AND option_id = 'OPT-2'
+    """)
+    risk_status = spark.sql("""
+        SELECT event_id, sales_order_id, bunker_id, recommended_option_id, status
+        FROM gold.fact_risk_event
+        WHERE event_id = 'EVT-20261001-001'
+    """)
+    display(approval_log)
+    display(risk_status)
+    ```
+
+    **예상 결과:** 최초 1회 승인에서는 두 표가 각각 1행입니다. 승인 로그의 `decision`과 위험 이벤트의 `status`가 모두 `approved`인지 확인합니다. 반복 승인한 데이터에서는 로그 행이 늘 수 있습니다. 확인이 끝나면 확인용 Notebook의 Spark 세션을 중지합니다.
+
+    <img src="../assets/screenshots/d11-lakehouse-verify.png" width="1000" alt="읽기 전용 Notebook으로 확인한 Lakehouse 결과. 승인 로그는 1행이며 OPT-2의 decision이 approved입니다. 위험 이벤트도 1행이며 SO-10322, BNK-L3-2, 추천안 OPT-2, status approved가 보입니다." />
 
 3.  `oa_chipbalance`로 돌아가 도구 모음의 **Stop**을 누릅니다. 에이전트는 멈추기 전까지 5분마다 조회하며 용량을 씁니다.
 
@@ -251,6 +272,7 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 - 승인 요청은 3일 안에 응답하지 않으면 만료됩니다.
 - Notebook 실행이 실패하면 Fabric 왼쪽 **Monitor**에서 `nb_record_decision` 실행 기록을 열어 오류를 확인합니다. 3단계에서 `lh_chipbalance_p001`을 추가했는지 확인합니다.
 - `Action submitted`는 실행 요청 접수이지 완료 알림이 아닙니다. Monitor의 완료 상태와 Eventhouse·Lakehouse의 세 결과를 모두 확인합니다. 두 저장소에 대한 갱신은 단일 트랜잭션이 아니므로 실패한 셀과 각 저장소의 상태를 먼저 확인한 뒤 재시도합니다.
+- SQL 분석 엔드포인트의 **New query** 화면에서 새로 고침 오류가 나면 데이터 갱신 실패라고 단정하지 않습니다. 활성 유료 용량에서도 이 UI 오류가 관찰됐으므로, 8단계의 읽기 전용 Notebook으로 실제 결과를 확인하고 SQL 편집기 문제는 별도로 조사합니다. 오류를 없애려고 승인 Notebook이나 06장을 다시 실행하지 않습니다.
 - `option_id` 불일치 오류이면 조치에 전달된 값과 현재 이벤트의 `recommended_option_id`를 비교합니다. 추천안과 다른 값을 승인 기록에 남기지 않습니다.
 - 반복 실습에서는 **Stop**으로 에이전트를 멈춘 뒤, **실습 전용** `RiskEventStatus` 이력이 필요 없을 때만 `.clear table RiskEventStatus data`로 지웁니다. Lakehouse의 이벤트·승인 로그와 agent의 전이 상태는 별개입니다. 에이전트를 다시 시작하고 6단계를 실행하되, 새 알림이 생기지 않으면 **View activity / Activity log**에서 조건·객체 상태를 확인합니다.
 

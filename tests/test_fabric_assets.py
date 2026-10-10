@@ -16,6 +16,23 @@ def approval_cells():
 
 
 class ApprovalTests(unittest.TestCase):
+    def test_guide_verification_cell_only_reads_approval_data(self):
+        text = (ROOT / "docs" / "11-operations-agent.md").read_text(encoding="utf-8")
+        code = next(code for code in re.findall(r"``` python\n(.*?)\n\s*```", text, re.DOTALL)
+                    if "approval_log = spark.sql" in code)
+        import textwrap
+        tree = ast.parse(textwrap.dedent(code))
+        queries = [node.args[0].value for node in ast.walk(tree)
+                   if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                   and node.func.attr == "sql"]
+        self.assertEqual(2, len(queries))
+        for query in queries:
+            self.assertTrue(query.lstrip().startswith("SELECT "))
+            self.assertIn("EVT-20261001-001", query)
+            self.assertNotRegex(query, r"\b(?:INSERT|UPDATE|DELETE|MERGE|CREATE|DROP)\b")
+        self.assertIn("FROM dbo.chip_decision_log", queries[0])
+        self.assertIn("FROM gold.fact_risk_event", queries[1])
+
     def run_validation(self, events, options, option_id="OPT-2"):
         class Frame:
             def __init__(self, rows):
