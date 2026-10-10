@@ -6,7 +6,7 @@
 
 **계획 확인 → 긴급 수주 반영 → 대응안 비교 → 근거 검토 → 승인 기록**
 
-처음 시작한다면 [00. 시나리오와 실습 순서](docs/00-scenario.md)에서 업무 상황을 읽고 실습 파일을 내려받습니다.
+처음 시작한다면 [00. 시나리오와 실습 순서](docs/00-scenario.md)에서 업무 상황과 준비할 파일을 확인합니다. Databricks Notebook은 **Shared 원본을 본인 Home으로 복제**하므로 참가자가 ZIP을 다운로드·Import할 필요가 없습니다.
 
 ## 이 실습에서 완성하는 것
 
@@ -38,7 +38,7 @@ Databricks에서 **Bronze → Silver → Gold**로 데이터를 정제·계산�
 | 참가자가 확인할 것 | 관리자에게 받을 안내 |
 |---|---|
 | 실습 계정·참가자 번호·접속 주소 | Databricks 주소와 본인 번호(예: `p001`), Databricks·Fabric·Foundry·Teams에 사용할 계정 |
-| 데이터 실행·접근 환경 | Notebook Serverless, Unity Catalog 권한, Managed Identity를 통한 OneLake 접근, 본인 Fabric 작업 영역·Lakehouse |
+| 데이터 실행·접근 환경 | Shared의 `ChipBalance` 원본과 복제 권한, Notebook Serverless, Unity Catalog 권한, Managed Identity를 통한 OneLake 접근, 본인 Fabric 작업 영역·Lakehouse |
 | 보고서·에이전트 사용 환경 | Power BI Pro 또는 PPU 라이선스와 작성 권한, AI 기능의 테넌트 설정·지원 지역, Foundry 역할·모델·인증 연결, Teams 사용 권한 |
 
 문서·캡처의 `p001`은 예시입니다. 명령과 작업 영역·Lakehouse 선택에는 **본인 번호**를 사용합니다. `sm_chipbalance`, `ont_chipbalance` 같은 항목 이름은 참가자별 작업 영역 안에서 그대로 씁니다.
@@ -51,8 +51,8 @@ Genie 질의와 Ontology Graph 생성은 **선택 단계**입니다. Genie에는
 
 | 장 | 이번 단계에서 할 일 |
 |---|---|
-| [00. 시나리오와 실습 순서](docs/00-scenario.md) | 업무 상황·판단 기준을 이해하고 실습 파일을 내려받습니다. |
-| [01. Databricks 접속과 설정](docs/01-connect.md) | Notebook을 가져오고 참가자 번호를 넣어 OneLake 쓰기·읽기를 확인합니다. |
+| [00. 시나리오와 실습 순서](docs/00-scenario.md) | 업무 상황·판단 기준을 이해하고 공유 원본과 Fabric 실습 파일을 확인합니다. |
+| [01. Databricks 접속과 설정](docs/01-connect.md) | Shared 원본을 본인 Home으로 복제하고 참가자 번호를 넣어 OneLake 쓰기·읽기를 확인합니다. |
 | [02. 원천 데이터 만들기](docs/02-source-data.md) | 가상 SAP·FPIMS·PVSS 파일 14개를 생성하고 데이터 관계를 읽어 봅니다. |
 | [03. Bronze](docs/03-bronze.md) | 원천 파일을 바꾸지 않고 테이블로 적재해 원본을 보존합니다. |
 | [04. Silver](docs/04-silver.md) | 형식·단위를 맞추고 중복·공란·미등록 코드·센서 이상값을 격리합니다. |
@@ -70,15 +70,17 @@ Genie 질의와 Ontology Graph 생성은 **선택 단계**입니다. Genie에는
 
 ## 실습 파일
 
-[00장의 내려받기 안내](docs/00-scenario.md#실습-파일-내려받기)에 따라 **저장소 ZIP을 내려받아 압축을 풉니다.** 그 안의 아래 파일을 사용합니다.
+[00장의 파일 준비 안내](docs/00-scenario.md#실습-파일-준비)를 따릅니다. **Databricks Notebook은 Shared에서 복제**, Fabric 파일은 관리자에게 전달받아 준비합니다.
 
 | 파일 | 용도 |
 |---|---|
-| `notebooks\ChipBalance.zip` | 01장에서 Databricks로 가져오는 Notebook 8개입니다. **이 ZIP 자체는 풀지 않고 Import**합니다. 개별 Notebook은 `notebooks` 폴더에서도 볼 수 있습니다. |
+| Shared의 `ChipBalance` 폴더 | 관리자 원본 1개를 참가자가 각자 Home으로 **Clone**합니다. 8개 Notebook을 같은 폴더에 두고 복제본에서만 수정·실행합니다. |
 | `fabric\sm_chipbalance.tmdl`, `fabric\chipbalance-theme.json` | 10장의 모델 관계·측정값과 보고서 테마입니다. |
 | `fabric\nb_record_decision.ipynb` | 11장에서 Operations agent에 연결할 승인 기록 Notebook입니다. |
 
 원천 파일은 별도로 준비하지 않습니다. **02장에서 가상 실습 데이터를 생성**하며 실제 SAP·FPIMS·PVSS에 접속하지 않습니다.
+
+저장소의 `notebooks\ChipBalance.zip`은 **관리자가 Shared 원본을 준비할 때 Import하는 배포 파일**입니다. `fabric` 폴더도 관리자가 별도로 전달하므로 GitHub 다운로드가 안 되는 참가자도 진행할 수 있습니다.
 
 ## 관리자용
 

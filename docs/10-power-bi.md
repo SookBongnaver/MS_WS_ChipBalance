@@ -17,7 +17,7 @@
 
 - 06장까지 완료한 본인의 Lakehouse: **Tables → gold**에 Gold 테이블 21개가 있어야 합니다.
 - 관리자가 준비한 **활성 유료 Fabric 용량**, Power BI Pro 또는 PPU 라이선스, 모델·보고서 작성 권한과 Copilot 설정. 전체 실습에서 같은 유료 용량을 사용합니다.
-- 00장에서 압축을 푼 실습 폴더의 아래 두 파일
+- 00장에서 관리자에게 전달받아 준비한 `fabric` 폴더의 아래 두 파일
 
 | 파일 | 사용할 때 |
 |----|----|
@@ -50,7 +50,7 @@
 
 1.  화면 아래 **TMDL View (Preview)** 탭을 누릅니다. **Edit your model with TMDL** 안내가 나오면 **Try it now**를 누릅니다.
 
-2.  00장에서 압축을 푼 폴더의 `fabric\sm_chipbalance.tmdl`을 메모장으로 열고, **Ctrl+A**, **Ctrl+C**로 전체를 복사합니다.
+2.  00장에서 준비한 `fabric\sm_chipbalance.tmdl`을 메모장으로 열고, **Ctrl+A**, **Ctrl+C**로 전체를 복사합니다.
 
 3.  TMDL 편집기의 1행을 누르고 **Ctrl+V**로 붙여 넣습니다. 1행이 `createOrReplace`입니다.
 

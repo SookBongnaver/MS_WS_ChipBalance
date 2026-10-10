@@ -49,19 +49,18 @@
 
 구성도의 실선은 실습 흐름, 점선은 운영 확장 예시입니다. 점선의 연결은 이 실습에서 만들지 않습니다. Ontology의 Graph 생성도 선택 단계입니다.
 
-## 실습 파일 내려받기
+## 실습 파일 준비
 
 **전체 실습은 관리자가 준비한 활성 유료 Fabric 용량을 전제로 합니다.** 시작 전에 실습 계정, Databricks 주소, 참가자 번호를 받습니다. 리소스·권한 준비는 [관리자 준비 가이드](../admin/README.md)를 따릅니다.
 
-1.  브라우저에서 GitHub 저장소를 엽니다: <https://github.com/SookBongnaver/MS_WS_ChipBalance>
+| 사용할 파일 | 준비 방법 |
+|---|---|
+| Databricks Notebook 8개 | 관리자가 **Workspace → Shared → ChipBalance**에 원본 폴더 하나를 준비합니다. 01장에서 각자 **본인 Home으로 Clone**합니다. 참가자는 Notebook ZIP을 내려받거나 Import하지 않습니다. |
+| Fabric 실습 파일 3개 | 관리자가 전달한 `fabric` 폴더를 본인 PC에 준비합니다. `sm_chipbalance.tmdl`·`chipbalance-theme.json`은 10장, `nb_record_decision.ipynb`는 11장에서 사용합니다. |
 
-    저장소가 비공개인 경우 접근 권한이 있는 GitHub 계정으로 로그인합니다.
+**확인할 결과:** 안내받은 Databricks에서 Shared 원본에 접근할 수 있고, PC의 `fabric` 폴더에 위 파일 3개가 있습니다. 공유 원본의 참가자 번호는 고치지 않습니다. **복제 화면과 상세 순서는 [01장](01-connect.md#2-shared-원본을-본인-home에-복제)**에서 확인합니다.
 
-2.  파일 목록 위의 **Code** \> **Download ZIP**을 누릅니다.
-
-3.  내려받은 ZIP 파일의 압축을 풉니다.
-
-**예상 결과:** 압축을 푼 폴더에 `notebooks\ChipBalance.zip`과 `fabric` 폴더가 있습니다. `ChipBalance.zip`은 01장에서 Databricks로 가져오는 Notebook 8개이고, `fabric` 폴더의 모델·테마는 10장, 승인 기록 Notebook은 11장에서 씁니다.
+GitHub는 교재와 배포 원본을 관리하는 곳입니다. 파일을 직접 받는 경우에는 [저장소](https://github.com/SookBongnaver/MS_WS_ChipBalance)의 **Code → Download ZIP**으로 내려받아 압축을 풀고 `fabric` 폴더를 사용합니다. 다운로드가 차단된 환경에서는 관리자에게 이 세 파일을 전달받습니다. **Databricks Notebook은 어느 경우든 Shared 원본을 복제**합니다.
 
 ## 실습 일정
 

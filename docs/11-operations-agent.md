@@ -18,7 +18,7 @@
 | Operations agent `oa_chipbalance` | `RiskEventStatus`를 5분마다 조회해 `event_status`가 `open`이 된 이벤트를 찾고, Teams로 알립니다. |
 | Notebook `nb_record_decision` | 담당자가 승인하면 실행됩니다. `RiskEventStatus`에 `approved` 행을 추가하고, Lakehouse에 승인 내역을 남깁니다. 발주나 이송 지시는 하지 않습니다. |
 
-Operations agent가 감시하는 것은 Lakehouse가 아니라 **Eventhouse의 `RiskEventStatus`**입니다. 06장의 `gold.fact_risk_event` 값을 이 장의 명령으로 전송합니다. 자동 수집 파이프라인을 만드는 단계는 아닙니다. 승인 파일은 00장에서 압축을 푼 폴더의 **`fabric\nb_record_decision.ipynb`**를 사용합니다.
+Operations agent가 감시하는 것은 Lakehouse가 아니라 **Eventhouse의 `RiskEventStatus`**입니다. 06장의 `gold.fact_risk_event` 값을 이 장의 명령으로 전송합니다. 자동 수집 파이프라인을 만드는 단계는 아닙니다. 승인 파일은 00장에서 관리자에게 전달받아 준비한 **`fabric\nb_record_decision.ipynb`**를 사용합니다.
 
 ## 1. Eventhouse 만들기
 

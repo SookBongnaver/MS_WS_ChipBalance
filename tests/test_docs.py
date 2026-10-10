@@ -105,6 +105,32 @@ class DocumentTests(unittest.TestCase):
         self.assertIn("**5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가", foundry)
         self.assertIn("이미 만든 Foundry 프로젝트와 에이전트를 다시 만들지 않습니다.", operations)
 
+    def test_participant_notebooks_are_cloned_from_shared(self):
+        setup = (DOCS / "01-connect.md").read_text(encoding="utf-8").replace("**", "")
+        self.assertIn("## 2. Shared 원본을 본인 Home에 복제", setup)
+        self.assertIn("Workspace → Shared", setup)
+        self.assertIn("본인의 Home", setup)
+        self.assertIn("Include outputs", setup)
+        self.assertIn("복제본에서", setup)
+        self.assertIn("%run ./01_setup", setup)
+        self.assertNotIn("ChipBalance.zip", setup)
+        self.assertNotIn("d01-import-", setup)
+        for image in ("d01-shared-clone-menu.png", "d01-clone-dialog.png", "d01-cloned-folder.png"):
+            self.assertIn(image, setup)
+        admin = (ROOT / "admin" / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Shared에는 원본 폴더 하나만 준비합니다.", admin)
+        self.assertIn("notebooks\\ChipBalance.zip", admin)
+
+    def test_shared_clone_preserves_separate_fabric_file_distribution(self):
+        scenario = (DOCS / "00-scenario.md").read_text(encoding="utf-8")
+        for name in ("sm_chipbalance.tmdl", "chipbalance-theme.json", "nb_record_decision.ipynb"):
+            self.assertIn(name, scenario)
+        self.assertIn("Fabric 실습 파일 3개", scenario)
+        self.assertIn("## 실습 파일 준비", scenario)
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("docs/00-scenario.md#실습-파일-준비", readme)
+        self.assertNotIn("#실습-파일-내려받기", readme)
+
     def test_relative_links_resolve(self):
         for path in md_files():
             for target in LINK.findall(strip_comments(path.read_text(encoding="utf-8"))):
