@@ -105,10 +105,12 @@
 
 <img src="../assets/screenshots/d05-lakehouse.png" width="1000" alt="Fabric Lakehouse lh_chipbalance_p101. Explorer에서 Tables &gt; gold 아래에 dim_bunker부터 fact_response_option까지 테이블이 있고, 가운데에 fact_opening_stock 24행이 보입니다. BNK-L3-2의 opening_kg는 30370입니다. 06장까지 실행한 뒤의 화면이라 gold 테이블이 21개입니다." />
 
-## 4. SQL로 같은 결과 확인
+## 4. (선택) SQL로 같은 결과 확인
+
+Gold 저장과 조회는 앞의 Notebook 결과와 Lakehouse에서 이미 확인했습니다. 이 절은 같은 데이터를 SQL 분석 엔드포인트에서도 읽어 보는 선택 단계입니다. **New SQL query / New query 화면 자체가 열리지 않거나 새로 고침 오류가 나면 이 절을 건너뛰고 06장으로 진행합니다.** Gold 생성 Notebook을 다시 실행하거나 데이터를 다시 저장할 필요는 없습니다.
 
 1.  왼쪽 세로 메뉴에서 작업 영역 `chipbalance-p001`을 누르고, 유형이 **SQL analytics endpoint**인 `lh_chipbalance_p001`을 엽니다.
-2.  위쪽 리본 맨 왼쪽의 **Sync metadata from the Lakehouse** 아이콘을 누릅니다. Lakehouse에 저장된 테이블을 SQL에서 읽을 수 있게 됩니다. (30초쯤)
+2.  위쪽 리본 맨 왼쪽의 **Sync metadata from the Lakehouse** 아이콘을 누릅니다. Lakehouse 테이블의 SQL 메타데이터를 동기화합니다. 완료 시간은 환경에 따라 달라질 수 있습니다.
 3.  리본의 **New SQL query**를 누르고 아래 SQL을 붙여 넣은 뒤 **Run**을 누릅니다.
 
 ``` sql
@@ -126,7 +128,8 @@ ORDER BY balance_date;
 
 - Gold 셀에서 `service credential` 오류가 나면 01장 **5. OneLake 연결 확인**을 다시 실행하고, 오류 메시지를 관리자에게 알립니다.
 - Fabric에 `gold` 테이블이 보이지 않으면 Explorer의 **Tables** 옆 **…** \> **Refresh**를 누릅니다.
-- SQL에서 `Invalid object name 'gold.fact_balance'` 오류가 나면 **Sync metadata from the Lakehouse**를 누르고 30초 뒤 다시 실행합니다.
+- 쿼리 실행 뒤 `Invalid object name 'gold.fact_balance'` 오류가 나면 **Sync metadata from the Lakehouse**를 누르고 동기화 상태를 확인한 뒤 다시 실행합니다. 이는 편집기 화면이 열리지 않는 오류와 구분합니다.
+- SQL 편집기 화면의 새로 고침 오류는 활성 유료 용량에서도 관찰됐습니다. 2~3절의 Notebook·Lakehouse 결과로 Gold를 확인한 뒤 06장으로 진행하고, SQL 편집기 오류는 별도로 관리자에게 전달합니다.
 
 ## 다음 단계
 
