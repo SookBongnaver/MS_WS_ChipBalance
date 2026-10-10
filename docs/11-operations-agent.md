@@ -2,7 +2,13 @@
 
 [목차](../README.md) \| 이전: [10. Power BI 보고서](10-power-bi.md) \| 다음: [12. Foundry agent](12-foundry-agent.md)
 
-06장에서 만든 위험 이벤트(`gold.fact_risk_event`)를 이 장의 명령으로 Eventhouse에 보냅니다. Operations agent는 Lakehouse를 직접 감시하지 않고 Eventhouse의 `RiskEventStatus`를 감시합니다. 상태가 `open`이 되면 Teams로 담당자에게 알리고, 추천 대응안 `OPT-2`의 승인을 요청합니다. 담당자가 Teams에서 승인하면 Notebook `nb_record_decision`이 실행되어 승인 내역을 남깁니다. 자동 수집 파이프라인을 구성하는 단계는 아닙니다.
+10장에서 추천안을 보고서로 확인했습니다. 이제 **Operations agent가 같은 추천안을 Teams로 제안하고, 담당자의 결정을 승인 기록으로 남기는 흐름**을 만듭니다. 이 장은 앞부분을 진행한 뒤 12장에서 근거를 검토하고, 다시 돌아와 승인을 마칩니다.
+
+| 진행 구간 | 하는 일 | 멈추거나 넘어가는 시점 |
+|---|---|---|
+| 이 장의 1–6단계 | Eventhouse·승인 Notebook·Operations agent를 준비하고 위험 이벤트 전송 | Teams 제안을 기다립니다. |
+| 7단계 1–3번 → 12장 1–5단계 | 제안 내용을 확인하고 Foundry에서 근거 검토 | **아직 승인하지 않습니다.** |
+| 이 장의 7단계 4번 → 8단계 | 담당자 승인, 저장 결과 확인, 감시 중지 | 확인을 마친 뒤 13장으로 갑니다. |
 
 **시작 전:** 본인의 작업 영역에 06장의 Gold 테이블이 있어야 합니다. 전체 실습에 준비된 **활성 유료 Fabric 용량**을 사용합니다. 참가자는 작업 영역 Contributor 이상과 KQL 데이터베이스·Notebook·Lakehouse의 작업 권한, Teams 라이선스와 앱 사용 권한이 필요합니다. [공식 요구 사항](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent#prerequisites)과 [관리자 준비 가이드](../admin/README.md)를 확인합니다.
 
@@ -12,13 +18,7 @@
 | Operations agent `oa_chipbalance` | `RiskEventStatus`를 5분마다 조회해 `event_status`가 `open`이 된 이벤트를 찾고, Teams로 알립니다. |
 | Notebook `nb_record_decision` | 담당자가 승인하면 실행됩니다. `RiskEventStatus`에 `approved` 행을 추가하고, Lakehouse에 승인 내역을 남깁니다. 발주나 이송 지시는 하지 않습니다. |
 
-Operations agent는 Eventhouse의 KQL 데이터베이스를 데이터 원본으로 읽습니다. 시간 열(`status_time`)로 새로 들어온 행을 구분하므로, 상태가 바뀔 때마다 행을 추가합니다.
-
-이 장에서 쓰는 파일은 00장에서 압축을 푼 폴더의 `fabric` 폴더에 있습니다.
-
-- `fabric\nb_record_decision.ipynb` — 승인 기록 Notebook
-
-Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 이 실습에서는 **Agent behavior**의 수신자가 본인인지 확인하고, Fabric과 같은 계정으로 Teams(웹 또는 데스크톱)에 로그인합니다. 다른 수신자·채널 지정은 이 실습에 포함하지 않습니다. 조치는 수신자가 아니라 에이전트 생성자의 위임된 권한으로 실행됩니다([조치·수신자 설정](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent-actions)).
+Operations agent가 감시하는 것은 Lakehouse가 아니라 **Eventhouse의 `RiskEventStatus`**입니다. 06장의 `gold.fact_risk_event` 값을 이 장의 명령으로 전송합니다. 자동 수집 파이프라인을 만드는 단계는 아닙니다. 승인 파일은 00장에서 압축을 푼 폴더의 **`fabric\nb_record_decision.ipynb`**를 사용합니다.
 
 ## 1. Eventhouse 만들기
 
@@ -33,6 +33,8 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 **예상 결과:** Eventhouse가 열리고, 같은 이름의 KQL 데이터베이스 `eh_chipbalance`가 만들어집니다. (1분 이내)
 
 ## 2. RiskEventStatus 테이블 만들기
+
+이 테이블은 상태 이력입니다. 시간 열 `status_time`으로 새 행을 구분하므로, 이벤트가 `open`에서 `approved`로 바뀔 때 같은 `event_id`의 행을 추가합니다.
 
 1.  KQL 데이터베이스 `eh_chipbalance`에 연결된 Queryset `eh_chipbalance_queryset`을 엽니다. Queryset이 자동으로 생기지 않았으면 데이터베이스에서 **New KQL queryset**을 만들고, 쿼리 대상 데이터베이스가 `eh_chipbalance`인지 확인합니다.
 
@@ -66,15 +68,7 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 
 ## 3. 승인 기록 Notebook 가져오기
 
-`nb_record_decision`은 Operations agent가 넘겨 주는 `event_id`와 `option_id`로 아래 순서대로 실행됩니다. Eventhouse는 이름(`eh_chipbalance`)으로 찾으므로 주소를 입력하지 않습니다.
-
-| 단계 | 하는 일 |
-|---|---|
-| 1. 매개 변수 | `event_id`, `option_id`를 받습니다. 셀에 **Parameters** 표시가 있습니다. |
-| 2. 위험 이벤트 확인 | `gold.fact_risk_event`에서 승인할 위험 이벤트를 읽습니다. |
-| 3. Eventhouse에 승인 상태 추가 | `RiskEventStatus`에 `approved` 행을 추가합니다. |
-| 4. Lakehouse에 승인 기록 남기기 | `dbo.chip_decision_log`에 승인 내역을 남기고, `gold.fact_risk_event`의 `status`를 `approved`로 바꿉니다. |
-| 5. 결과 확인 | 세 곳의 결과를 보여 줍니다. |
+승인할 때 실행할 Notebook을 먼저 연결합니다. `nb_record_decision`은 Operations agent가 넘기는 `event_id`, `option_id`로 위험 이벤트를 확인한 뒤 **Eventhouse 상태 이력·Lakehouse 승인 로그·위험 이벤트 상태**를 갱신합니다. Eventhouse는 `eh_chipbalance`라는 이름으로 찾으므로 주소를 입력하지 않습니다. **지금은 가져오기와 연결만 하며 실행하지 않습니다.**
 
 1.  작업 영역에서 **Import** → **Notebook** → **From this computer**를 고릅니다.
 
@@ -92,7 +86,7 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 
     <img src="../assets/screenshots/d11-add-data.png" width="1000" alt="nb_record_decision Notebook. 왼쪽 Explorer의 Add data items 메뉴에 From OneLake catalog, From Real-Time hub, New lakehouse가 있습니다. 오른쪽에 대응안 승인 기록 제목과 1. 매개 변수, 2. 위험 이벤트 확인 셀이 보입니다." />
 
-4.  검색 상자에 `lh_chipbalance`를 입력합니다. Lakehouse 아이콘이 있는 `lh_chipbalance_p001`(첫 번째 행)을 체크하고 **Add**를 누릅니다.
+4.  검색 상자에 `lh_chipbalance`를 입력합니다. **본인 작업 영역**에 있고 **Lakehouse 아이콘**이 있는 `lh_chipbalance_p001`을 체크하고 **Add**를 누릅니다. 같은 이름의 SQL 분석 엔드포인트를 선택하지 않습니다. 목록 순서가 아니라 유형·위치로 구분합니다.
 
     <img src="../assets/screenshots/d11-add-lakehouse.png" width="900" alt="OneLake catalog 창. 검색 상자에 lh_chipbalance가 입력되어 있고, Lakehouse 아이콘의 lh_chipbalance_p001이 체크되어 있습니다. 오른쪽 아래에 Add 버튼이 있습니다." />
 
@@ -158,6 +152,8 @@ Operations agent의 기본 수신자는 에이전트를 만든 사람입니다. 
 
 8.  도구 모음 왼쪽의 저장 아이콘을 누릅니다.
 
+**시작 전 수신자 확인:** **Agent behavior**에서 Teams 수신자가 **본인**인지 확인하고 Fabric과 같은 계정으로 Teams에 로그인합니다. 기본 수신자는 에이전트를 만든 사람이며 이 실습은 다른 사람·채널로 보내지 않습니다. 조치는 수신자가 아니라 에이전트 생성자의 위임된 권한으로 실행됩니다([조치·수신자 설정](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent-actions)).
+
 ## 5. Playbook 만들기
 
 Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 규칙입니다. 규칙마다 KQL 쿼리와 조건이 들어 있습니다.
@@ -182,7 +178,7 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
 ## 6. 에이전트를 시작하고 위험 이벤트 보내기
 
-1.  도구 모음의 **Start**를 누릅니다. **Stop**을 누를 수 있게 되면 감시가 시작된 것입니다.
+1.  도구 모음의 **Start**를 누릅니다. **Stop**을 누를 수 있게 되면 감시가 시작된 것입니다. 다음 명령은 **Start 뒤에 한 번** 실행합니다.
 
 2.  `eh_chipbalance_queryset`으로 가서 편집 창의 내용을 지우고 아래 명령을 실행합니다. 06장의 위험 이벤트를 `open` 상태로 보냅니다. 아래는 제공된 데이터의 예시이므로 `gold.fact_risk_event`의 `event_id`, 추천 대응안과 수치가 같은지 확인합니다. 데이터가 다르면 현재 행의 값으로 고칩니다.
 
@@ -218,13 +214,13 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
 
     <img src="../assets/screenshots/d11-teams-confirm.png" width="520" alt="You selected Proceed 아래에 Confirm details for RecordDecision 카드가 있습니다. event_id는 EVT-20261001-001, option_id는 OPT-2이고 Confirm과 Cancel 버튼이 있습니다." />
 
-**예상 결과:** **Action submitted** 메시지가 옵니다. 이때 `nb_record_decision`이 실행됩니다.
+**예상 결과:** **Action submitted** 메시지가 오고 `nb_record_decision`의 실행 요청이 제출됩니다. **접수 메시지가 완료를 뜻하지는 않습니다.** 다음 단계에서 실행과 저장 결과를 확인합니다.
 
 <img src="../assets/screenshots/d11-teams-submitted.png" width="520" alt="You selected Confirm 아래에 Action submitted 메시지가 있고, RecordDecision has been submitted using the provided parameters라고 적혀 있습니다." />
 
 ## 8. 결과 확인
 
-1.  약 2분 뒤 `eh_chipbalance_queryset`에서 아래 쿼리를 실행합니다.
+1.  Fabric 왼쪽 **Monitor**에서 `nb_record_decision`의 실행 기록을 열어 완료 상태가 **Succeeded / 성공**인지 확인합니다. 참고 시간은 약 2분이며 실제 실행이 끝날 때까지 기다립니다. 이후 `eh_chipbalance_queryset`에서 아래 쿼리를 실행합니다.
 
     ``` text
     RiskEventStatus
@@ -260,6 +256,12 @@ Playbook은 Operations agent가 지침과 데이터를 읽고 만드는 감시 �
     <img src="../assets/screenshots/d11-lakehouse-verify.png" width="1000" alt="읽기 전용 Notebook으로 확인한 Lakehouse 결과. 승인 로그는 1행이며 OPT-2의 decision이 approved입니다. 위험 이벤트도 1행이며 SO-10322, BNK-L3-2, 추천안 OPT-2, status approved가 보입니다." />
 
 3.  `oa_chipbalance`로 돌아가 도구 모음의 **Stop**을 누릅니다. 에이전트는 멈추기 전까지 5분마다 조회하며 용량을 씁니다.
+
+## 이 장의 완료 기준
+
+**Notebook 실행 성공**, Eventhouse의 **`approved` 상태 이력**, Lakehouse의 **승인 로그와 위험 이벤트 `approved`**, Operations agent의 **중지 상태**를 모두 확인합니다. `open` 행은 최초 상태 이력으로 남아 있는 것이 정상입니다. 에이전트 화면을 다시 열었을 때 **Start**가 보이면 감시가 멈춘 상태입니다.
+
+여기에 남긴 것은 **담당자의 승인 결정**입니다. 실제 발주·이송을 실행한 것은 아닙니다. 12장의 근거 검토와 위 결과 확인을 마쳤으면 13장으로 진행합니다.
 
 ## Troubleshooting
 

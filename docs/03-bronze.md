@@ -2,22 +2,17 @@
 
 [목차](../README.md) \| 이전: [02. 원천 데이터 만들기](02-source-data.md) \| 다음: [04. Silver](04-silver.md)
 
-`03_bronze`로 02장에서 만든 원천 파일 14개를 Unity Catalog의 Bronze 테이블 14개로 적재합니다.
+02장에서 본 `50 TO`와 중복 발주 행을 지금 고쳐도 될까요? **이 장에서는 먼저 원본 그대로 남깁니다.** `03_bronze`로 원천 파일 14개를 Unity Catalog의 Bronze 테이블 14개로 적재하고, 파일 내용이 바뀌지 않았는지 확인합니다.
 
-Bronze는 원본을 바꾸지 않습니다. 값은 모두 문자로 두고, 어느 파일의 몇 번째 행인지(`_source_file`, `_source_row`)와 적재 시각(`_ingested_at`)만 붙입니다. Silver나 Gold 결과가 이상하면 Bronze에서 원본 행을 찾아 비교합니다.
+원천 값은 문자로 두고, 어느 파일의 몇 번째 행인지(`_source_file`, `_source_row`)와 적재 시각(`_ingested_at`)을 붙입니다. 다음 장의 정제 결과가 이상하면 **Bronze의 원본 행으로 돌아가 비교**할 수 있습니다.
 
-| 계층 | 저장 위치 | 내용 |
-|----|----|----|
-| 원천 | Volume `raw` | SAP·FPIMS·PVSS 추출 파일 (CSV, JSON) |
-| **Bronze** | `bronze_*` 테이블 14개 | 파일 내용 그대로 + 원천 위치·적재 시각 |
-| Silver | `silver_*` 테이블 15개 | 형식·단위를 맞추고 문제 행을 격리 (04장) |
-| Gold | Fabric OneLake의 `gold.<테이블>` | 업무 계산 결과 (05·06장). Databricks의 `gold_*`는 세션 임시 뷰이며 Unity Catalog에 저장하지 않음 |
+**시작 전:** 02장의 파일 14개·43,410행이 본인의 `raw` Volume에 있어야 합니다. 이 장의 저장 위치는 본인 Unity Catalog 스키마이며 테이블 이름은 `bronze_*`입니다.
 
 ## 1. Notebook 열고 실행
 
 1.  `ChipBalance` 폴더에서 `03_bronze`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다. (02장 1단계와 같습니다.)
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 1–2분 걸립니다.
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 전체를 실행한 뒤 아래 결과를 확인해도 됩니다. 실행 시간은 약 1–2분이며 환경에 따라 달라질 수 있습니다.
 
 ## 2. 셀별 결과 확인
 
@@ -55,7 +50,9 @@ Bronze는 원본을 바꾸지 않습니다. 값은 모두 문자로 두고, 어�
 
     <img src="../assets/screenshots/d03-types.png" width="900" alt="5. 열 형식 확인 결과. bronze_fpims_production_plan의 col_name, data_type, comment 9행입니다. plan_id부터 sales_order_id까지 string, _source_file string, _source_row int, _ingested_at timestamp입니다." />
 
-Bronze·Silver는 Unity Catalog에서 확인합니다. Gold는 05장 마지막에 Fabric Lakehouse에서 확인하며, 선택 연결이 준비된 경우에만 Unity Catalog의 Foreign Catalog에서도 읽을 수 있습니다.
+## 이 장의 완료 기준
+
+Bronze 테이블 **14개·합계 43,410행**이 원천 파일과 같고, 입고 예정에 **`50 TO`와 중복 2행이 그대로** 남아 있으며 날짜·수량이 `string`이면 완료입니다. 중복이 남아 있는 것은 오류가 아니라 이 장의 목적입니다. 다음 04장에서 계산에 맞는 형식으로 바꾸고 문제 행을 격리합니다.
 
 ## Troubleshooting
 

@@ -2,24 +2,19 @@
 
 [목차](../README.md) \| 이전: [04. Silver](04-silver.md) \| 다음: [06. 긴급 수주와 대응안](06-emergency-order.md)
 
-`05_gold`로 Silver 테이블에서 Bunker별·날짜별 원료 Balance를 계산해 Gold 테이블 18개를 만들고, Fabric Lakehouse(OneLake)에 바로 저장합니다. Gold는 Unity Catalog에 만들지 않습니다. OneLake에만 있고, Databricks와 Fabric이 같은 Gold를 씁니다. Fabric은 이 Gold로 Ontology와 Power BI 보고서를 만들고, Ontology agent가 Ontology를 근거로 질문에 답합니다. Operations agent는 06장의 위험 이벤트로 대응안을 제안합니다.
+현재 생산계획대로 운영하면 4분기 동안 원료가 충분할까요? **`05_gold`로 Bunker별·날짜별 재고를 계산해, 긴급 수주가 없는 현재 계획의 상태를 확인**합니다. 04장에서 정제한 Silver를 사용하고, 결과 Gold 테이블 18개는 Fabric Lakehouse의 OneLake에 저장합니다.
 
-| 순서 | 계산 | Gold 테이블 |
-|----|----|----|
-| 1 | 기준 정보 정리 (라인, Bunker, 원료, 제품, 공급사, 고객, 이송 경로, 날짜, 시나리오) | `gold_dim_*` |
-| 2 | 1년 실적으로 제품별 실제 원료 소요량 | `gold_fact_usage_factor` |
-| 3 | 공급사별 평균 입고 지연 → 입고 예정일 | `gold_dim_supplier`, `gold_fact_inbound` |
-| 4 | 9월 30일 23시 센서 값 → 시작 재고 | `gold_fact_opening_stock` |
-| 5 | 생산계획 × 실제 소요량 → 날짜별 Bunker 사용량, 날짜별 재고 | `gold_fact_balance` |
-| 6 | Bunker별 위험 요약, 판매오더 납기 | `gold_fact_bunker_summary`, `gold_fact_order_fulfillment` |
+**실제 소요량 → 입고 예정일 → 시작 재고 → 날짜별 재고 → 위험 요약** 순서로 읽습니다. 이 장의 시나리오는 **`baseline`**입니다. 다음 06장에서 긴급 수주를 반영한 `emergency`와 비교할 기준이 됩니다.
 
-이 장에서는 **현재 계획**(시나리오 `baseline`)만 계산합니다. 긴급 수주는 06장에서 같은 방식으로 계산합니다.
+**시작 전:** 04장의 Silver 테이블 15개와 01장의 OneLake 연결을 확인합니다. Fabric 작업 영역은 준비된 **활성 유료 용량**에 있어야 합니다. Gold는 Unity Catalog에 복사하지 않으며 이후 Databricks·Fabric이 같은 OneLake 결과를 읽습니다.
 
 ## 1. Notebook 열고 실행
 
 1.  `ChipBalance` 폴더에서 `05_gold`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다.
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 3–4분 걸립니다. Gold 셀은 결과를 OneLake에 저장하고, 저장된 Gold를 같은 이름(`gold_…`)의 임시 뷰로 등록합니다. 다음 셀이 이 뷰를 이어서 씁니다. 저장하느라 셀마다 몇 초 더 걸립니다.
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 전체를 실행한 뒤 아래 결과를 확인해도 됩니다. 실행 시간은 약 3–4분이며 환경에 따라 달라질 수 있습니다. 각 Gold 셀의 OneLake 저장이 끝날 때까지 기다립니다.
+
+Notebook에 보이는 `gold_*`는 OneLake 결과를 읽은 **세션 임시 뷰**입니다. 실제 테이블은 Lakehouse의 `gold.<테이블>`에 있습니다. 다음 셀은 임시 뷰를 이어서 사용합니다.
 
 ## 2. 셀별 결과 확인
 
@@ -123,6 +118,12 @@ ORDER BY balance_date;
 **예상 결과:** 10행. 2단계 **7. 날짜별 Bunker Balance**와 같은 값입니다. `below_safety`는 `0`(false)으로 표시됩니다. Databricks가 저장한 Gold를 Fabric에서 그대로 읽습니다.
 
 <img src="../assets/screenshots/d05-sql.png" width="1000" alt="SQL analytics endpoint의 SQL query 1. 위에 SELECT 문이 있고, 아래 Results에 balance_date, opening_kg, receipt_kg, requirement_kg, closing_kg, below_safety 열이 있는 10행 표가 있습니다. 2026-10-01 opening 30370, closing 22898입니다." />
+
+## 이 장의 완료 기준
+
+현재 계획(`baseline`)의 **모든 Bunker가 안전재고를 지키고, 판매오더 납기 지연이 0개**인지 확인합니다. OneLake Gold는 **18개**, `fact_balance`는 **2,208행**(24개 Bunker × 92일)이어야 합니다.
+
+이 결과와 Lakehouse 저장 확인이 끝났으면 06장으로 진행합니다. 위 SQL 조회와 Notebook의 **10. (선택) Unity Catalog에서 같은 Gold 보기**는 선택 사항이며, 별도 연결이 준비된 경우에만 실행합니다.
 
 ## Troubleshooting
 

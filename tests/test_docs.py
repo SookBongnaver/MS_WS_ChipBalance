@@ -81,6 +81,7 @@ class DocumentTests(unittest.TestCase):
                 self.assertNotRegex(text, r"(?m)^[^\n#]*\bTroubleshooting[ \t]+-{3,}")
                 self.assertNotRegex(text, r"(?m)^\s*\.\. (?:image|list-table|code-block)::")
                 self.assertNotRegex(text, r"[\u3040-\u30ff]", "Korean guide contains unexpected Japanese text")
+                self.assertNotRegex(text, r"[\u4e00-\u9fff]", "Korean guide contains unexpected CJK ideographs")
 
     def test_scenario_duration_matches_chapter_estimates(self):
         text = (DOCS / "00-scenario.md").read_text(encoding="utf-8")

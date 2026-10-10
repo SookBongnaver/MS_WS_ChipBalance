@@ -21,7 +21,7 @@
 
 ## 실습 순서
 
-- [00. 시나리오와 실습 순서](docs/00-scenario.md) — 업무 상황, 원천 데이터, 계산 방식을 확인하고 실습 파일을 내려받습니다.
+- [00. 시나리오와 실습 순서](docs/00-scenario.md) — 업무 상황과 판단 기준, 완성할 결과를 확인하고 실습 파일을 내려받습니다.
 - [01. Databricks 접속과 설정](docs/01-connect.md) — Notebook을 가져와 Serverless에서 실행하고, OneLake 연결을 확인합니다(인증 방식: Managed Identity).
 - [02. 원천 데이터 만들기](docs/02-source-data.md) — Notebook으로 SAP·FPIMS·PVSS 원천 파일 14개를 만들고, 원료·Bunker·생산계획의 관계를 확인합니다.
 - [03. Bronze](docs/03-bronze.md) — 원천 파일을 그대로 Bronze 테이블로 적재합니다.
@@ -29,12 +29,12 @@
 - [05. Gold와 OneLake](docs/05-gold-onelake.md) — 실제 소요량과 4분기 날짜별 재고를 계산해 Fabric Lakehouse에 저장합니다.
 - [06. 긴급 수주와 대응안](docs/06-emergency-order.md) — 긴급 수주를 반영하고, 대응안 4개를 판단 기준으로 확인해 추천안을 정합니다.
 - [07. 정답 계산과 Genie](docs/07-genie.md) — OneLake의 Gold로 질문 6개의 정답을 계산합니다. Genie는 선택 확장입니다.
-- [08. Ontology](docs/08-ontology.md) — Ontology agent 프롬프트로 라인·Bunker·원료·생산계획의 관계를 만들고 점검한 뒤 Graph를 만듭니다.
-- [09. Ontology agent에 질문하기](docs/09-ontology-agent.md) — 업무 규칙을 Ontology 설명에 넣고, Genie와 같은 질문을 Ontology agent에 해 정답과 비교합니다.
-- [10. Power BI 보고서](docs/10-power-bi.md) — Direct Lake semantic model에 관계와 측정값을 넣고, 원료 수급 현황 보고서를 만들고, 긴급 수주 대응안 페이지는 Copilot으로 만들어 질문합니다.
-- [11. Operations agent](docs/11-operations-agent.md) — Eventhouse에 위험 이벤트를 보내면 Operations agent가 대응안을 Teams로 제안하고, 승인하면 Notebook이 승인 기록을 남깁니다.
-- [12. Foundry agent](docs/12-foundry-agent.md) — Microsoft Foundry 에이전트에 Fabric IQ 도구로 Ontology를 연결하고, 대응안의 근거 수치를 묻습니다.
-- [13. 마무리](docs/13-finish.md) — 만든 결과를 확인하고, 에이전트를 멈추고 용량을 정리합니다.
+- [08. Ontology](docs/08-ontology.md) — Ontology agent 프롬프트로 엔터티·관계·데이터 바인딩을 만들고 점검합니다. Graph는 선택 단계입니다.
+- [09. Ontology agent에 질문하기](docs/09-ontology-agent.md) — 업무 규칙을 Ontology 설명에 넣고, 질문 6개의 답을 07장의 계산 정답과 비교합니다.
+- [10. Power BI 보고서](docs/10-power-bi.md) — 수급 현황 페이지는 직접 만들고, 대응안 페이지는 Copilot으로 생성한 뒤 질문·인사이트로 근거를 확인합니다.
+- [11. Operations agent](docs/11-operations-agent.md) — 위험 이벤트를 Eventhouse로 보내 Teams 제안을 받습니다. 12장 근거 검토를 마치고 돌아와 승인·기록 확인·Stop을 완료합니다.
+- [12. Foundry agent](docs/12-foundry-agent.md) — Fabric IQ 도구로 Ontology를 연결해 제안의 근거를 검토한 뒤 11장 승인 단계로 돌아갑니다.
+- [13. 마무리](docs/13-finish.md) — 실습 결과와 감시·실행 중지를 확인하고, 항목 삭제·유료 용량 정리는 관리자 안내에 따릅니다.
 
 ## 실습 파일
 

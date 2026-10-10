@@ -2,15 +2,15 @@
 
 [목차](../README.md) \| 이전: [06. 긴급 수주와 대응안](06-emergency-order.md) \| 다음: [08. Ontology](08-ontology.md)
 
-Gold는 Fabric Lakehouse(OneLake)에만 있습니다. 이 장에서는 `07_answers`로 OneLake의 Gold에서 질문 6개의 정답을 계산합니다. 이 정답은 09장에서 Fabric의 Ontology agent에 같은 질문을 했을 때의 답과 비교하는 기준 값입니다.
+06장에서 고른 추천안을 AI에게 묻기 전에, **계산으로 확인한 정답을 먼저 준비**합니다. `07_answers`로 OneLake의 Gold에서 질문 6개의 정답과 근거를 계산합니다. 다음 09장에서 Ontology agent의 답을 비교할 기준입니다.
 
-Gold 데이터는 Unity Catalog 관리형 테이블로 저장하지 않습니다. Genie가 Gold를 보려면 OneLake를 Unity Catalog의 Foreign Catalog로 연결해야 합니다. 이 연결은 선택 확장이며 관리자가 미리 설정해 둔 경우에만 쓸 수 있습니다. 아래 "선택 확장: Genie로 같은 질문하기"를 봅니다.
+**시작 전:** 06장의 OneLake Gold 21개가 준비되어 있어야 합니다. **정답 계산은 필수, Genie 질문은 선택**입니다. Genie 연결이 없어도 정답 계산을 마치고 08장으로 진행할 수 있습니다.
 
 ## 1. 정답 계산
 
 1.  `ChipBalance` 폴더에서 `07_answers`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다.
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. (1–2분)
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 전체를 실행한 뒤 결과를 확인해도 됩니다. 실행 시간은 약 1–2분이며 환경에 따라 달라질 수 있습니다.
 
 **예상 결과:** **1. 설정과 Gold 불러오기**에서 `OneLake에서 불러온 Gold: 21개`가 표시되고, **2. Genie 질문의 정답**에서 6행 표가 나옵니다.
 
@@ -25,16 +25,22 @@ Gold 데이터는 Unity Catalog 관리형 테이블로 저장하지 않습니다
 | Q5 | BNK-L3-2에 10월 6일 뒤 처음 들어오는 PET-SD 입고는 언제, 어느 공급사에서, 몇 kg이야? | 10/09, SUP-PET-B(세미폴리머), 25,000 kg |
 | Q6 | 대응안 4개 가운데 판단 기준을 모두 만족하는 안과 추천안은? | OPT-2(1순위), OPT-3(2순위). 추천안은 OPT-2 |
 
-같은 6개 질문을 09장에서 Fabric의 Ontology agent에도 합니다.
+## 이 장의 완료 기준
+
+불러온 Gold **21개**와 정답 **6행**을 확인하고, Q2의 재고 위험·Q4의 보내는 Bunker 재고·Q6의 통과 대응안과 추천안을 표에 대조합니다. 이 결과를 AI 답변 비교 기준으로 사용합니다. **연결이 준비되지 않았거나 Genie를 하지 않는다면 [08. Ontology](08-ontology.md)로 진행합니다.**
 
 ## 선택 확장: Genie로 같은 질문하기
 
-Genie는 Unity Catalog의 테이블을 읽고 질문을 SQL로 바꿉니다. Gold는 OneLake에만 있으므로, OneLake의 Lakehouse를 Unity Catalog의 **Foreign Catalog**로 연결해 두었을 때만 Genie로 질문할 수 있습니다. 복사 없이 메타데이터만 연결합니다. Foreign Catalog는 관리자가 `admin/00_admin_setup` 6단계에서 만들며, 참가자는 `fabric_chipbalance_<참가자>` 카탈로그를 사용합니다. (설정 방법은 [admin README](../admin/README.md) 를 봅니다.)
+Genie가 질문을 SQL로 바꾸어 **같은 Gold에서 같은 정답을 찾는지** 확인합니다. Gold를 Unity Catalog에 복사하는 것이 아니라, 관리자가 연결한 **Foreign Catalog**로 OneLake를 읽습니다.
 
-- **OneLake 테이블 데이터는 읽기 전용입니다.** 이 가이드는 원본 테이블을 바꾸거나 `COMMENT ON`을 실행하지 않습니다. Genie Agent 안의 테이블·열 설명은 별도의 로컬 메타데이터로 편집할 수 있으며, Unity Catalog나 OneLake 원본에 영향을 주지 않습니다. **Configure > Sources**(화면에 따라 **Data**)에서 설명을 보완하고, 공통 업무 규칙은 General Instructions에 적습니다.
-- 연결된 Gold의 이름은 `fabric_chipbalance_<참가자>.gold.<테이블>`입니다.
-- 질문을 실행하려면 **Serverless 또는 Pro SQL warehouse**와 작성자의 **CAN USE** 권한이 필요합니다. `chipbalance-pro`는 이 가이드의 이름 예시이며 Pro만 필수인 것은 아닙니다. 데이터에는 본인의 `USE CATALOG`, `USE SCHEMA`, `SELECT` 권한도 있어야 합니다.
-- OneLake federation용 SQL warehouse는 **SQL 버전 2025.40 이상**이어야 합니다. 클래식 Compute로 Foreign Catalog를 조회할 때는 **Databricks Runtime 18.0 이상, standard access mode**가 필요합니다. 이는 01–07장의 Serverless Notebook으로 Gold를 직접 읽고 쓰는 경로와는 별도의 조건입니다.
+**선택 단계의 준비:** 아래 두 가지를 관리자에게 확인한 뒤 시작합니다.
+
+- **Foreign Catalog와 데이터 권한:** `admin/00_admin_setup` 6단계에서 준비한 `fabric_chipbalance_<참가자>.gold.<테이블>`을 사용합니다. 본인의 `USE CATALOG`, `USE SCHEMA`, `SELECT` 권한이 필요합니다([관리자 준비 가이드](../admin/README.md)).
+- **SQL warehouse와 실행 권한:** SQL 버전 **2025.40 이상**의 **Serverless 또는 Pro warehouse**, 작성자의 **CAN USE** 권한이 필요합니다. `chipbalance-pro`는 이름 예시이며 Pro만 필수인 것은 아닙니다. **Notebook Serverless와 별개**입니다. 클래식 Compute로 Foreign Catalog를 조회하는 경우에는 **Databricks Runtime 18.0 이상·standard access mode**가 필요합니다.
+
+연결 동작과 설명 편집 범위는 다음과 같습니다.
+
+- **OneLake 테이블 데이터는 읽기 전용입니다.** 이 가이드는 원본을 바꾸거나 `COMMENT ON`을 실행하지 않습니다. Genie Agent 안의 테이블·열 설명은 별도 로컬 메타데이터로 편집할 수 있으며 원본에 영향을 주지 않습니다. **Configure > Sources**(화면에 따라 **Data**)에서 보완하고, 공통 업무 규칙은 General Instructions에 적습니다.
 - 자세한 연결 방식은 [OneLake catalog federation](https://learn.microsoft.com/azure/databricks/query-federation/onelake)을 따릅니다.
 
 ### 1. 테이블과 행 수 먼저 확인

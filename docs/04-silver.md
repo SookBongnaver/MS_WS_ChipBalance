@@ -2,7 +2,7 @@
 
 [목차](../README.md) \| 이전: [03. Bronze](03-bronze.md) \| 다음: [05. Gold와 OneLake](05-gold-onelake.md)
 
-`04_silver`로 Bronze 테이블을 계산에 쓸 수 있는 Silver 테이블로 바꿉니다.
+03장에서 원본을 보존했으니, 이제 **같은 수량을 같은 단위로 계산하고 중복·이상값을 계산 대상에서 분리**합니다. `04_silver`로 Bronze를 Silver 테이블로 바꾸되, 격리 이유와 원본 행 번호를 남겨 되짚어 볼 수 있게 합니다.
 
 | 작업 | 예 |
 |----|----|
@@ -10,13 +10,13 @@
 | 단위 통일 | 발주 수량 `50` `TO`(톤) → `50000` kg |
 | 격리 | 중복, 수량 공란, 미등록 원료 코드, 범위를 벗어난 센서 값 → `silver_quarantine` |
 
-격리한 행은 지우지 않고 이유(`reason`)와 Bronze 원본 행 번호를 함께 남깁니다.
+**시작 전:** 03장의 Bronze 테이블 14개를 준비합니다. 결과는 본인 Unity Catalog 스키마의 `silver_*`에 저장됩니다. Gold 재고 계산은 다음 장에서 합니다.
 
 ## 1. Notebook 열고 실행
 
 1.  `ChipBalance` 폴더에서 `04_silver`를 엽니다.
 2.  오른쪽 위 Compute 목록에 **Serverless**가 선택되어 있는지 확인합니다.
-3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 한 번에 실행해도 됩니다. 전체 실행에 1–2분 걸립니다.
+3.  위에서부터 **Shift+Enter**로 한 셀씩 실행합니다. 위쪽 **Run all**로 전체를 실행한 뒤 아래 결과를 확인해도 됩니다. 실행 시간은 약 1–2분이며 환경에 따라 달라질 수 있습니다.
 
 ## 2. 셀별 결과 확인
 
@@ -85,11 +85,17 @@
 
 9.  **9. Silver 정리 결과**
 
-    Silver 테이블 15개의 행 수입니다.
+    정제한 테이블 14개와 격리 테이블 1개, 총 15개의 행 수를 확인합니다.
 
     **예상 결과:** 15행. `silver_purchase_order_open` 719행(Bronze 731행 − 격리 12행), `silver_bunker_level` 17,267행(Bronze 17,278행 − 격리 11행), `silver_quarantine` 23행
 
     <img src="../assets/screenshots/d04-counts.png" width="900" alt="9. Silver 정리 결과. Silver 테이블, 행 수 열이 있는 15행 표입니다. silver_purchase_order_open 719, silver_bunker_level 17267, silver_quarantine 23입니다." />
+
+## 이 장의 완료 기준
+
+Silver 테이블 **15개**, 정리된 발주 **719행**, 정상 센서 기록 **17,267행**, 격리 **23행**을 확인합니다. `50 TO`는 `50,000 kg`으로 바뀌고 중복 발주 행은 한 줄만 계산에 남아야 합니다.
+
+**센서 기록이 없는 7개 시각은 격리 23행에 포함되지 않습니다.** 누락은 존재하는 행의 오류가 아니므로 따로 찾고, 임의 값으로 채우지 않습니다. 이제 정제된 수량·일시·코드로 05장의 재고를 계산할 수 있습니다.
 
 ## Troubleshooting
 
