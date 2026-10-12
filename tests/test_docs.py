@@ -23,7 +23,7 @@ CHAPTERS = [
     "06-emergency-order.md",
     "07-genie.md",
     "08-ontology.md",
-    "09-ontology-agent.md",
+    "09-data-agent.md",
     "10-power-bi.md",
     "11-operations-agent.md",
     "12-foundry-agent.md",
@@ -104,6 +104,25 @@ class DocumentTests(unittest.TestCase):
                         operations.index("4.  **Proceed**를 누릅니다."))
         self.assertIn("**5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가", foundry)
         self.assertIn("이미 만든 Foundry 프로젝트와 에이전트를 다시 만들지 않습니다.", operations)
+
+    def test_data_agent_uses_ontology_and_query_source_instructions(self):
+        guide = (DOCS / "09-data-agent.md").read_text(encoding="utf-8")
+        for phrase in ("da_chipbalance", "Add ontology", "온톨로지용 데이터 원본",
+                       "Agent instructions", "Data source instructions",
+                       "scenario_name", "scenario_id", "DISTINCT", "LEFT JOIN",
+                       "전체 4분기", "Clear chat", "초안 편집·테스트"):
+            self.assertIn(phrase, guide)
+        self.assertNotIn("별도 Fabric Data agent는 만들지 않습니다", guide)
+        for image in ("sources", "source-instructions", "q2", "q4", "q6"):
+            self.assertIn(f"d09-data-agent-{image}.png", guide)
+        foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
+        self.assertIn("da_chipbalance", foundry)
+        self.assertIn("경유하는 연결이 아닙니다", foundry)
+        self.assertIn("ask_ontology", foundry)
+        diagram = (ROOT / "assets" / "architecture.svg").read_text(encoding="utf-8")
+        self.assertIn("Data agent", diagram)
+        self.assertIn("da_chipbalance", diagram)
+        self.assertIn("Eventhouse", diagram)
 
     def test_participant_notebooks_are_cloned_from_shared(self):
         setup = (DOCS / "01-connect.md").read_text(encoding="utf-8").replace("**", "")

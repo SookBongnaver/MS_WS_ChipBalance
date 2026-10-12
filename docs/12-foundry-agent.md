@@ -2,7 +2,7 @@
 
 [목차](../README.md) \| 이전: [11. Operations agent](11-operations-agent.md) \| 다음: [13. 마무리](13-finish.md)
 
-Teams에 도착한 `OPT-2`를 승인하기 전에, **보내는 Bunker의 재고도 안전한지 근거를 확인**합니다. Microsoft Foundry에 `fa-chipbalance`를 만들고 **Fabric IQ** 도구로 08장의 `ont_chipbalance`를 연결합니다. Foundry는 근거를 조회하는 역할이며 승인·거절은 하지 않습니다.
+Teams에 도착한 `OPT-2`를 승인하기 전에, **보내는 Bunker의 재고도 안전한지 근거를 확인**합니다. Microsoft Foundry에 `fa-chipbalance`를 만들고 **Fabric IQ** 도구로 08장의 `ont_chipbalance`를 직접 연결합니다. **09장의 Data agent `da_chipbalance`를 경유하는 연결이 아닙니다.** Foundry는 근거를 조회하는 역할이며 승인·거절은 하지 않습니다.
 
 **진행 위치:** 11장 7단계에서 **승인을 보류한 상태**로 시작합니다. **프로젝트·에이전트 준비 → Ontology 연결 → 질문 → 실제 도구 출력 확인** 순서로 진행합니다. **5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가 Teams 승인·결과 확인·Stop을 완료합니다.** 이미 이 장을 마쳤다면 프로젝트·에이전트를 다시 만들지 않습니다.
 

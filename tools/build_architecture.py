@@ -84,12 +84,13 @@ class Diagram:
         self.svg.append(f'<image x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" '
                         f'preserveAspectRatio="xMidYMid meet" href="{data}"/>')
 
-    def card(self, x, y, w, h, title, detail, icon=None, dashed=False):
+    def card(self, x, y, w, h, title, detail, icon=None, dashed=False,
+             detail_size=16, detail_offset=74):
         self.rect(x, y, w, h, GRAY if dashed else BLUE, dashed)
         if icon:
             self.icon(icon, x + 16, y + 16, 44)
         self.text(x + (72 if icon else 18), y + 22, title, 19, w - 85, True)
-        self.text(x + 18, y + 74, detail, 16, w - 30)
+        self.text(x + 18, y + detail_offset, detail, detail_size, w - 30)
 
     def arrow(self, points, dashed=False, color=BLUE):
         x, y = points[0]
@@ -129,8 +130,8 @@ class Diagram:
 def architecture():
     d = Diagram("architecture", 1800, 1360)
     d.text(45, 26, "원료 칩 수급과 긴급 수주 대응 | Azure Databricks + Microsoft Fabric", 30, 1700, True)
-    d.text(45, 78, "Databricks에서 계산한 Gold로 Ontology agent와 Foundry agent가 답합니다. "
-                   "Operations agent는 Eventhouse의 위험 이벤트를 감시해 Teams로 대응안을 제안합니다", 20, 1700)
+    d.text(45, 78, "Databricks Gold로 09 Data agent가 업무 질문에 답합니다. "
+                   "Operations agent는 Eventhouse 위험 이벤트를 감시해 Teams로 대응안을 제안합니다", 20, 1700)
 
     steps = [("① 현재 계산", "Databricks 05·06 계산 · Power BI 현황"),
              ("② 판단 기준", "Databricks 06 · 대응안별 기준 충족 여부"),
@@ -175,12 +176,16 @@ def architecture():
     d.card(750, 360, 270, 180, "OneLake Gold",
            "Lakehouse lh_chipbalance_p001\ngold 스키마 Delta 테이블\n계산·저장: Databricks\n승인 상태 갱신: Fabric Notebook",
            "lakehouse.svg")
-    d.card(750, 565, 270, 160, "Ontology", "라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안\n위험 이벤트 (RiskEvent)", "ontology.svg")
+    d.card(750, 565, 270, 160, "Ontology",
+           "08 내장 agent로 작성\n라인 · Bunker · 원료 · 제품\n생산계획 · 일별 재고 · 대응안\n위험 이벤트 (RiskEvent)",
+           "ontology.svg", detail_size=15, detail_offset=72)
     d.card(750, 790, 270, 150, "Notebook · 승인 기록", "승인하면 실행\n위험 이벤트 approved로 변경\ndbo.chip_decision_log", "notebook.svg")
     d.card(1060, 345, 330, 100, "Semantic model", "Direct Lake · 관계 · 측정값", "semantic-model.svg")
     d.arrow([(1225, 445), (1225, 470)])
     d.card(1060, 470, 330, 135, "Power BI 보고서", "원료 수급 현황 · 긴급 수주 비교\n대응안 검토", "power-bi.svg")
-    d.card(1060, 640, 330, 125, "Ontology agent", "09 Ontology에 내장된 agent\n자연어 질문에 답변", "ontology.svg")
+    d.card(1060, 640, 330, 125, "Data agent",
+           "09 da_chipbalance\nOntology·연결 원본 조회\n정답과 비교", "data-agent.svg",
+           detail_size=14, detail_offset=60)
     d.card(1060, 790, 330, 140, "Operations agent", "11 Eventhouse RiskEventStatus\n③ open 전이 감시·대응안 제안",
            "operations-agent.svg")
     d.arrow([(1020, 395), (1060, 395)])
@@ -188,6 +193,7 @@ def architecture():
     d.arrow([(750, 860), (735, 860), (735, 500), (750, 500)])
     d.text(690, 790, "기록", 15, 40)
     d.arrow([(1020, 660), (1060, 660)])
+    d.text(1024, 635, "맥락", 14, 32)
     d.arrow([(1020, 505), (1040, 505), (1040, 830), (1060, 830)])
     d.text(750, 738, "11 Gold 이벤트를 Eventhouse에 전송", 15, 280)
     d.arrow([(1060, 905), (1020, 905)])
@@ -198,7 +204,7 @@ def architecture():
     d.icon("foundry.svg", 1470, 242)
     d.text(1532, 248, "Microsoft Foundry", 23, 220, True)
     d.text(1470, 304, "담당자가 승인하기 전에\n대응안의 근거를 묻습니다", 17, 280)
-    d.card(1470, 370, 270, 170, "Foundry agent", "12 fa-chipbalance\nFabric IQ → Ontology 근거\nWork IQ → Teams·메일 맥락",
+    d.card(1470, 370, 270, 170, "Foundry agent", "12 fa-chipbalance\nFabric IQ → Ontology 근거\nWork IQ: 참고용·미연결",
            "foundry-agent.svg")
     d.arrow([(1470, 500), (1430, 500), (1430, 613), (1020, 613)])
     d.text(1394, 584, "Fabric IQ", 14, 70)

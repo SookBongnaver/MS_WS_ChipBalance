@@ -36,7 +36,7 @@
 | 실습 | 하는 일 | 완성 결과 |
 |---|---|---|
 | 01–06 데이터와 계산 | Databricks에서 원천 데이터를 만들고 Bronze·Silver로 정제합니다. 기준 계획, 긴급 수주, 대응안을 계산해 OneLake에 저장합니다. | 같은 기준으로 비교할 수 있는 재고·납기·대응안 Gold 테이블 |
-| 07–09 근거 질의 | 계산한 정답을 확인하고, Ontology에 업무 개념과 관계를 연결해 질문합니다. Genie 질의는 선택 단계입니다. | 원료 부족과 추천안의 근거를 데이터로 설명하는 Ontology agent |
+| 07–09 근거 질의 | 계산한 정답을 확인하고 Ontology를 만든 뒤, Data agent의 원본으로 연결해 질문합니다. Genie 질의는 선택 단계입니다. | Ontology의 업무 맥락과 연결 원본을 사용하는 Data agent |
 | 10 보고서 | 수급 현황 페이지를 직접 만들고, 대응안 페이지는 Power BI Copilot으로 생성합니다. Copilot에게 질문하고 인사이트도 얻습니다. | 현황과 대응안을 비교하는 보고서 2페이지 |
 | 11–12 제안·검토·승인 | 위험 이벤트를 Eventhouse에 보내 Operations agent의 Teams 제안을 받습니다. Foundry agent로 근거를 검토한 뒤 담당자가 Teams에서 승인합니다. | Teams 제안, 근거 답변, 승인 내역과 이벤트 상태 |
 | 13 마무리 | 결과를 확인하고 에이전트·Compute를 멈춥니다. | 확인된 실습 결과와 정리된 실행 상태 |
@@ -45,7 +45,7 @@
 
 실습 데이터는 SAP·FPIMS·PVSS에서 추출한 것과 같은 형식의 **가상 파일 14개**입니다. 파일 내용과 관계는 [02장](02-source-data.md), 재고 계산 방식은 [05장](05-gold-onelake.md), 상세 테이블·행 수는 [데이터 설계](../admin/data-design.md)에서 확인합니다.
 
-<img src="../assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 Bronze와 Silver를 정제하고 Gold를 계산해 OneLake에 저장합니다. Fabric은 Gold로 Semantic model, Power BI 보고서, Ontology를 만듭니다. 내장 Ontology agent가 질문에 답하고, Operations agent는 Eventhouse의 RiskEventStatus를 감시해 Teams로 대응안을 제안합니다. Foundry agent가 Fabric IQ로 근거를 조회하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다. 점선은 실습 범위 밖의 선택 연결 예시입니다." />
+<img src="../assets/architecture.svg" width="1000" alt="전체 구성. Databricks가 Gold를 계산해 OneLake에 저장합니다. Fabric의 Data agent는 Ontology와 연결 원본을 근거로 답합니다. Operations agent는 Eventhouse의 상태를 감시해 Teams로 제안하고, Foundry는 Ontology 직접 연결로 근거를 조회합니다. 담당자가 승인하면 Notebook이 승인 기록을 남깁니다." />
 
 구성도의 실선은 실습 흐름, 점선은 운영 확장 예시입니다. 점선의 연결은 이 실습에서 만들지 않습니다. Ontology의 Graph 생성도 선택 단계입니다.
 
@@ -75,7 +75,7 @@ GitHub는 교재와 배포 원본을 관리하는 곳입니다. 참가자는 Git
 - [06. 긴급 수주와 대응안](06-emergency-order.md) — Databricks → Fabric, 30분
 - [07. 정답 계산과 Genie](07-genie.md) — Databricks, 20분
 - [08. Ontology](08-ontology.md) — Fabric, 45분
-- [09. Ontology agent에 질문하기](09-ontology-agent.md) — Fabric, 30분
+- [09. Data agent로 Ontology에 질문하기](09-data-agent.md) — Fabric, 30분
 - [10. Power BI 보고서](10-power-bi.md) — Fabric, 45분
 - [11. Operations agent](11-operations-agent.md) — Fabric → Teams, 45분
 - [12. Foundry agent](12-foundry-agent.md) — Foundry → Fabric, 30분

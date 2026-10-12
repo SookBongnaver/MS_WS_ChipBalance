@@ -14,7 +14,7 @@
 | 05–06 | Gold, OneLake 저장 | 본인 Lakehouse `lh_chipbalance_p001`의 `gold` 스키마에 최종 21개 테이블이 있고, `fact_balance`에서 `baseline`·`emergency`를 구분합니다. |
 | 06 | 긴급 수주와 대응안 4개 | 긴급 수주를 반영하면 BNK-L3-2(L3 PET-SD)가 2026-10-06에 안전재고 아래로 내려가고, 판단 기준을 모두 만족하는 추천안은 `OPT-2`입니다. |
 | 07 | 정답 계산 `07_answers` | Q1–Q6의 정답 6행이 표시됩니다. (Genie는 선택 확장) |
-| 08–09 | Ontology `ont_chipbalance`, Ontology agent | Ontology agent가 같은 질문에 답합니다. 예: `OPT-2`를 반영해도 BNK-L1-2의 최저 기말재고는 16,763 kg으로 안전재고 6,000 kg 이상입니다. |
+| 08–09 | Ontology `ont_chipbalance`, Data agent `da_chipbalance` | Data agent가 Ontology와 연결 원본을 근거로 답합니다. 예: OPT-2의 보내는 Bunker 최저 16,763kg·안전재고 6,000kg을 확인합니다. |
 | 10 | Semantic model `sm_chipbalance`, 보고서 `rpt_chipbalance` | 수동 작성한 수급 현황 페이지와 Copilot으로 생성한 대응안 페이지가 있고, Copilot 질문·인사이트로 근거를 살펴봅니다. |
 | 11 | Eventhouse `eh_chipbalance`, Operations agent `oa_chipbalance`, Notebook `nb_record_decision` | Teams에서 결정한 `OPT-2`가 Eventhouse 상태 이력, Lakehouse 승인 로그와 위험 이벤트에 `approved`로 기록되어 있습니다. |
 | 12 | Foundry 프로젝트 `chipbalance-p001`, 에이전트 `fa-chipbalance` | 에이전트가 Fabric IQ 도구로 `ont_chipbalance`에 물어, `OPT-2`를 반영한 BNK-L1-2의 최저 기말재고 16,763 kg이 안전재고 6,000 kg 이상이라고 답합니다. |
@@ -35,7 +35,7 @@
 
 실습 항목은 관리자가 한 번에 지웁니다([관리자 준비 가이드](../admin/README.md)의 "7. 종료 후 정리"). **직접 삭제하라는 안내를 받은 경우에만**, 필요한 결과를 보관한 뒤 아래 순서로 지웁니다. 모든 `p001`은 본인 번호이며 공용·다른 참가자의 리소스는 삭제하지 않습니다.
 
-1.  Fabric 작업 영역 `chipbalance-p001`: `oa_chipbalance` → `nb_record_decision` → `eh_chipbalance` → `rpt_chipbalance` → `sm_chipbalance` → `ont_chipbalance`. 항목의 **...** \> **Delete**를 누릅니다. `ont_chipbalance`를 지우면 함께 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…`도 지웁니다.
+1.  Fabric 작업 영역 `chipbalance-p001`: `oa_chipbalance` → `nb_record_decision` → `eh_chipbalance` → `rpt_chipbalance` → `sm_chipbalance` → `da_chipbalance` → `ont_chipbalance`. 항목의 **...** \> **Delete**를 누릅니다. `ont_chipbalance`를 지우면 함께 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…`도 지웁니다.
 2.  Foundry: `fa-chipbalance` 에이전트 목록의 **작업** \> **삭제**로 에이전트를 지웁니다. 프로젝트와 Foundry 리소스 `fdy-chipbalance-p001`은 관리자가 Azure portal에서 지웁니다.
 3.  Databricks: Unity Catalog 스키마 `lab_factory_p001.chipbalance_p001`(Bronze·Silver)은 관리자가 지웁니다. Genie 선택 단계를 만들었다면 `fabric_chipbalance_p001`과 `onelake_connection_p001`도 사용 의존성을 확인한 뒤 관리자가 정리합니다. Gold 원본은 Fabric Lakehouse에 있습니다.
 

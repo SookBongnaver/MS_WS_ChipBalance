@@ -1,6 +1,6 @@
 # 10. Power BI 보고서
 
-[목차](../README.md) \| 이전: [09. Ontology agent에 질문하기](09-ontology-agent.md) \| 다음: [11. Operations agent](11-operations-agent.md)
+[목차](../README.md) \| 이전: [09. Data agent로 Ontology에 질문하기](09-data-agent.md) \| 다음: [11. Operations agent](11-operations-agent.md)
 
 06장에서 계산한 원료 부족과 대응안을 보고서로 확인합니다. 이 장의 목표는 **어느 Bunker가 언제 부족해지는지, 네 판단 기준을 만족하는 대응안 중 무엇을 추천하는지 두 페이지로 설명하는 것**입니다.
 

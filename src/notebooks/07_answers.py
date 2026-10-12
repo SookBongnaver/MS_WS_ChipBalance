@@ -26,7 +26,7 @@ print("OneLake에서 불러온 Gold:", f"{len(GOLD_TABLES) + len(EMERGENCY_GOLD_
 # MAGIC %md
 # MAGIC ## 2. Genie 질문의 정답
 # MAGIC 07장에서 Genie에 물어볼 질문 6개의 정답을 Gold 테이블로 계산합니다. Genie 답과 이 표를 비교합니다.
-# MAGIC 같은 질문을 09장에서 Fabric의 Ontology agent에도 합니다.
+# MAGIC 같은 질문을 09장에서 Ontology를 연결한 Fabric Data agent에도 합니다.
 # MAGIC
 # MAGIC | 번호 | 질문 |
 # MAGIC |---|---|

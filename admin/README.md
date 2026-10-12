@@ -17,6 +17,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 | SQL warehouse | (선택) `chipbalance-pro` (이름), Serverless 또는 Pro, 2X-Small, 15분 자동 종료. 07장 Genie와 Catalog의 데이터 미리보기에 사용 |
 | Managed Identity | Access Connector for Azure Databricks `ac-chipbalance-onelake`, Unity Catalog service credential `chipbalance_onelake_hyosung` |
 | Microsoft Fabric | F 용량, 작업 영역 `chipbalance-pNNN`, Lakehouse `lh_chipbalance_pNNN` (Lakehouse schemas 켬) |
+| Fabric Data agent | 참가자가 09장에서 `da_chipbalance`를 만들고 `ont_chipbalance`를 연결. Ontology·바인딩 원본 읽기 권한, 에이전트·원본 지침 필요 |
 | Microsoft Teams | 참가자 계정에 Teams 라이선스, Teams 앱 **Fabric Operations Agent** 허용 (11장) |
 | Microsoft Foundry | 참가자가 Foundry 리소스·프로젝트를 만들 Azure 리소스 그룹 (12장) |
 
@@ -170,12 +171,16 @@ Databricks는 Managed Identity로 OneLake에 Gold를 씁니다. 비밀번호나 
 | Service principals can call Fabric public APIs | Managed Identity가 Fabric 작업 영역 권한으로 접근 |
 | Users can create Fabric items | 새 Ontology 환경을 포함한 Fabric 항목 생성 |
 | Users can create Ontology items | Fabric IQ Ontology |
-| Users can use Copilot, AI Agents and other AI experiences powered by Azure OpenAI | Power BI Copilot(10장), Ontology agent, Operations agent |
+| Users can use Copilot, AI Agents and other AI experiences powered by Azure OpenAI | Ontology 작성(08장), Data agent(09장), Power BI Copilot(10장), Operations agent(11장) |
 | Data sent to Azure OpenAI can be processed / stored outside your capacity's geographic region | 해당 지역에서 필요한 Copilot·AI 기능 사용. 조직의 지역 간 데이터 처리 정책에 따라 관리자가 승인 |
 
 설정의 표시 이름은 UI 언어와 배포 상태에 따라 다를 수 있습니다. 참가자와 Managed Identity가 허용된 보안 그룹 범위에 포함되는지 확인합니다. [Ontology 테넌트 설정](https://learn.microsoft.com/fabric/iq/ontology/overview-tenant-settings), [Copilot 요구 사항과 지역](https://learn.microsoft.com/fabric/fundamentals/copilot-fabric-overview#available-regions), [Operations agent 요구 사항](https://learn.microsoft.com/fabric/real-time-intelligence/operations-agent#prerequisites)을 기준으로 점검합니다. 용량 생성·증설 뒤 Copilot 인식에 최대 24시간이 걸릴 수 있습니다.
 
 Teams 관리 센터의 **Teams 앱** \> **앱 관리**에서 **Fabric Operations Agent**가 차단되어 있지 않은지 확인합니다. Operations agent는 이 앱의 **Fabric operations agent** 채팅으로 참가자에게 제안을 보냅니다.
+
+**Data agent 확인:** 참가자 계정으로 **New item → Data agent → Add ontology**에서 본인 `ont_chipbalance`를 선택할 수 있어야 합니다. 연결된 엔터티 타입과 원본 Lakehouse가 보이는지, 09장의 두 위치에 지침을 저장하고 실제 Gold 값을 조회할 수 있는지 확인합니다. **연결 알림만으로 질문 정확성을 판단하지 않습니다.** [Data agent 테넌트 설정](https://learn.microsoft.com/fabric/data-science/data-agent-tenant-settings)을 따르며, 지역 간 처리·저장 설정은 조직 정책에 따라 관리자가 승인합니다.
+
+09장은 초안 테스트입니다. 외부 서비스·다른 사용자에게 Data agent를 제공하려면 게시·공유·인증과 원본 권한을 별도로 준비합니다. 12장은 Ontology 직접 연결이므로 Data agent의 게시·MCP 설정을 필수로 추가하지 않습니다.
 
 ## 4. Microsoft Foundry
 
@@ -212,7 +217,7 @@ Unity Catalog 저장소를 private endpoint로 연결했다면 Serverless가 저
 
 Unity Catalog 스키마와 Fabric 작업 영역·Lakehouse 이름은 참가자 번호로 정합니다. Service credential은 이 가이드에서 `chipbalance_onelake_hyosung`으로 고정한 공용 이름이며 참가자 번호로 생성되지 않습니다. 다른 이름이나 참가자별 credential을 준비했다면 `01_setup`의 `service_credential`에 넣을 값을 별도로 알려 줍니다.
 
-전체 진행 전, 관리자 계정뿐 아니라 참가자 계정으로도 `01_setup` 실행과 OneLake 연결을 확인합니다. 06장 뒤 Gold 21개 테이블, 07장 정답 6개, 10장 모델 작성 권한, 11장 KQL 생성·Notebook 실행 권한, 12장 OAuth 동의·모델 배포까지 각 장의 조건을 확인합니다.
+전체 진행 전, 관리자 계정뿐 아니라 참가자 계정으로도 `01_setup` 실행과 OneLake 연결을 확인합니다. 06장 뒤 Gold 21개, 07장 정답 6개, 09장 Data agent의 Ontology 연결·읽기 권한, 10장 모델 작성 권한, 11장 KQL 생성·Notebook 실행 권한, 12장 OAuth 동의·모델 배포까지 각 장의 조건을 확인합니다.
 
 ## 7. 종료 후 정리
 
@@ -224,7 +229,7 @@ Unity Catalog 스키마와 Fabric 작업 영역·Lakehouse 이름은 참가자 �
 
     - Unity Catalog Catalog `lab_factory_pNNN`, 스키마 `chipbalance_pNNN`과 Volume `raw`
     - Genie 선택 단계를 만들었다면 Foreign catalog `fabric_chipbalance_pNNN`, Connection `onelake_connection_pNNN`. 다른 소비자가 없는지 확인한 뒤 해당 참가자의 객체만 지웁니다.
-    - Fabric 작업 영역 `chipbalance-pNNN`: `oa_chipbalance`, `nb_record_decision`, `eh_chipbalance`, `rpt_chipbalance`, `sm_chipbalance`, `ont_chipbalance`(자동으로 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…` 포함), `lh_chipbalance_pNNN`. 작업 영역을 지우면 한 번에 지워집니다.
+    - Fabric 작업 영역 `chipbalance-pNNN`: `oa_chipbalance`, `nb_record_decision`, `eh_chipbalance`, `rpt_chipbalance`, `sm_chipbalance`, `da_chipbalance`, `ont_chipbalance`(자동으로 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…` 포함), `lh_chipbalance_pNNN`. 작업 영역을 지우면 한 번에 지워집니다.
     - Foundry: Azure portal의 리소스 그룹에서 Foundry 리소스 `fdy-chipbalance-pNNN`을 삭제합니다. 프로젝트, 에이전트 `fa-chipbalance`, 모델 배포, Fabric IQ 연결이 함께 지워집니다. 같은 이름으로 다시 만들려면 Azure portal에서 삭제된 Foundry 리소스를 제거(purge)합니다.
 
 4.  Azure portal에서 Fabric 용량을 **Pause**합니다. Azure CLI로는 아래 명령을 씁니다.
@@ -251,17 +256,6 @@ python -m unittest discover tests
 
 - 구성도는 `python tools/build_architecture.py`로 다시 만듭니다. 아이콘 출처는 [구성도 아이콘 출처](../assets/icon-attribution.md)에 있습니다.
 
-- Ontology 연결 확인: 새 Ontology 환경의 `ont_chipbalance`를 Operations agent와 Data agent가 데이터 값까지 읽을 수 있게 되면 아래를 Ontology 기준으로 고칩니다. Foundry agent(12장)는 `ask_ontology`로 값을 읽습니다.
-
-  - 09장: Ontology agent 대신 Data agent를 만들고 데이터 원본으로 `ont_chipbalance`를 연결합니다.
-  - 11장: `oa_chipbalance`의 **Knowledge**를 `eh_chipbalance`에서 `ont_chipbalance`로 바꾸고, 위험 이벤트(RiskEvent)를 Ontology에서 감시합니다. Eventhouse 만들기 단계를 지우고 `nb_record_decision`은 Lakehouse에만 기록하게 고칩니다.
-  - 구성도: Eventhouse 카드를 지우고, Ontology에서 Operations agent와 Data agent로 바로 잇습니다.
-
-  확인 방법: Operations agent에서 **Knowledge**를 `ont_chipbalance`로 두고 **Generate playbook**이 성공하는지, Data agent에서 데이터 원본으로 `ont_chipbalance`를 추가할 수 있는지 봅니다.
-
-  2026-10-02 실제 확인 결과: 두 곳 모두 아직 열리지 않았습니다.
-
-  - Operations agent: **Generate playbook**이 "No playbook generated"로 끝나고, 에이전트는 Ontology의 스키마만 읽을 수 있다고 답합니다.
-  - Data agent: `ont_chipbalance`를 추가하면 "Failed to add ontology"가 뜨고, 알림에 `Ontology support is not enabled.`가 남습니다.
-
-  2026-10-09 Microsoft Learn 확인: Operations agent 문서(2026-09-14 갱신)는 Eventhouse 또는 Ontology를 Knowledge 원본으로 쓸 수 있다고 적고, Data agent 문서는 원본에 Ontology를 포함합니다. 이 환경에서 실제로 동작하는지는 아직 다시 확인하지 않았으므로, 위 확인 방법으로 다시 시도한 뒤 구성을 바꿉니다.
+- **Ontology 연결의 검증 범위:** 09장은 Data agent에 Ontology를 연결해 바인딩된 Lakehouse를 조회합니다. 실제 확인에서는 엔터티 타입 17개의 맥락과 연결 원본이 사용됐고, 지침 보완·조건을 명시한 재질문으로 Q1–Q6의 핵심 값을 확인했습니다. 첫 답의 필터·조회 범위 오류는 09장의 Troubleshooting에 반영되어 있습니다.
+- **Operations agent와 구분:** Data agent의 Ontology 연결 성공은 Operations agent의 Ontology 감시 성공을 뜻하지 않습니다. 11장과 구성도는 검증한 **Eventhouse `RiskEventStatus` 감시**를 유지합니다. Ontology로 직접 감시하는 구성은 별도 검증·승인 없이 적용하지 않습니다.
+- **Foundry와 구분:** 12장은 `ask_ontology`로 Ontology에 직접 질문합니다. Data agent 게시·외부 연결을 사용하려면 별도 경로로 검증하고 해당 절과 캡처를 함께 수정합니다.

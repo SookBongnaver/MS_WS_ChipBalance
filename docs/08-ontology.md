@@ -1,6 +1,6 @@
 # 08. Ontology
 
-[목차](../README.md) \| 이전: [07. 정답 계산과 Genie](07-genie.md) \| 다음: [09. Ontology agent에 질문하기](09-ontology-agent.md)
+[목차](../README.md) \| 이전: [07. 정답 계산과 Genie](07-genie.md) \| 다음: [09. Data agent로 Ontology에 질문하기](09-data-agent.md)
 
 06장에서 계산한 재고와 대응안을 이제 **업무 용어와 관계로 연결**합니다. 목표는 Gold 테이블을 연결한 **엔터티 타입 17개·관계 26개의 Ontology**를 만들고, 실제 데이터를 읽는지 확인하는 것입니다. 이 Ontology를 바탕으로 09장에서 "어느 Bunker가 부족한가?", "어떤 대응안을 추천하는가?"를 질문합니다.
 
@@ -55,7 +55,7 @@ Ontology는 업무 개념인 **엔터티 타입**, 개념 사이의 **관계**, 
 
 1.  **Start with Ontology agent** 카드를 누릅니다. 오른쪽에 **Ontology Agent** 창이 열립니다.
 
-    이 Ontology 항목 안에서 여는 **내장 Ontology agent**를 사용합니다. 별도 Data agent 항목을 만들지 않습니다. 입력 칸 아래 스위치가 **Plan**인지 확인하고, 다른 모드이면 **Plan**을 누릅니다. Plan은 초안·검증 단계이고 **Act**가 변경을 적용하는 단계입니다.
+    이 단계는 Ontology 항목 안의 **내장 Ontology agent로 구조를 작성**합니다. 업무 질문용 별도 Data agent는 **09장에서** 만듭니다. 입력 칸 아래 스위치가 **Plan**인지 확인하고, 다른 모드이면 **Plan**을 누릅니다. Plan은 초안·검증 단계이고 **Act**가 변경을 적용하는 단계입니다.
 
 2.  **Say something** 칸에 아래 프롬프트를 붙여 넣습니다. 참가자 번호가 `p001`이 아니면 첫 줄의 `lh_chipbalance_p001`을 본인 Lakehouse로 바꿉니다.
 
@@ -217,4 +217,4 @@ Graph는 실제 엔터티 **인스턴스**를 노드로, 연결된 인스턴스 
 
 ## 다음 단계
 
-[09. Ontology agent에 질문하기](09-ontology-agent.md)에서 업무 규칙을 설명에 덧붙이고, 원료 부족·납기·추천안의 답을 계산 결과와 비교합니다.
+[09. Data agent로 Ontology에 질문하기](09-data-agent.md)에서 업무 설명을 확인하고, 별도 Data agent에 이 Ontology를 연결해 원료 부족·납기·추천안을 정답과 비교합니다.

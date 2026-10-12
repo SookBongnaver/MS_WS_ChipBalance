@@ -23,11 +23,11 @@
 
 Databricks에서 **Bronze → Silver → Gold**로 데이터를 정제·계산합니다. Bronze·Silver는 Unity Catalog에, Gold는 **Fabric OneLake에만** 저장합니다. Fabric의 Ontology·Power BI와 Foundry의 Fabric IQ 도구가 같은 Gold를 근거로 사용합니다.
 
-<img src="assets/architecture.svg" width="1000" alt="전체 구성. Azure Databricks가 Bronze와 Silver를 정제하고 Gold를 계산해 OneLake에 저장합니다. Fabric은 Gold로 semantic model, Power BI 보고서, Ontology를 만듭니다. 내장 Ontology agent가 질문에 답하고, Operations agent는 Eventhouse의 RiskEventStatus를 감시해 Teams로 대응안을 제안합니다. Foundry agent가 Fabric IQ 도구로 Ontology의 근거를 조회하고, 담당자가 승인하면 Fabric Notebook이 승인 상태와 내역을 기록합니다. 실선은 실습 흐름, 점선은 실행 범위 밖의 운영 확장 예시입니다." />
+<img src="assets/architecture.svg" width="1000" alt="전체 구성. Databricks가 정제·계산한 Gold를 OneLake에 저장합니다. Fabric은 Ontology와 보고서를 만들고, Data agent가 Ontology의 맥락과 연결 원본으로 질문에 답합니다. Operations agent는 Eventhouse 상태를 감시해 Teams로 제안합니다. Foundry는 Fabric IQ로 Ontology에 직접 질문하고, 담당자가 승인하면 Notebook이 승인 기록을 남깁니다." />
 
 [그림 크게 보기](assets/architecture.png)
 
-질문에는 **Ontology에 내장된 Ontology agent**를 사용합니다. Operations agent는 Lakehouse를 직접 감시하지 않고, 11장에서 Eventhouse로 보낸 **위험 이벤트 상태**를 감시합니다.
+08장은 **내장 Ontology agent로 구조를 작성**하고, 09장은 **별도 Data agent `da_chipbalance`에 Ontology를 연결해 업무 질문**을 합니다. Operations agent는 Lakehouse를 직접 감시하지 않고, 11장에서 Eventhouse로 보낸 **위험 이벤트 상태**를 감시합니다. 12장의 Foundry는 Data agent를 경유하지 않는 **Ontology 직접 연결**입니다.
 
 구성도의 **실선은 실습 흐름, 점선은 운영 확장 예시**입니다. 실제 원천 시스템 연계, Power Apps·Power Automate, Work IQ·Microsoft 365 Copilot·Cowork·Agent Store 연결은 만들지 않습니다. 운영에 연결하려면 해당 제품의 지원 상태·인증·라이선스·테넌트 정책을 별도로 확인합니다.
 
@@ -60,7 +60,7 @@ Genie 질의와 Ontology Graph 생성은 **선택 단계**입니다. Genie에는
 | [06. 긴급 수주와 대응안](docs/06-emergency-order.md) | 긴급 수주의 영향을 계산하고 대응안 4개를 비교해 추천안을 정합니다. |
 | [07. 정답 계산과 Genie](docs/07-genie.md) | 질문 6개의 정답을 계산합니다. Genie 질의는 선택입니다. |
 | [08. Ontology](docs/08-ontology.md) | 엔터티·관계·데이터 바인딩을 만들고 실제 데이터를 확인합니다. Graph는 선택입니다. |
-| [09. Ontology agent에 질문하기](docs/09-ontology-agent.md) | 업무 규칙을 설명에 넣고 질문의 답을 07장의 계산 정답과 비교합니다. |
+| [09. Data agent로 Ontology에 질문하기](docs/09-data-agent.md) | Ontology를 원본으로 연결하고 에이전트·원본 지침을 넣어 답과 조회 범위를 계산 정답에 대조합니다. |
 | [10. Power BI 보고서](docs/10-power-bi.md) | 수급 현황은 직접 만들고 대응안은 Copilot으로 생성해 질문·인사이트를 확인합니다. |
 | [11. Operations agent](docs/11-operations-agent.md) | 위험 이벤트를 Eventhouse로 보내 Teams 제안을 받습니다. 12장 검토를 마치고 돌아와 승인·기록 확인·Stop을 완료합니다. |
 | [12. Foundry agent](docs/12-foundry-agent.md) | Fabric IQ로 Ontology의 근거를 검토한 뒤 11장 승인 단계로 돌아갑니다. |
