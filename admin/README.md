@@ -4,6 +4,8 @@
 
 Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참가자는 이 문서를 보지 않아도 됩니다. 예시는 참가자 `p001` 기준입니다. 참가자마다 `pNNN` 부분을 바꿔 반복합니다. 데이터 구조와 예상 결과는 [데이터 설계](data-design.md)에 있습니다.
 
+실습 준비와 당일 운영에는 [관리자 체크리스트](admin_checklist.rst)를 사용하고, 상세 설정과 문제 해결은 이 문서의 해당 절을 확인합니다.
+
 ## 준비할 리소스
 
 | 리소스 | 값 |
@@ -11,7 +13,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 | Azure Databricks | Premium workspace, Unity Catalog 사용 |
 | Unity Catalog | 참가자별 카탈로그 `lab_factory_pNNN`, 스키마 `chipbalance_pNNN`, 스키마 안의 Volume `raw` |
 | Databricks Serverless | 참가자 Notebook 실행에 사용. `deltalake==1.6.6`은 `01_setup`이 Notebook 범위에 설치 |
-| 공유 Notebook 원본 | **Workspace → Shared → ChipBalance**에 실행 결과가 없는 Notebook 8개. 참가자는 각자 Home으로 복제 |
+| 공유 실습 원본 | **Workspace → Shared → ChipBalance**에 실행 결과가 없는 Notebook 8개와 `fabric` 파일 3개. 참가자는 Notebook을 Home으로 복제하고 파일을 PC로 내려받음 |
 | SQL warehouse | (선택) `chipbalance-pro` (이름), Serverless 또는 Pro, 2X-Small, 15분 자동 종료. 07장 Genie와 Catalog의 데이터 미리보기에 사용 |
 | Managed Identity | Access Connector for Azure Databricks `ac-chipbalance-onelake`, Unity Catalog service credential `chipbalance_onelake_hyosung` |
 | Microsoft Fabric | F 용량, 작업 영역 `chipbalance-pNNN`, Lakehouse `lh_chipbalance_pNNN` (Lakehouse schemas 켬) |
@@ -84,16 +86,17 @@ GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory_p001.chipbalance_p001.raw 
 - 참가자에게 **Workspace access** entitlement를 줍니다. **Serverless compute access**라는 별도 entitlement를 만들거나 찾지 않습니다. [Serverless 요구 사항](https://learn.microsoft.com/azure/databricks/compute/serverless/)과 [entitlement 목록](https://learn.microsoft.com/azure/databricks/security/auth/entitlements)을 확인합니다.
 - `01_setup` 첫 셀이 `deltalake==1.6.6`을 Notebook 범위에 설치하므로 Compute 라이브러리를 미리 설치하지 않습니다.
 
-### 공유 Notebook 원본 준비
+### 공유 Notebook과 Fabric 파일 원본 준비
 
-**Shared에는 원본 폴더 하나만 준비합니다.** 참가자마다 원본을 따로 만들지 않습니다. 각 참가자가 01장의 **Clone**으로 본인 Home에 복제하고 참가자 번호를 넣습니다.
+**Shared에는 원본 폴더 하나만 준비합니다.** 참가자마다 원본을 따로 만들지 않습니다. 각 참가자가 01장의 **Clone**으로 Notebook을 본인 Home에 복제하고 참가자 번호를 넣습니다. 10–11장에서 사용할 Fabric 파일도 같은 Shared 원본에서 PC로 내려받습니다.
 
 1.  관리자가 저장소 ZIP을 내려받아 압축을 풉니다.
 2.  Databricks의 **Workspace → Shared**를 열고 폴더 작업 메뉴의 **Import**로 `notebooks\ChipBalance.zip`을 가져옵니다. ZIP 자체는 풀지 않습니다. Shared에 `ChipBalance` 폴더가 생깁니다.
 3.  `01_setup`–`07_answers`와 `source_systems`의 **8개**가 있는지 확인합니다. 참가자 설정은 배포 기본값 `p001`을 유지하고, 원본에서 셀을 실행하지 않습니다. `admin/00_admin_setup.ipynb`는 공유 원본에 넣지 않습니다.
-4.  원본 폴더의 **Share**에서 참가자들의 읽기·복제 권한을 확인합니다. 원본 변경은 관리자만 하도록 운영합니다. 상위 Shared나 그룹에서 수정 권한을 상속받는 경우도 확인하며, 다른 사용자가 쓰는 Shared 전체의 권한을 임의로 변경하지 않습니다.
-5.  참가자 계정에서 **Shared → ChipBalance → 폴더 ⋮ → Clone → 본인 Home**이 가능한지 확인합니다. 기존 Home 폴더를 덮어쓰지 않고 8개를 함께 복제합니다([01장 복제 절차](../docs/01-connect.md#2-shared-원본을-본인-home에-복제)).
-6.  별도로 `fabric` 폴더의 `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 참가자에게 전달합니다. 참가자의 GitHub 다운로드가 차단되어도 이 세 파일은 PC에서 사용할 수 있어야 합니다.
+4.  **Workspace → Shared → ChipBalance** 아래에 `fabric` 폴더를 만들고 저장소의 `fabric\sm_chipbalance.tmdl`, `fabric\chipbalance-theme.json`, `fabric\nb_record_decision.ipynb`를 올립니다. 참가자가 Shared에서 원래 파일명과 확장자로 내려받을 수 있어야 합니다. `nb_record_decision.ipynb`가 Notebook으로 표시되면 **Export → IPython Notebook**으로 내보내는 방법을 안내합니다.
+5.  원본 폴더의 **Share**에서 참가자들의 읽기·복제·파일 내려받기 권한을 확인합니다. 원본 변경은 관리자만 하도록 운영합니다. 상위 Shared나 그룹에서 수정 권한을 상속받는 경우도 확인하며, 다른 사용자가 쓰는 Shared 전체의 권한을 임의로 변경하지 않습니다.
+6.  참가자 계정에서 **Shared → ChipBalance → 폴더 ⋮ → Clone → 본인 Home**이 가능한지 확인합니다. 기존 Home 폴더를 덮어쓰지 않고 Notebook 8개를 함께 복제합니다([01장 복제 절차](../docs/01-connect.md#2-shared-원본을-본인-home에-복제)).
+7.  참가자 계정에서 **Shared → ChipBalance → fabric**의 세 파일을 PC의 `fabric` 폴더로 내려받고, `chipbalance-theme.json`과 `nb_record_decision.ipynb`를 Fabric 파일 선택 창에서 열 수 있는지 확인합니다.
 
 공유 원본은 실행 결과가 없는 최신 배포본을 사용합니다. 원본을 갱신해도 이미 만들어진 참가자의 복제본은 자동으로 갱신되지 않습니다. 진행 중인 복제본을 덮어쓰지 말고 필요한 변경을 별도로 안내합니다.
 
@@ -204,7 +207,7 @@ Unity Catalog 저장소를 private endpoint로 연결했다면 Serverless가 저
 - Databricks 주소 (예: `https://adb-<번호>.<번호>.azuredatabricks.net`)
 - 참가자 번호(예: `p001`)
 - Shared의 `ChipBalance` 원본 위치·읽기 권한과 본인 Home에 복제할 권한
-- `fabric` 폴더의 실습 파일 3개를 받을 위치 또는 전달된 파일
+- Shared의 `ChipBalance/fabric` 파일 3개를 PC로 내려받는 방법
 - Foundry 프로젝트를 만들 구독과 리소스 그룹 (12장)
 
 Unity Catalog 스키마와 Fabric 작업 영역·Lakehouse 이름은 참가자 번호로 정합니다. Service credential은 이 가이드에서 `chipbalance_onelake_hyosung`으로 고정한 공용 이름이며 참가자 번호로 생성되지 않습니다. 다른 이름이나 참가자별 credential을 준비했다면 `01_setup`의 `service_credential`에 넣을 값을 별도로 알려 줍니다.
