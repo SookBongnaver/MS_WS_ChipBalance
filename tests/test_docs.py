@@ -121,12 +121,19 @@ class DocumentTests(unittest.TestCase):
         self.assertIn("Shared에는 원본 폴더 하나만 준비합니다.", admin)
         self.assertIn("notebooks\\ChipBalance.zip", admin)
 
-    def test_shared_clone_preserves_separate_fabric_file_distribution(self):
+    def test_shared_source_includes_fabric_file_distribution(self):
         scenario = (DOCS / "00-scenario.md").read_text(encoding="utf-8")
         for name in ("sm_chipbalance.tmdl", "chipbalance-theme.json", "nb_record_decision.ipynb"):
             self.assertIn(name, scenario)
         self.assertIn("Fabric 실습 파일 3개", scenario)
+        self.assertIn("Workspace → Shared → ChipBalance → fabric", scenario)
         self.assertIn("## 실습 파일 준비", scenario)
+        connect = (DOCS / "01-connect.md").read_text(encoding="utf-8")
+        self.assertIn("### Fabric 파일 3개 내려받기", connect)
+        self.assertIn("Export → IPython Notebook", connect)
+        admin = (ROOT / "admin" / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Workspace → Shared → ChipBalance", admin)
+        self.assertIn("nb_record_decision.ipynb", admin)
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         self.assertIn("docs/00-scenario.md#실습-파일-준비", readme)
         self.assertNotIn("#실습-파일-내려받기", readme)

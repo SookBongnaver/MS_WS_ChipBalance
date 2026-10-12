@@ -23,7 +23,7 @@
 
 ## 2. Shared 원본을 본인 Home에 복제
 
-관리자가 Shared에 준비한 **원본 폴더 하나**를 각자 본인 Home으로 복제합니다. 참가자가 ZIP을 내려받거나 Import하지 않습니다. **Shared 원본에서는 참가자 번호를 고치거나 셀을 실행하지 않습니다.**
+관리자가 Shared에 준비한 **원본 폴더 하나**를 각자 본인 Home으로 복제합니다. 참가자가 Notebook ZIP을 내려받거나 Import하지 않습니다. **Shared 원본에서는 참가자 번호를 고치거나 셀을 실행하지 않습니다.**
 
 1.  왼쪽 **Workspace**를 누릅니다. 탐색 트리에서 **Workspace → Shared**를 펼치고 `ChipBalance`를 엽니다. **Shared with me**와는 다른 폴더입니다.
 
@@ -56,6 +56,17 @@
 <img src="../assets/screenshots/d01-cloned-folder.png" width="1000" alt="Shared 원본에서 개인 폴더로 복제한 ChipBalance의 실제 목록. 01_setup부터 07_answers와 source_systems까지 Notebook 8개가 보입니다." />
 
 이후 모든 단계는 **본인 복제본**에서 진행합니다. 다른 Notebook이 `%run ./01_setup`으로 공통 설정과 저장 함수를 불러오므로 **8개를 같은 폴더에 둡니다.** `source_systems`는 02장에서 불러오는 보조 Notebook이며 따로 실행하지 않습니다.
+
+### Fabric 파일 3개 내려받기
+
+10–11장에서 사용할 파일은 관리자가 같은 Shared 원본의 `fabric` 폴더에 준비합니다.
+
+1.  **Workspace → Shared → ChipBalance → fabric**을 엽니다.
+2.  `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 본인 PC에 내려받아 `fabric` 폴더에 둡니다.
+3.  `nb_record_decision`이 Notebook으로 보이면 항목 메뉴의 **Export → IPython Notebook**을 사용해 `nb_record_decision.ipynb`로 저장합니다.
+4.  세 파일의 이름과 확장자가 위와 같은지 확인합니다. Shared 원본 파일을 편집하거나 삭제하지 않습니다.
+
+**확인할 결과:** 본인 PC의 `fabric` 폴더에 파일 3개가 있습니다. 10장에서 TMDL과 테마를, 11장에서 승인 기록 Notebook을 사용합니다.
 
 ## 3. Serverless 연결
 
@@ -116,7 +127,7 @@
 
 ## 이 장의 완료 기준
 
-**본인 Home의 복제본**에 있는 8개 Notebook, 본인 Unity Catalog 위치, OneLake의 **쓰기·읽기 1행**, Fabric의 `connection_check` 폴더를 확인했으면 준비가 끝났습니다.
+**본인 Home의 복제본**에 있는 8개 Notebook, PC의 `fabric` 파일 3개, 본인 Unity Catalog 위치, OneLake의 **쓰기·읽기 1행**, Fabric의 `connection_check` 폴더를 확인했으면 준비가 끝났습니다.
 
 OneLake 저장 인증은 관리자가 준비한 **Managed Identity와 service credential**을 사용합니다. 참가자가 별도의 비밀번호·키를 만들 필요는 없습니다. 관리자 설정은 [관리자 준비 가이드](../admin/README.md)의 "2. Managed Identity와 service credential"에서 확인합니다.
 
