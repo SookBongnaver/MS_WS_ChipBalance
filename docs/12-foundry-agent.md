@@ -2,9 +2,9 @@
 
 [목차](../README.md) \| 이전: [11. Operations agent](11-operations-agent.md) \| 다음: [13. 마무리](13-finish.md)
 
-10장에서 확인한 재고를 **Foundry에서도 원본 근거로 조회**합니다. Microsoft Foundry에 `fa-chipbalance`를 만들고 **Fabric IQ** 도구로 08장의 `ont_chipbalance`를 직접 연결합니다. **09장의 Data agent `da_chipbalance`를 경유하는 연결이 아닙니다.** 현재 연결된 재고·생산계획·납기·입고·이송 경로만 사용하며 승인·거절은 하지 않습니다.
+Teams에 도착한 `OPT-2`를 승인하기 전에, **보내는 Bunker의 재고도 안전한지 근거를 확인**합니다. Microsoft Foundry에 `fa-chipbalance`를 만들고 **Fabric IQ** 도구로 08장의 `ont_chipbalance`를 직접 연결합니다. **09장의 Data agent `da_chipbalance`를 경유하는 연결이 아닙니다.** Foundry는 근거를 조회하는 역할이며 승인·거절은 하지 않습니다.
 
-**진행 위치:** 현재 데이터 범위에서는 11장의 감시·승인 실습을 건너뛰고 시작합니다. **프로젝트·에이전트 준비 → Ontology 연결 → 재고·경로 질문 → 실제 도구 출력 확인** 순서로 진행한 뒤 13장으로 이동합니다. 이미 이 장을 마쳤다면 프로젝트·에이전트를 다시 만들지 않습니다.
+**진행 위치:** 11장 7단계에서 **승인을 보류한 상태**로 시작합니다. **프로젝트·에이전트 준비 → Ontology 연결 → 질문 → 실제 도구 출력 확인** 순서로 진행합니다. **5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가 Teams 승인·결과 확인·Stop을 완료합니다.** 이미 이 장을 마쳤다면 프로젝트·에이전트를 다시 만들지 않습니다.
 
 ## 시작 전 확인
 
@@ -15,7 +15,7 @@
 
 화면의 기본 모델·버튼·도구 표시와 AI 응답은 환경에 따라 달라질 수 있습니다. 아래 시간은 참고값이며, 답의 숫자와 실제 도구 출력을 검증합니다.
 
-엔터티 이름은 현재 Ontology에서 확인한 **본인의 이름을 사용합니다**. 특정 이름을 강제하지 않고 업무 의미와 실제 원본 바인딩을 기준으로 조회합니다. **이송 경로는 이송 후 재고가 아니며, 현재 원본에 없는 대응안·위험 이벤트는 질문의 근거로 사용하지 않습니다.**
+아래 `ResponseOption`, `OptionBalance`, `Bunker`는 참고 설계의 엔터티 이름입니다. 08장에서 에이전트가 다른 이름으로 설계했다면 같은 업무 개념과 원본 테이블에 연결된 본인의 이름을 사용합니다. 이름·개수가 아닌 **실제 도구 출력의 원본 근거·조회 범위·값**으로 판단합니다.
 
 ## 1. Foundry 프로젝트 만들기
 
@@ -62,13 +62,10 @@
 1.  **지침** 입력 칸에 아래 내용을 붙여 넣습니다.
 
     ``` text
-    너는 필름 공장의 원료 칩 재고·생산계획·납기·입고·이송 경로 조회 도우미다.
-    - 데이터 질문은 반드시 Fabric IQ 도구(ont_chipbalance)로 현재 온톨로지에 바인딩된 원본을 조회하고 실제 반환된 값만 근거로 답한다. 엔터티 이름과 사용 가능한 속성은 도구로 확인한다.
-    - baseline은 현재 계획, emergency는 긴급 오더 반영 계획이며 scenario_id 코드다. 시나리오·벙커·기간을 구분하고 여러 날짜의 기말 재고를 합산하지 않는다.
-    - 답에는 근거로 쓴 엔터티·원본과 시나리오·벙커·날짜·kg 등 핵심 값을 적는다.
-    - 이송 경로는 출발·도착·하루 한도·소요일의 기준 정보일 뿐이다. 현재 재고와 경로만으로 이송 후 안전성을 확정하지 않는다.
-    - 대응안 비교·추천·비용·이송 후 재고·위험 이벤트 처리 상태는 현재 데이터 범위에 없다. 확인 불가로 답하고 도구 결과에 없는 숫자나 데이터를 만들지 않는다.
-    - 발주·이송·승인·거절·데이터 변경은 하지 않는다.
+    너는 필름 공장의 원료 칩 수급 대응안 검토 도우미다. Operations agent가 Teams로 제안한 대응안을 담당자가 승인하기 전에 근거를 확인하도록 돕는다.
+    - 생산계획, 벙커 재고, 오더, 대응안 같은 데이터 질문은 반드시 Fabric IQ 도구(ont_chipbalance)로 조회하고, 조회한 값만 근거로 답한다. 도구 결과에 없는 숫자는 만들지 않는다.
+    - 답에는 근거로 쓴 엔터티와 핵심 값(벙커, 날짜, kg)을 적는다.
+    - 승인이나 거절은 하지 않는다. 결정은 담당자가 Teams에서 한다.
     - 한국어로 짧게 답한다.
     ```
 
@@ -96,31 +93,35 @@ Fabric IQ는 연결에 인증한 사용자의 **위임된 Fabric 권한**으로 
 
 **확인할 결과:** **도구**에 선택한 Ontology의 **Fabric IQ (ontchipbalance)** 하나만 있고, **지침**에 3단계 내용이 저장되어 있습니다. 화면에 버전이 표시되는 경우 저장에 따른 갱신도 확인합니다.
 
+<img src="../assets/screenshots/d12-agent-saved.png" width="1000" alt="저장한 fa-chipbalance 플레이그라운드. 지침에 Fabric IQ 도구(ont_chipbalance)로 조회하고, 승인이나 거절은 하지 않는다, 한국어로 짧게 답한다가 보이고, 도구에는 Fabric IQ (ontchipbalance) 미리 보기 하나만 있습니다." />
+
 ## 5. 에이전트에 질문하기
 
 1.  오른쪽 채팅 창의 **에이전트에 메시지 보내기...**에 아래 질문을 입력하고 보냅니다.
 
     ``` text
-    긴급 오더 반영 계획(scenario_id=emergency)에서 BNK-L3-2의 2026년 4분기 최저 기말재고와 발생일, 안전재고를 조회해 주세요. 이송 후 재고가 아니라 해당 시나리오의 재고를 확인해 주세요.
+    OPT-2(BNK-L1-2 → BNK-L3-2 PET-SD 40,000 kg 이송)를 반영하면 BNK-L1-2의 최저 기말재고는 몇 kg이고, 안전재고 이상인가요?
     ```
 
     첫 호출에 `CONSENT_REQUIRED`가 나오면 오류에 표시된 동의 URL을 열어 인증·동의를 완료한 뒤 같은 질문을 다시 보냅니다. 사용자 동의는 관리자 동의나 데이터 원본 권한을 대신하지 않습니다.
 
-    **검증 목표:** `gold.fact_balance`에 연결된 현재 타입에서 대상 시나리오·벙커·기간의 실제 최솟값과 날짜·안전재고를 확인합니다. 제공 데이터의 `emergency` 기준은 최저 -23,630 kg, 2026-11-26, 안전재고 12,000 kg입니다. 실제 원본과 09장 Q2·10장의 긴급 계획을 대조합니다. `emergency` 행이 없으면 확인 불가로 답해야 합니다. 정답 숫자를 질문에 넣지 않습니다.
+    **검증 목표:** 최저 기말재고 16,763 kg(2026-11-01), 안전재고 6,000 kg으로 안전재고 이상인지 확인합니다. 근거는 **ResponseOption** `OPT-2`(BNK-L1-2 → BNK-L3-2, 40,000 kg, 첫 도착일 2026-10-03), **Bunker** BNK-L1-2의 안전재고, **OptionBalance**의 일자별 기말재고이며, 화면 예시에는 근거 표시 `ontchipbalance`가 있습니다. 07장 정답 Notebook과 09장 Q4의 핵심 값에 비교합니다. AI 응답이 항상 맞는 것은 아니므로 다음 단계에서 도구 출력을 확인합니다. 전체 대화의 참고 시간은 1–2분이며, 개별 MCP 호출에는 별도 시간 제한이 있습니다.
+
+    <img src="../assets/screenshots/d12-ask-value.png" width="700" alt="Foundry 채팅의 질문과 답. OPT-2 이송을 반영한 BNK-L1-2의 최저 기말재고는 16,763 kg, 발생일은 2026-11-01 UTC이며 안전재고 6,000 kg 이상입니다. 근거 엔터티 OptionBalance와 bunker_id=BNK-L1-2, option_id=OPT-2, min closing=16,763 kg, date=2026-11-01, safety_stock=6,000 kg가 보입니다. 아래에 gpt-5, 추적, mcp_list_tools, ontchipbalance, message가 있습니다." />
 
 2.  답 아래의 **추적**을 누르고, 왼쪽 목록에서 **ontchipbalance: ask_ontology**를 고릅니다.
 
-    **확인할 결과:** Fabric IQ 도구의 `ask_ontology` **출력**에 실제 조회 대상·시나리오·기간·재고 값이 있습니다. 대화 답변이 아니라 이 출력을 근거로 판단합니다. 조회 실패나 확인 불가를 성공적인 수치 조회로 간주하지 않습니다.
+    **예상 결과:** 에이전트가 Fabric IQ 도구의 `ask_ontology`로 질문을 Ontology에 넘겼고, **출력**에 Ontology가 데이터에서 찾은 결론(최저 기말재고 16,763 kg, 일자 2026-11-01, 안전재고 6,000 kg, 안전재고 이상)이 들어 있습니다. 에이전트는 이 결과를 근거로 답했습니다.
+
+    <img src="../assets/screenshots/d12-trace.png" width="1000" alt="대화 추적 창. 왼쪽에 응답 아래 도구 mcp_list_tools, ontchipbalance: ask_ontology, message가 있고 ontchipbalance: ask_ontology가 선택되어 있습니다. 오른쪽 입출력 탭의 입력에는 server_label ontchipbalance, operation ask_ontology와 OPT-2를 반영한 BNK-L1-2의 최저 기말재고를 묻는 request가 있고, 출력에는 최저 기말재고 16,763 kg, 해당 일자 2026-11-01, BNK-L1-2 안전재고 6,000 kg, 판정 안전재고 이상이 보입니다." />
 
 3.  오른쪽 위 **X**를 눌러 추적 창을 닫습니다.
 
-4. 같은 방법으로 `BNK-L3-2로 PET-SD를 보내는 등록된 이송 경로의 출발 벙커·하루 한도·소요일을 알려 주세요. 경로 정보만으로 이송 후 안전성을 판단하지 마세요.`를 묻습니다. 09장 Q4와 같은 경로 원본을 조회하는지 확인합니다.
-
 ## 이 장의 완료 기준
 
-**답변 문장뿐 아니라 실제 `ask_ontology` 출력**에서 요청한 시나리오·벙커·기간의 재고와 등록된 이송 경로를 확인합니다. 없는 이송 후 재고나 추천안을 제시하지 않아야 합니다. `완료` 표시만 있고 도구가 답을 반환하지 않았다면 조회를 마친 것이 아닙니다.
+**답변 문장뿐 아니라 실제 `ask_ontology` 출력**에서 `OPT-2`를 반영한 `BNK-L1-2`의 최저 기말재고 **16,763kg**, 해당 날짜 **2026-11-01**, 안전재고 **6,000kg**을 확인합니다. `완료` 표시만 있고 도구가 답을 반환하지 않았다면 검토가 끝난 것이 아닙니다.
 
-**조회 완료:** 실제 원본과 조회 결과가 일치하면 [13. 마무리](13-finish.md)로 이동합니다. **현재 실습에서는 11장으로 돌아가 승인하지 않습니다.** Work IQ 참고 단계는 생략해도 됩니다. 위험 이벤트·대응안 원본이 모두 준비된 환경에서 별도로 11장을 진행했다면, 해당 대응안의 실제 원본 근거까지 확인한 경우에만 승인 단계로 돌아갑니다. 이 장의 재고·경로 질문만으로 대응안 승인을 정당화하지 않습니다.
+**검토 완료:** 근거가 정답과 일치하면 [11장 7단계 4번](11-operations-agent.md#7-teams-제안-확인근거-검토승인)으로 돌아가 **Proceed → Confirm**, 승인 결과 확인과 에이전트 **Stop**까지 진행합니다. 답이 확인되지 않았으면 승인하지 않습니다. 아래 Work IQ 참고 단계는 생략해도 됩니다.
 
 Fabric IQ 도구는 질문에 따라 Ontology의 엔터티 정의를 읽거나(`list_ontology_entities`), 질문을 Ontology에 넘겨 연결된 데이터로 답을 받습니다(`ask_ontology`).
 
@@ -151,7 +152,7 @@ Work IQ를 실제로 연결하면 Microsoft 365 업무 맥락을 찾을 수 있�
 - `404` 또는 `Not Found`이면 선택한 작업 영역·Ontology와 연결의 엔드포인트가 맞는지, 정의가 게시됐는지 확인합니다([Fabric IQ 문제 해결](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/fabric-iq#troubleshoot)).
 - 질문을 보냈는데 **추적**에 `ontchipbalance: ask_ontology`가 없으면 **도구**에 **Fabric IQ (ontchipbalance)**가 있는지, **저장**을 눌렀는지 확인하고 오른쪽 위 **새 채팅**에서 다시 묻습니다.
 - MCP 호출이 시간 초과되면 질문의 Bunker·대응안·기간을 좁히거나 안전재고 조회와 최저 재고 조회를 나눠 재시도합니다. Foundry의 **비스트리밍 MCP 호출 제한은 100초**이며, **Ontology 엔드포인트는 동기 호출**입니다. 모델의 background mode를 켜는 것만으로 이 제한을 해결할 수 없습니다. Fabric IQ의 장기 background 실행 지원은 Data agent 엔드포인트에만 해당합니다([MCP 제한](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/model-context-protocol#known-limitations), [항목별 실행 방식](https://learn.microsoft.com/en-us/azure/foundry/agents/how-to/tools/fabric-iq#find-your-fabric-iq-server-details)).
-- 추적의 **완료** 표시는 도구가 답을 반환했다는 뜻이 아닙니다. 출력이 `No answer received from the agent.`이면 해당 호출은 검증에 쓰지 않습니다. 후속 `ask_ontology` 호출이나 좁힌 재질문에서 실제 숫자·날짜·안전재고가 반환됐는지 확인합니다. 예: `현재 온톨로지에서 gold.fact_balance에 연결된 타입의 scenario_id=emergency, bunker_id=BNK-L3-2, 2026년 4분기 행의 closing_kg 최솟값과 해당 balance_date, safety_stock_kg를 조회해 주세요.` 정답 수치는 질문에 넣지 않습니다.
+- 추적의 **완료** 표시는 도구가 답을 반환했다는 뜻이 아닙니다. 출력이 `No answer received from the agent.`이면 해당 호출은 검증에 쓰지 않습니다. 후속 `ask_ontology` 호출이나 좁힌 재질문에서 실제 숫자·날짜·안전재고가 반환됐는지 확인합니다. 예: `OptionBalance에서 option_id=OPT-2, bunker_id=BNK-L1-2인 행의 closing_kg 최솟값, balance_date, safety_stock_kg를 조회해 주세요.` 정답 수치를 질문에 넣지는 않습니다.
 - 도구 출력이 비어 있거나 숫자가 다르면 08장의 속성·데이터 바인딩과 09장의 설명을 확인하고, 정답 Notebook의 값과 비교합니다. 확인되지 않은 답으로 Teams 승인을 진행하지 않습니다.
 
 ## 공식 문서
@@ -162,4 +163,4 @@ Work IQ를 실제로 연결하면 Microsoft 365 업무 맥락을 찾을 수 있�
 
 ## 다음 단계
 
-재고·경로의 실제 조회 근거를 확인했으면 [13. 마무리](13-finish.md)로 갑니다. 현재 진행하지 않은 승인 흐름을 완료로 기록하지 않습니다.
+11장으로 돌아가 승인·결과 확인·Stop을 마쳤으면 [13. 마무리](13-finish.md)로 갑니다.
