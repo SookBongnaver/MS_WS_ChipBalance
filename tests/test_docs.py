@@ -113,7 +113,7 @@ class DocumentTests(unittest.TestCase):
                        "전체 4분기", "Clear chat", "초안 편집·테스트"):
             self.assertIn(phrase, guide)
         self.assertNotIn("별도 Fabric Data agent는 만들지 않습니다", guide)
-        for image in ("sources", "source-instructions", "q2", "q4", "q6"):
+        for image in ("sources", "q2", "q4", "q6"):
             self.assertIn(f"d09-data-agent-{image}.png", guide)
         foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
         self.assertIn("da_chipbalance", foundry)
@@ -154,6 +154,20 @@ class DocumentTests(unittest.TestCase):
         self.assertIn("없는 타입이나 열은 건너뛰어줘", prompt)
         self.assertIn("새 타입이나 데이터를 만들지 마", prompt)
         self.assertNotIn("d09-rules-done.png", guide)
+
+    def test_data_agent_instructions_do_not_require_absent_option_tables(self):
+        guide = (DOCS / "09-data-agent.md").read_text(encoding="utf-8")
+        section = guide.split("## 3.", 1)[1].split("## 4.", 1)[0]
+        prompts = re.findall(r"``` text\n(.*?)```", section, re.DOTALL)
+        self.assertEqual(2, len(prompts))
+        for prompt in prompts:
+            for absent in ("OptionBalance", "ResponseOption", "RiskEvent",
+                           "fact_option_balance", "fact_response_option", "fact_risk_event",
+                           "recommendation_rank", "meets_all", "added_cost_krw"):
+                self.assertNotIn(absent, prompt)
+        self.assertIn("현재 데이터로 확인할 수 없다고", prompts[0])
+        self.assertIn("현재 계획·긴급 계획의 재고를 이송 후 재고로 대신하지", prompts[1])
+        self.assertNotIn("d09-data-agent-source-instructions.png", guide)
 
     def test_participant_notebooks_are_cloned_from_shared(self):
         setup = (DOCS / "01-connect.md").read_text(encoding="utf-8").replace("**", "")

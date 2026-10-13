@@ -2,13 +2,13 @@
 
 [목차](../README.md) \| 이전: [08. Ontology](08-ontology.md) \| 다음: [10. Power BI 보고서](10-power-bi.md)
 
-08장에서 만든 Ontology를 **Fabric Data agent의 원본으로 연결**하고, 원료 부족·납기·대응안을 한국어로 질문합니다. 목표는 그럴듯한 설명을 받는 것이 아니라 **6개 질문의 핵심 값과 조회 범위가 Notebook 정답과 맞는지 확인하는 것**입니다.
+08장에서 만든 Ontology를 **Fabric Data agent의 원본으로 연결**하고, 현재 연결된 데이터로 원료 재고·부족·납기·입고·이송 경로를 한국어로 질문합니다. 목표는 **실제 조회 근거와 답의 범위를 확인하고, 없는 데이터로 판단하지 않는 것**입니다.
 
 **업무 설명 준비 → Data agent 만들기 → Ontology 연결 → 지침 저장 → 질문·근거 확인** 순서로 진행합니다. 08장의 **내장 Ontology agent는 구조 작성**, 이 장의 **별도 Data agent는 업무 질의**에 사용합니다. 12장의 Foundry는 Fabric IQ로 Ontology에 직접 질문하는 별도 경로입니다.
 
 ## 시작 전 확인
 
-- 본인 `ont_chipbalance`가 재고·납기·입고·대응안 비교·위험 이벤트의 업무 범위를 지원하고, 키·바인딩과 실제 데이터를 08장에서 확인했습니다. **Graph 생성은 필수가 아닙니다.**
+- 본인 `ont_chipbalance`에 연결된 재고·생산계획·납기·입고·이송 경로의 키·바인딩과 실제 데이터를 08장에서 확인했습니다. **Graph 생성은 필수가 아닙니다.**
 - 07장의 `07_answers`에서 질문 6개의 계산 정답을 확인할 수 있습니다. Genie를 만들지 않았어도 비교할 수 있습니다.
 - **활성 유료 Fabric 용량**, Data agent 생성·사용을 허용하는 AI 테넌트 설정, 본인 작업 영역의 작성 권한과 **Ontology 및 바인딩된 원본의 읽기 권한**이 필요합니다([Data agent 요구 사항](https://learn.microsoft.com/fabric/data-science/concept-data-agent), [테넌트 설정](https://learn.microsoft.com/fabric/data-science/data-agent-tenant-settings)).
 
@@ -55,22 +55,23 @@
 
 지침은 두 위치에 넣습니다. **Agent instructions**는 답변 방식·원본 선택을, **Data source instructions**는 실제 열·필터·조인 규칙을 설명합니다. Ontology 연결만으로 모든 쿼리가 정확해지는 것은 아닙니다.
 
+아래 두 지침은 **현재 연결된 데이터 범위**를 사용합니다. 대응안·대응안별 재고·위험 이벤트는 조회 대상으로 지정하지 않습니다. 기본 안내나 다른 지침을 남겨 섞지 말고 각 입력 영역의 내용을 전체 교체합니다.
+
 ### 에이전트 지침
 
 1.  **Explorer → Setup / 설정 → Agent instructions / 에이전트 지침**을 엽니다.
 2.  Markdown 영역을 눌러 편집하고 기본 안내 문장을 전체 선택해 지웁니다. 아래 내용을 붙여 넣은 뒤 **Markdown preview / 미리 보기 영역**을 눌러 저장합니다. 화면에 저장 버튼이 있으면 저장합니다.
 
     ``` text
-    이 Data agent는 필름 공장 Chip Balance의 원료 수급과 긴급 수주 대응안을 읽기 전용으로 설명합니다.
-    - ont_chipbalance의 엔터티 타입·관계·설명과 연결된 OneLake Gold를 근거로 조회합니다. 별도 원본이나 인터넷 정보로 숫자를 추측하지 않습니다.
+    이 Data agent는 필름 공장 Chip Balance의 재고·생산계획·납기·입고·이송 경로를 읽기 전용으로 설명합니다.
+    - ont_chipbalance에 실제로 존재하는 엔터티·관계·설명과 바인딩된 OneLake Gold만 조회합니다. 엔터티 이름은 현재 온톨로지에서 확인하며, 별도 원본이나 인터넷 정보로 숫자를 추측하지 않습니다.
     - baseline은 긴급 오더를 반영하지 않은 현재 계획, emergency는 긴급 오더를 반영한 계획입니다. 질문에 시나리오가 없으면 baseline으로 답합니다. baseline과 emergency는 scenario_id 코드이고 scenario_name은 한국어 표시 이름입니다.
-    - moved 판매오더 수는 sales_order_id를 중복 없이 세고, ProductionPlan과 OrderFulfillment 모두 emergency로 제한합니다.
+    - 미룬 생산의 판매오더 수는 change_type=moved인 sales_order_id를 중복 없이 셉니다. 생산계획과 납기 이행을 연결할 때 양쪽 시나리오를 emergency로 맞춥니다.
     - below_safety는 closing_kg가 safety_stock_kg보다 적은 날, shortage는 closing_kg가 0보다 적은 날입니다. 최저 재고와 안전재고까지의 필요 보충량을 구분합니다.
-    - 기준을 모두 통과한 대응안 전체를 보여 주고, 그중 recommendation_rank=1을 추천안으로 구분합니다. 추가 비용은 added_cost_krw입니다.
-    - 이송 후 보내는 Bunker의 재고는 해당 대응안의 OptionBalance로 확인합니다. 현재 계획 재고나 도착 당일 값만으로 전 기간 안전성을 판단하지 않습니다.
-    - source_bunker_id가 비어 있는 구매 등의 대응안도 제외하지 않습니다. 필요하면 Bunker를 LEFT JOIN합니다.
-    - 한국어로 짧게 답하고 근거 엔터티·시나리오·Bunker·날짜·kg·원 값을 함께 보여 줍니다. 조회가 실패하면 확인되지 않은 숫자를 제시하지 않습니다.
-    - 발주·이송·승인·데이터 변경은 하지 않습니다. 결정은 담당자가 Teams에서 합니다.
+    - 이송 경로는 보내는 벙커·받는 벙커·하루 한도·소요일을 설명하는 기준 정보입니다. 경로가 있다는 것만으로 실제 이송 가능 수량이나 이송 후 재고 안전성을 확정하지 않습니다.
+    - 현재 원본 범위에는 대응안 비교·추천, 대응안별 이송 후 재고, 위험 이벤트의 처리 상태가 포함되지 않습니다. 이런 질문에는 현재 데이터로 확인할 수 없다고 답하고, 없는 엔터티·테이블·열이나 결과를 만들지 않습니다.
+    - 한국어로 짧게 답하고 실제 근거 엔터티·시나리오·벙커·날짜·단위를 보여 줍니다. 없는 열이나 읽지 못한 데이터는 확인 불가로 구분합니다.
+    - 발주·이송·승인·데이터 변경은 하지 않습니다.
     ```
 
 ### 데이터 원본 지침
@@ -80,23 +81,25 @@
 3.  **데이터 원본 설명**과 **데이터 원본 지침** 중 **지침** 영역에 아래 내용을 넣고 저장합니다.
 
     ``` text
-    이 원본은 ont_chipbalance의 엔터티에 바인딩된 gold 스키마 테이블입니다. SQL은 실제 gold 테이블·열 이름으로 작성합니다.
+    이 원본은 ont_chipbalance에 실제 바인딩된 gold 스키마 테이블입니다. 먼저 노출된 테이블·열을 확인하고 존재하는 항목만 SQL에 사용합니다. 아래 규칙도 해당 테이블·열이 원본에 있을 때만 적용합니다.
     - gold.dim_scenario에서 baseline과 emergency는 scenario_id 코드입니다. scenario_name은 한국어 표시 이름입니다. 영문 코드를 scenario_name으로 필터하지 않습니다.
-    - scenario_id가 있는 fact_plan, fact_order_fulfillment, fact_balance, fact_bunker_summary, fact_response_option, fact_risk_event는 현재 계획 baseline 또는 긴급 계획 emergency로 필터하고 조인 양쪽의 scenario_id를 맞춥니다.
-    - fact_sales_order와 fact_option_balance에는 scenario_id가 없습니다. 각각 is_urgent, option_id로 구분합니다.
+    - fact_plan, fact_order_fulfillment, fact_balance, fact_bunker_summary는 scenario_id로 현재 계획 baseline 또는 긴급 계획 emergency를 구분하고 조인 양쪽의 scenario_id를 맞춥니다.
+    - fact_sales_order에는 scenario_id가 없습니다. 긴급 오더는 is_urgent로 구분합니다.
     - 미룬 판매오더는 fact_plan에서 scenario_id=emergency, change_type=moved인 sales_order_id를 DISTINCT로 구합니다. fact_order_fulfillment도 scenario_id=emergency로 제한해 finish_date, due_date, on_time을 비교합니다.
     - 위험은 fact_bunker_summary의 below_safety_days > 0으로 찾고 first_below_safety_date, first_shortage_date, min_closing_kg, min_closing_date, required_topup_kg를 조회합니다.
-    - 이송 경로는 dim_route의 from_bunker_id에서 to_bunker_id로 갑니다. 보내는 Bunker의 이송 후 재고는 fact_option_balance를 option_id와 bunker_id로 필터하여 MIN(closing_kg), 해당 balance_date, safety_stock_kg로 확인합니다. baseline 재고로 대신하지 않습니다.
+    - 재고는 fact_balance에서 scenario_id·bunker_id·balance_date로 구분합니다. 기간 최저 재고를 묻는 경우 해당 기간의 closing_kg 최솟값과 발생일을 확인합니다.
+    - 이송 경로는 dim_route의 from_bunker_id에서 to_bunker_id로 갑니다. dim_bunker의 bunker_id와 연결해 양쪽 벙커를 확인합니다. max_kg_per_day는 하루 한도, lead_time_days는 소요일이며 실제 이송 실행 내역이나 이송 후 재고가 아닙니다.
     - 입고는 fact_inbound에서 bunker_id·material_id와 expected_date로 찾습니다. 지정 날짜 뒤는 그 날짜를 초과한 첫 입고입니다. 공급사는 supplier_id로 dim_supplier를 연결하고 quantity_kg를 읽습니다.
-    - 대응안은 fact_response_option의 4행을 보존합니다. source_bunker_id가 비어 있는 추가 구매도 유효하므로 Bunker를 INNER JOIN으로 연결해 제외하지 않습니다. 필요하면 LEFT JOIN합니다.
-    - 기준 전체 통과는 meets_all, 추천은 recommendation_rank=1, 추가 비용은 added_cost_krw입니다. 통과안 전체와 추천안 하나를 구분합니다. OptionBalance는 영향받는 Bunker만 저장하므로 모든 Bunker의 판정은 fact_response_option의 C1–C4와 meets_all로 확인합니다.
+    - fact_balance를 대응안별 재고로 해석하거나 이 테이블에 option_id가 있다고 가정하지 않습니다. 현재 계획·긴급 계획의 재고를 이송 후 재고로 대신하지 않습니다.
+    - 대응안 평가·추천·추가 비용 및 위험 이벤트 처리 상태는 현재 조회 범위 밖입니다. 해당 결과를 추정하거나 존재하지 않는 테이블을 조회하지 않습니다.
+    - 조인으로 행이 제외되거나 중복되지 않는지 확인합니다. 선택적 연결은 LEFT JOIN을 검토하고, 판매오더 건수는 DISTINCT로 셉니다.
     ```
-
-    <img src="../assets/screenshots/d09-data-agent-source-instructions.png" width="850" alt="Data agent의 데이터 원본 지침 편집 화면. scenario_id와 scenario_name 구분, DISTINCT·시나리오 조인, OptionBalance와 LEFT JOIN 규칙이 실제로 저장되어 있습니다." />
 
 **확인할 결과:** 편집 영역을 다시 열어 저장된 지침을 읽을 수 있습니다. `Ctrl+A`로 기본 문장을 지운 뒤 붙여 넣어야 하며, 입력한 문장 뒤에 기본 안내가 남아 있지 않은지 확인합니다. 질문의 **정답 숫자를 지침에 넣어 답을 맞추지 않습니다.**
 
 ## 4. 한국어로 질문하고 계산 정답과 비교
+
+**현재 범위:** Q1·Q2·Q3·Q5와 Q4의 **이송 경로 확인만** 진행합니다. Q4의 이송 후 안전성과 Q6의 대응안 추천은 현재 데이터로 확인할 수 없다고 답해야 합니다. 아래 대응안 관련 정답·캡처는 해당 데이터가 연결된 환경의 참고 예시이며 현재 실습의 필수 결과가 아닙니다.
 
 1.  **Test data agent / 테스트 데이터 에이전트**를 열고 **응답 테스트** 입력란에 아래 질문을 하나씩 보냅니다.
 2.  답을 받은 뒤 07장의 정답과 비교합니다. 지침을 수정했다면 **Clear chat / 채팅 지우기**로 새 대화에서 다시 평가합니다. 브라우저 새로 고침만으로 대화가 초기화된다고 가정하지 않습니다.
@@ -152,7 +155,7 @@ OPT-2를 반영한 OptionBalance에서 bunker_id=BNK-L1-2인 전체 4분기 행�
 
 ## 이 장의 완료 기준
 
-`da_chipbalance`에 **본인 `ont_chipbalance`와 연결 원본**이 표시되고 두 위치의 지침이 저장되어 있습니다. Q1–Q6을 비교해 **Q3은 판매오더 3건, Q4는 전 기간 재고, Q6은 통과안 2개와 추천안 1개**를 확인합니다. 해결되지 않은 답은 완료로 처리하지 않습니다.
+`da_chipbalance`에 **본인 `ont_chipbalance`와 연결 원본**이 표시되고 두 위치의 지침이 저장되어 있습니다. Q1·Q2·Q3·Q5와 Q4의 이송 경로를 실제 조회 근거로 확인합니다. Q4의 이송 후 안전성·Q6의 대응안 추천은 **현재 데이터로 확인 불가**로 구분하며, 숫자나 추천안을 추측하지 않습니다. 실제 조회가 실패한 질문은 완료로 처리하지 않습니다.
 
 Data agent는 데이터를 읽는 역할입니다. Gold·Ontology를 바꾸거나 승인하지 않습니다. 다음 장에서는 같은 결과를 보고서로 봅니다.
 
