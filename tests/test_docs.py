@@ -124,6 +124,26 @@ class DocumentTests(unittest.TestCase):
         self.assertIn("da_chipbalance", diagram)
         self.assertIn("Eventhouse", diagram)
 
+    def test_ontology_agent_proposes_design_from_business_questions(self):
+        guide = (DOCS / "08-ontology.md").read_text(encoding="utf-8")
+        prompt = guide.split("``` text", 1)[1].split("```", 1)[0]
+        for phrase in ("lh_chipbalance_p001", "gold 스키마", "개수와 구조는 원본",
+                       "선택 이유", "안전재고", "긴급 수주", "납기", "전체 기간",
+                       "공급사", "대응안", "위험 이벤트", "고유 키",
+                       "오류 원문", "보고하고 중단", "Act에서 승인"):
+            self.assertIn(phrase, prompt)
+        self.assertEqual(6, len(re.findall(r"^\s*- ", prompt, re.MULTILINE)))
+        self.assertNotRegex(prompt, r"\b(?:17|26)\b")
+        self.assertNotRegex(prompt, r"gold\.(?:dim|fact)_\w+")
+        self.assertNotIn("BunkerOnLine", prompt)
+        self.assertIn("특정 엔터티·관계 개수는 완료 기준이 아닙니다", guide)
+        self.assertIn("06장 재실행은 승인된 위험 이벤트도", guide)
+        downstream = (DOCS / "09-data-agent.md").read_text(encoding="utf-8")
+        self.assertIn("본인 설계의 이름이나 개수는 달라도 됩니다", downstream)
+        self.assertNotIn("엔터티 타입 **17개·관계 26개**", downstream)
+        foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
+        self.assertIn("본인의 이름을 사용합니다", foundry)
+
     def test_participant_notebooks_are_cloned_from_shared(self):
         setup = (DOCS / "01-connect.md").read_text(encoding="utf-8").replace("**", "")
         self.assertIn("## 2. Shared 원본을 본인 Home에 복제", setup)

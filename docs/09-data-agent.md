@@ -8,11 +8,13 @@
 
 ## 시작 전 확인
 
-- 본인 `ont_chipbalance`의 엔터티 타입 **17개·관계 26개**, 키·바인딩과 Bunker 인스턴스를 08장에서 확인했습니다. **Graph 생성은 필수가 아닙니다.**
+- 본인 `ont_chipbalance`가 재고·납기·입고·대응안 비교·위험 이벤트의 업무 범위를 지원하고, 키·바인딩과 실제 데이터를 08장에서 확인했습니다. **Graph 생성은 필수가 아닙니다.**
 - 07장의 `07_answers`에서 질문 6개의 계산 정답을 확인할 수 있습니다. Genie를 만들지 않았어도 비교할 수 있습니다.
 - **활성 유료 Fabric 용량**, Data agent 생성·사용을 허용하는 AI 테넌트 설정, 본인 작업 영역의 작성 권한과 **Ontology 및 바인딩된 원본의 읽기 권한**이 필요합니다([Data agent 요구 사항](https://learn.microsoft.com/fabric/data-science/concept-data-agent), [테넌트 설정](https://learn.microsoft.com/fabric/data-science/data-agent-tenant-settings)).
 
 작업 영역·Lakehouse의 `p001`은 본인 번호로 바꿉니다. `ont_chipbalance`, `da_chipbalance`라는 항목 이름은 본인 작업 영역 안에서 그대로 사용합니다. 캡처의 참가자 번호는 예시입니다.
+
+이 장의 `Scenario`, `ProductionPlan`, `OptionBalance` 등은 **참고 설계의 엔터티 이름**입니다. 본인 설계의 이름이나 개수는 달라도 됩니다. 요청문·지침에서 참고 이름을 쓰는 부분은 해당 업무 개념에 연결된 본인의 이름으로 바꿉니다. 물리 `gold` 테이블·열 이름은 바꾸지 않습니다.
 
 ## 1. Ontology의 업무 설명 준비
 
@@ -22,7 +24,7 @@
 2.  아래 요청을 보냅니다. 이름·키·바인딩·관계를 바꾸는 단계가 아닙니다.
 
     ``` text
-    아래 업무 규칙을 해당 엔터티 타입의 설명 끝에 한국어로 덧붙여줘. 이름, 키, 속성, 데이터 바인딩, 관계는 바꾸지 마.
+    아래 업무 규칙을 해당 엔터티 타입의 설명 끝에 한국어로 덧붙여줘. 아래 이름은 참고 설계의 이름이므로, 현재 온톨로지의 업무 의미와 원본 바인딩으로 해당 타입을 찾아줘. 대응되는 타입이 없으면 누락을 보고하고 중단해. 이름, 키, 속성, 데이터 바인딩, 관계는 바꾸지 마.
     - Scenario: scenario_id가 baseline이면 현재 계획, emergency면 10월 1일 접수한 긴급 오더(SO-10322)를 반영한 계획입니다. baseline과 emergency는 scenario_id 코드이며 scenario_name은 한국어 표시 이름입니다. 질문에 시나리오가 없으면 baseline으로 답합니다.
     - ProductionPlan: change_type이 urgent면 긴급 오더 생산, moved면 긴급 오더 때문에 뒤로 미룬 생산(original_plan_date는 미루기 전 날짜), none이면 그대로인 생산입니다.
     - DailyBalance, OptionBalance: below_safety는 기말 재고(closing_kg)가 안전재고보다 적은 날, shortage는 기말 재고가 0보다 적은 날입니다.
@@ -33,17 +35,17 @@
     - RiskEvent: status가 open이면 아직 대응하지 않은 이벤트, approved면 담당자가 추천 대응안을 승인한 이벤트입니다.
     ```
 
-3.  변경 요약에서 **설명만 수정**했는지 확인합니다. Explorer에서 **ProductionPlan → View Entity Type details → Configure → Description**을 열어 문장이 저장됐는지 확인하고, 나머지 7개 타입도 같은 방법으로 봅니다. 이미 설명이 있다면 중복해서 붙이지 않고 내용만 확인합니다.
+3.  변경 요약에서 **설명만 수정**했는지 확인합니다. Explorer에서 생산계획에 연결된 타입(참고 이름 **ProductionPlan**)의 **View Entity Type details → Configure → Description**을 열어 문장이 저장됐는지 확인하고, 나머지 업무 개념도 같은 방법으로 봅니다. 이미 설명이 있다면 중복해서 붙이지 않고 내용만 확인합니다.
 
     <img src="../assets/screenshots/d09-rules-done.png" width="400" alt="Ontology 내장 agent가 설명을 추가한 결과 예시. 수정한 엔터티 타입 8개와 이름·키·속성·바인딩·관계는 변경하지 않았다는 요약이 보입니다." />
 
-**확인할 결과:** 8개 타입의 업무 설명이 있고 08장의 구조·바인딩은 유지됩니다. 이 설명은 실행 규칙이 아닙니다. **Overview → Rules**의 Business rule도 자연어 메타데이터이며, 아래 Agent instructions나 데이터 원본 지침을 대신하는 것으로 간주하지 않습니다.
+**확인할 결과:** 위 업무 규칙이 해당 타입의 설명에 반영되고 08장의 구조·바인딩은 유지됩니다. 캡처는 참고 설계의 8개 타입을 수정한 예시입니다. 이 설명은 실행 규칙이 아닙니다. **Overview → Rules**의 Business rule도 자연어 메타데이터이며, 아래 Agent instructions나 데이터 원본 지침을 대신하는 것으로 간주하지 않습니다.
 
 ## 2. Data agent 만들고 Ontology 연결
 
 1.  작업 영역 `chipbalance-p001`으로 돌아가 **+ New item / 새 항목**에서 **Data agent / 데이터 에이전트**를 고릅니다. 이름을 **`da_chipbalance`**로 입력하고 **Create / 만들기**를 누릅니다. 둘러보기 창이 나오면 **Skip for now / 지금은 건너뛰기**를 누릅니다.
 2.  시작 화면의 **Add ontology / 온톨로지 추가**를 누릅니다. OneLake 카탈로그에서 `ont_chipbalance`를 검색하고 **본인 작업 영역의 Ontology**를 선택한 뒤 **Add / 추가**를 누릅니다. 이미 에이전트 편집 화면이면 **Add source / 원본 추가**에서 Ontology 연결을 선택합니다.
-3.  **Explorer → Sources / 원본**에서 연결된 `ont_chipbalance`를 펼칩니다. **Entity types / 엔터티 형식**에 17개 타입이 있고, **Data sources for ontology / 온톨로지용 데이터 원본**에 본인의 `lh_chipbalance_p001`이 있는지 확인합니다.
+3.  **Explorer → Sources / 원본**에서 연결된 `ont_chipbalance`를 펼칩니다. **Entity types / 엔터티 형식**에 08장에서 적용한 타입이 있고, **Data sources for ontology / 온톨로지용 데이터 원본**에 본인의 `lh_chipbalance_p001`이 있는지 확인합니다. 아래 캡처의 17개는 참고 설계의 개수입니다.
 
     <img src="../assets/screenshots/d09-data-agent-sources.png" width="400" alt="실제 Data agent의 원본 탐색기. ont_chipbalance의 엔터티 타입 17개와 온톨로지용 데이터 원본 lh_chipbalance_p901, gold 스키마가 연결되어 있습니다." />
 
