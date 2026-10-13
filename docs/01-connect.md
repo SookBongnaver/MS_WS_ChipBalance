@@ -59,9 +59,9 @@
 
 ### Fabric 파일 3개 내려받기
 
-10–11장에서 사용할 파일은 관리자가 같은 Shared 원본의 `fabric` 폴더에 준비합니다.
+10–11장에서 사용할 파일은 관리자가 Shared 아래의 별도 `fabric` 폴더에 준비합니다.
 
-1.  **Workspace → Shared → ChipBalance → fabric**을 엽니다.
+1.  **Workspace → Shared → fabric**을 엽니다.
 2.  `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 본인 PC에 내려받아 `fabric` 폴더에 둡니다.
 3.  `nb_record_decision`이 Notebook으로 보이면 항목 메뉴의 **Export → IPython Notebook**을 사용해 `nb_record_decision.ipynb`로 저장합니다.
 4.  세 파일의 이름과 확장자가 위와 같은지 확인합니다. Shared 원본 파일을 편집하거나 삭제하지 않습니다.

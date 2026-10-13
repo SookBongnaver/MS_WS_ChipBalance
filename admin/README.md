@@ -10,7 +10,7 @@ Workshop 환경을 준비하고 정리하는 관리자용 문서입니다. 참�
 |----|----|
 | Azure Databricks | Premium workspace, Unity Catalog 사용 |
 | Unity Catalog | 참가자별 카탈로그 `lab_factory_pNNN`, 스키마 `chipbalance_pNNN`, Volume `raw` |
-| 공유 실습 원본 | **Workspace → Shared → ChipBalance**에 Notebook 8개와 `fabric` 파일 3개 |
+| 공유 실습 원본 | **Workspace → Shared → ChipBalance**에 Notebook 8개, **Workspace → Shared → fabric**에 Fabric 파일 3개 |
 | SQL warehouse (선택) | `chipbalance-pro`, Serverless 또는 Pro 2X-Small. 07장 Genie용 |
 | Managed Identity | Access Connector `ac-chipbalance-onelake`, service credential `chipbalance_onelake_hyosung` |
 | Microsoft Fabric | F 용량, 작업 영역 `chipbalance-pNNN`, Lakehouse `lh_chipbalance_pNNN`(schemas 켬) |
@@ -42,10 +42,10 @@ Databricks 쪽 준비(service credential 등록, Catalog·스키마·Volume과 �
 
 ### 공유 Notebook과 Fabric 파일 원본
 
-**Shared에는 원본 폴더 하나만 준비합니다.** 참가자는 01장의 **Clone**으로 본인 Home에 복제해 사용합니다.
+Shared 아래에 Notebook 원본 ``ChipBalance``와 파일 원본 ``fabric``을 각각 준비합니다. 참가자는 01장에서 ``ChipBalance``를 본인 Home에 **Clone**하고, ``fabric``의 파일은 PC로 내려받습니다.
 
 1.  `notebooks\ChipBalance.zip`을 **Workspace → Shared**에 **Import**합니다(ZIP은 풀지 않음). `ChipBalance` 폴더에 Notebook 8개가 생깁니다.
-2.  **Workspace → Shared → ChipBalance**에 `fabric` 폴더를 만들고 `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 올립니다.
+2.  **Workspace → Shared**에 별도 `fabric` 폴더를 만들고 `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 올립니다.
 3.  참가자에게 읽기·복제·파일 내려받기 권한을 주고, Clone과 파일 내려받기가 되는지 확인합니다.
 
 원본 변경은 관리자만 합니다. 원본을 갱신해도 참가자 복제본은 자동으로 갱신되지 않습니다.
@@ -116,7 +116,7 @@ Private endpoint 사용 시 Network Connectivity Configuration을 구성합니�
 ## 6. 참가자에게 알려 줄 값
 
 - Databricks 주소, 참가자 번호(예: `p001`)
-- Shared `ChipBalance` 복제 권한, `fabric` 파일 내려받기 방법
+- Shared `ChipBalance` 복제 권한, Shared `fabric` 파일 내려받기 방법
 - Foundry 구독·리소스 그룹(12장)
 
 전체 진행 전 참가자 계정으로 `01_setup` 실행, OneLake 연결, 06장 Gold, 09장 Data agent 연결, 10장 모델 작성, 11장 Notebook 실행, 12장 OAuth 동의를 확인합니다.

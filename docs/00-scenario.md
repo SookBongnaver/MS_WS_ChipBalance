@@ -56,11 +56,11 @@
 | 사용할 파일 | 준비 방법 |
 |---|---|
 | Databricks Notebook 8개 | 관리자가 **Workspace → Shared → ChipBalance**에 원본 폴더 하나를 준비합니다. 01장에서 각자 **본인 Home으로 Clone**합니다. 참가자는 Notebook ZIP을 내려받거나 Import하지 않습니다. |
-| Fabric 실습 파일 3개 | 관리자가 **Workspace → Shared → ChipBalance → fabric**에 준비합니다. 01장에서 `sm_chipbalance.tmdl`·`chipbalance-theme.json`·`nb_record_decision.ipynb`를 본인 PC의 `fabric` 폴더로 내려받습니다. |
+| Fabric 실습 파일 3개 | 관리자가 **Workspace → Shared → fabric**에 준비합니다. 01장에서 `sm_chipbalance.tmdl`·`chipbalance-theme.json`·`nb_record_decision.ipynb`를 본인 PC의 `fabric` 폴더로 내려받습니다. |
 
 **확인할 결과:** 안내받은 Databricks에서 Shared 원본에 접근할 수 있고, PC의 `fabric` 폴더에 원래 파일명과 확장자로 위 파일 3개가 있습니다. 공유 원본의 참가자 번호는 고치지 않습니다. **복제와 파일 내려받기 순서는 [01장](01-connect.md#2-shared-원본을-본인-home에-복제)**에서 확인합니다.
 
-GitHub는 교재와 배포 원본을 관리하는 곳입니다. 참가자는 GitHub에서 파일을 직접 내려받지 않고 관리자가 준비한 Shared 원본을 사용합니다. **Databricks Notebook은 Shared 원본을 복제하고, Fabric 파일은 Shared의 `fabric` 폴더에서 PC로 내려받습니다.**
+GitHub는 교재와 배포 원본을 관리하는 곳입니다. 참가자는 GitHub에서 파일을 직접 내려받지 않고 관리자가 준비한 Shared 원본을 사용합니다. **Databricks Notebook은 Shared의 `ChipBalance`를 복제하고, Fabric 파일은 Shared의 별도 `fabric` 폴더에서 PC로 내려받습니다.**
 
 ## 실습 일정
 

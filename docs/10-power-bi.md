@@ -17,7 +17,7 @@
 
 - 06장까지 완료한 본인의 Lakehouse: **Tables → gold**에 Gold 테이블 21개가 있어야 합니다.
 - 관리자가 준비한 **활성 유료 Fabric 용량**, Power BI Pro 또는 PPU 라이선스, 모델·보고서 작성 권한과 Copilot 설정. 전체 실습에서 같은 유료 용량을 사용합니다.
-- 01장에서 Shared의 `ChipBalance/fabric`에서 내려받아 준비한 PC의 `fabric` 폴더 아래 두 파일
+- 01장에서 Shared의 `fabric` 폴더에서 내려받아 준비한 PC의 `fabric` 폴더 아래 두 파일
 
 | 파일 | 사용할 때 |
 |----|----|

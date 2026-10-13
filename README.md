@@ -70,16 +70,16 @@ Genie 질의와 Ontology Graph 생성은 **선택 단계**입니다. Genie에는
 
 ## 실습 파일
 
-[00장의 파일 준비 안내](docs/00-scenario.md#실습-파일-준비)를 따릅니다. **Databricks Notebook은 Shared에서 복제**하고, Fabric 파일 3개도 같은 Shared 원본에서 PC로 내려받습니다.
+[00장의 파일 준비 안내](docs/00-scenario.md#실습-파일-준비)를 따릅니다. **Databricks Notebook은 Shared의 `ChipBalance`에서 복제**하고, Fabric 파일 3개는 Shared의 별도 `fabric` 폴더에서 PC로 내려받습니다.
 
 | 파일 | 용도 |
 |---|---|
 | Shared의 `ChipBalance` 폴더 | 관리자 원본 1개를 참가자가 각자 Home으로 **Clone**합니다. 8개 Notebook을 같은 폴더에 두고 복제본에서만 수정·실행합니다. |
-| Shared의 `ChipBalance/fabric` | `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 참가자 PC의 `fabric` 폴더로 내려받습니다. 10장의 모델·테마와 11장의 승인 기록 Notebook에 사용합니다. |
+| Shared의 `fabric` 폴더 | `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 참가자 PC의 `fabric` 폴더로 내려받습니다. 10장의 모델·테마와 11장의 승인 기록 Notebook에 사용합니다. |
 
 원천 파일은 별도로 준비하지 않습니다. **02장에서 가상 실습 데이터를 생성**하며 실제 SAP·FPIMS·PVSS에 접속하지 않습니다.
 
-저장소의 `notebooks\ChipBalance.zip`은 **관리자가 Shared 원본을 준비할 때 Import하는 배포 파일**입니다. 관리자는 저장소의 `fabric` 파일 3개도 Shared 원본에 올리므로 참가자가 GitHub에서 직접 내려받지 않아도 됩니다.
+저장소의 `notebooks\ChipBalance.zip`은 **관리자가 Shared의 `ChipBalance` 원본을 준비할 때 Import하는 배포 파일**입니다. 관리자는 저장소의 `fabric` 파일 3개를 Shared의 별도 `fabric` 폴더에 올리므로 참가자가 GitHub에서 직접 내려받지 않아도 됩니다.
 
 ## 관리자용
 

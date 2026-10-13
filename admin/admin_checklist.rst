@@ -30,7 +30,7 @@ Azure Databricks 준비
 - [ ] service credential ``chipbalance_onelake_hyosung`` 생성·``GRANT ACCESS`` 적용
 - [ ] ``notebooks\ChipBalance.zip``의 **Workspace → Shared → ChipBalance** Import
 - [ ] 실행 결과 없는 Notebook 8개 확인
-- [ ] Shared의 ``ChipBalance/fabric``에 TMDL·테마·승인 Notebook 3개 배치
+- [ ] Shared의 ``fabric`` 폴더에 TMDL·테마·승인 Notebook 3개 배치
 - [ ] 참가자 읽기·Clone·파일 내려받기 권한 부여
 - [ ] 선택 Genie용 ``chipbalance-pro``·OneLake Federation·데이터 권한 준비
 
@@ -75,7 +75,7 @@ Microsoft Foundry 준비
 
 - [ ] Databricks 주소·실습 계정·참가자 번호 ``pNNN`` 전달
 - [ ] **Workspace → Shared → ChipBalance** Clone 경로 전달
-- [ ] Shared의 ``ChipBalance/fabric`` 파일 내려받기 방법 전달
+- [ ] **Workspace → Shared → fabric** 파일 내려받기 방법 전달
 - [ ] ``chipbalance-pNNN``·``lh_chipbalance_pNNN`` 이름 전달
 - [ ] service credential ``chipbalance_onelake_hyosung`` 이름 전달
 - [ ] Foundry 구독·리소스 그룹·지역 전달
