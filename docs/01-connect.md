@@ -62,11 +62,22 @@
 10–11장에서 사용할 파일은 관리자가 Shared 아래의 별도 `fabric` 폴더에 준비합니다.
 
 1.  **Workspace → Shared → fabric**을 엽니다.
-2.  `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 본인 PC에 내려받아 `fabric` 폴더에 둡니다.
-3.  `nb_record_decision`이 Notebook으로 보이면 항목 메뉴의 **Export → IPython Notebook**을 사용해 `nb_record_decision.ipynb`로 저장합니다.
-4.  세 파일의 이름과 확장자가 위와 같은지 확인합니다. Shared 원본 파일을 편집하거나 삭제하지 않습니다.
+2.  파일 아이콘으로 보이는 `sm_chipbalance.tmdl`과 `chipbalance-theme.json`을 내려받아 본인 PC의 `fabric` 폴더에 둡니다.
+3.  Notebook 아이콘으로 보이는 `nb_record_decision`을 눌러 엽니다. 왼쪽 목록의 파일 메뉴가 아니라 **열린 Notebook 화면 오른쪽 위의 ⋮**를 누릅니다.
+4.  메뉴에서 **File → Export...**를 누릅니다. Export 창에서 **IPython Notebook** 형식을 선택해 내려받습니다.
 
-**확인할 결과:** 본인 PC의 `fabric` 폴더에 파일 3개가 있습니다. 10장에서 TMDL과 테마를, 11장에서 승인 기록 Notebook을 사용합니다.
+    <img src="../assets/screenshots/d01-fabric-notebook-export.png" width="1000" alt="Workspace의 Shared fabric 폴더에서 nb_record_decision Notebook을 연 화면. 오른쪽 위 점 세 개 메뉴에서 File 하위의 Export 항목이 선택되어 있습니다." />
+
+5.  내려받은 파일명이 `nb_record_decision.ipynb`인지 확인하고, 앞의 두 파일과 같은 PC의 `fabric` 폴더에 둡니다. 브라우저가 같은 이름 뒤에 `(1)`을 붙였다면 기존 파일과 혼동하지 않도록 이름을 `nb_record_decision.ipynb`로 정리합니다.
+6.  PC의 `fabric` 폴더에 아래 세 파일이 있고 확장자가 표시된 값과 같은지 확인합니다. Shared 원본 파일은 편집하거나 삭제하지 않습니다.
+
+    - `sm_chipbalance.tmdl`
+    - `chipbalance-theme.json`
+    - `nb_record_decision.ipynb`
+
+관리자가 `nb_record_decision`을 본인 Fabric 작업 영역에 미리 Import했다고 안내한 경우에는 해당 `.ipynb` 파일을 내려받지 않아도 됩니다. 11장에서 기존 Notebook을 사용합니다.
+
+**확인할 결과:** 기본 흐름에서는 본인 PC의 `fabric` 폴더에 파일 3개가 있습니다. 관리자가 Notebook을 사전 Import한 경우에는 PC의 TMDL·테마 2개와 본인 Fabric 작업 영역의 `nb_record_decision`을 확인합니다.
 
 ## 3. Serverless 연결
 
