@@ -21,25 +21,23 @@
 테이블의 `moved`만 보고는 "긴급 오더 때문에 미룬 생산"인지 알기 어렵습니다. 코드의 의미를 **Ontology의 Description에 남겨**, Data agent와 12장의 Foundry가 같은 업무 맥락을 참고하게 합니다. 계산·판정·추천 순위는 이미 Notebook이 만든 Gold 값입니다.
 
 1.  본인 `ont_chipbalance`에서 **Home → Ontology agent**를 열고 **Act**를 선택합니다.
-2.  아래 요청을 보냅니다. 이름·키·바인딩·관계를 바꾸는 단계가 아닙니다.
+2.  아래 요청은 현재 확인된 **Scenario, Plan, BunkerBalance, Route, OrderFulfillment**의 설명만 보강합니다. 본인 온톨로지에서 이름이 다르면 원본 바인딩으로 대응되는 타입을 확인합니다. 없는 타입을 추가하거나 이름·키·바인딩·관계를 바꾸는 단계가 아닙니다.
 
     ``` text
-    아래 업무 규칙을 해당 엔터티 타입의 설명 끝에 한국어로 덧붙여줘. 아래 이름은 참고 설계의 이름이므로, 현재 온톨로지의 업무 의미와 원본 바인딩으로 해당 타입을 찾아줘. 대응되는 타입이 없으면 누락을 보고하고 중단해. 이름, 키, 속성, 데이터 바인딩, 관계는 바꾸지 마.
-    - Scenario: scenario_id가 baseline이면 현재 계획, emergency면 10월 1일 접수한 긴급 오더(SO-10322)를 반영한 계획입니다. baseline과 emergency는 scenario_id 코드이며 scenario_name은 한국어 표시 이름입니다. 질문에 시나리오가 없으면 baseline으로 답합니다.
-    - ProductionPlan: change_type이 urgent면 긴급 오더 생산, moved면 긴급 오더 때문에 뒤로 미룬 생산(original_plan_date는 미루기 전 날짜), none이면 그대로인 생산입니다.
-    - DailyBalance, OptionBalance: below_safety는 기말 재고(closing_kg)가 안전재고보다 적은 날, shortage는 기말 재고가 0보다 적은 날입니다.
-    - ResponseOption: 긴급 오더의 대응안 4개(OPT-1–OPT-4)입니다. 판단 기준 C1 안전재고(c1_safety_pass), C2 용량(c2_capacity_pass), C3 납기(c3_due_date_pass), C4 이송 한도(c4_route_limit_pass)를 모두 만족하면 meets_all이 true이고, 그 안들에만 추가 비용이 낮은 순서로 recommendation_rank를 붙입니다. 1순위가 추천안입니다.
-    - OptionBalance: 대응안(option_id)을 반영한 벙커별 일자 재고입니다. 이송 대응안은 OPT-2입니다.
-    - TransferRoute: from_bunker_id(보내는 벙커)에서 to_bunker_id(받는 벙커)로 이송합니다.
-    - OrderFulfillment: on_time이 true면 생산 완료일(finish_date)이 납기(due_date) 안입니다.
-    - RiskEvent: status가 open이면 아직 대응하지 않은 이벤트, approved면 담당자가 추천 대응안을 승인한 이벤트입니다.
+    현재 온톨로지에 존재하고 원본에 바인딩된 아래 타입의 설명에만 업무 의미를 한국어로 반영해줘.
+    이름이 다르면 괄호 안의 원본 테이블로 대응 타입을 찾아줘. 실제 바인딩된 열에 해당하는 설명만 넣고, 없는 타입이나 열은 건너뛰어줘.
+    이름, 키, 속성, 데이터 바인딩, 관계는 변경하지 말고, 새 타입이나 데이터를 만들지 마. 이미 같은 설명이 있으면 중복해서 덧붙이지 마.
+    - Scenario (gold.dim_scenario): scenario_id의 baseline은 현재 계획, emergency는 긴급 오더를 반영한 계획입니다. scenario_name은 표시 이름이며 scenario_id 코드와 구분합니다.
+    - Plan (gold.fact_plan): change_type의 urgent는 긴급 오더 생산, moved는 긴급 오더 때문에 뒤로 미룬 생산, none은 변경하지 않은 생산입니다. original_plan_date는 변경 전 생산일입니다. 생산계획은 scenario_id로 구분합니다.
+    - BunkerBalance (gold.fact_balance): 시나리오·벙커·날짜별 재고입니다. closing_kg는 기말 재고, safety_stock_kg는 안전재고이며 below_safety는 기말 재고가 안전재고보다 적은 상태, shortage는 기말 재고가 0보다 적은 상태입니다.
+    - Route (gold.dim_route): from_bunker_id는 보내는 벙커, to_bunker_id는 받는 벙커입니다. max_kg_per_day는 하루 이송 한도, lead_time_days는 이송 소요일입니다. 경로 정보 자체는 이송 실행 결과가 아닙니다.
+    - OrderFulfillment (gold.fact_order_fulfillment): 시나리오별 판매오더의 납기 준수 결과입니다. finish_date는 생산 완료일, due_date는 납기이며 on_time이 true면 생산 완료일이 납기 이내입니다.
+    수정한 타입과 건너뛴 항목을 구분해 보여줘. 이 요청은 설명 보강이며, 현재 데이터로 확인할 수 없는 업무 범위를 추가하는 요청이 아니야.
     ```
 
-3.  변경 요약에서 **설명만 수정**했는지 확인합니다. Explorer에서 생산계획에 연결된 타입(참고 이름 **ProductionPlan**)의 **View Entity Type details → Configure → Description**을 열어 문장이 저장됐는지 확인하고, 나머지 업무 개념도 같은 방법으로 봅니다. 이미 설명이 있다면 중복해서 붙이지 않고 내용만 확인합니다.
+3.  변경 요약에서 **설명만 수정**했는지 확인합니다. Explorer에서 **Plan → View Entity Type details → Configure → Description**을 열어 문장이 저장됐는지 확인하고, 나머지 대상 타입도 같은 방법으로 봅니다. 이름이 다르면 `gold.fact_plan`에 연결된 타입을 선택합니다.
 
-    <img src="../assets/screenshots/d09-rules-done.png" width="400" alt="Ontology 내장 agent가 설명을 추가한 결과 예시. 수정한 엔터티 타입 8개와 이름·키·속성·바인딩·관계는 변경하지 않았다는 요약이 보입니다." />
-
-**확인할 결과:** 위 업무 규칙이 해당 타입의 설명에 반영되고 08장의 구조·바인딩은 유지됩니다. 캡처는 참고 설계의 8개 타입을 수정한 예시입니다. 이 설명은 실행 규칙이 아닙니다. **Overview → Rules**의 Business rule도 자연어 메타데이터이며, 아래 Agent instructions나 데이터 원본 지침을 대신하는 것으로 간주하지 않습니다.
+**확인할 결과:** 현재 존재하는 대상 타입의 설명에 업무 의미가 반영되고 구조·바인딩은 유지됩니다. 건너뛴 항목은 설명 보강 결과에서 구분합니다. 이 단계의 완료가 대응안 비교나 위험 이벤트 데이터까지 준비됐다는 뜻은 아닙니다. 이 설명은 실행 규칙이 아닙니다. **Overview → Rules**의 Business rule도 자연어 메타데이터이며, 아래 Agent instructions나 데이터 원본 지침을 대신하는 것으로 간주하지 않습니다.
 
 ## 2. Data agent 만들고 Ontology 연결
 

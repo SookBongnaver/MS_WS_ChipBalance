@@ -144,6 +144,17 @@ class DocumentTests(unittest.TestCase):
         foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
         self.assertIn("본인의 이름을 사용합니다", foundry)
 
+    def test_ontology_description_prompt_uses_current_bound_types_only(self):
+        guide = (DOCS / "09-data-agent.md").read_text(encoding="utf-8")
+        prompt = guide.split("``` text", 1)[1].split("```", 1)[0]
+        for name in ("Scenario", "Plan", "BunkerBalance", "Route", "OrderFulfillment"):
+            self.assertRegex(prompt, rf"- {name} \(gold\.")
+        for name in ("OptionBalance", "ResponseOption", "RiskEvent"):
+            self.assertNotIn(name, prompt)
+        self.assertIn("없는 타입이나 열은 건너뛰어줘", prompt)
+        self.assertIn("새 타입이나 데이터를 만들지 마", prompt)
+        self.assertNotIn("d09-rules-done.png", guide)
+
     def test_participant_notebooks_are_cloned_from_shared(self):
         setup = (DOCS / "01-connect.md").read_text(encoding="utf-8").replace("**", "")
         self.assertIn("## 2. Shared 원본을 본인 Home에 복제", setup)
