@@ -70,6 +70,8 @@ Operations agent가 감시하는 것은 Lakehouse가 아니라 **Eventhouse의 `
 
 승인할 때 실행할 Notebook을 먼저 연결합니다. `nb_record_decision`은 Operations agent가 넘기는 `event_id`, `option_id`로 위험 이벤트를 확인한 뒤 **Eventhouse 상태 이력·Lakehouse 승인 로그·위험 이벤트 상태**를 갱신합니다. Eventhouse는 `eh_chipbalance`라는 이름으로 찾으므로 주소를 입력하지 않습니다. **지금은 가져오기와 연결만 하며 실행하지 않습니다.**
 
+**관리자가 미리 Import한 경우:** 본인 작업 영역에 `nb_record_decision`이 이미 있으면 1–2번을 건너뛰고 3번에서 기존 Notebook을 엽니다. 다시 Import하거나 기존 Notebook을 덮어쓰지 않습니다.
+
 1.  작업 영역에서 **Import** → **Notebook** → **From this computer**를 고릅니다.
 
     <img src="../assets/screenshots/d11-import-menu.png" width="700" alt="작업 영역 도구 모음의 Import 메뉴. Notebook을 가리키면 From this computer가 보입니다." />

@@ -46,9 +46,15 @@ Shared 아래에 Notebook 원본 ``ChipBalance``와 파일 원본 ``fabric``을 
 
 1.  `notebooks\ChipBalance.zip`을 **Workspace → Shared**에 **Import**합니다(ZIP은 풀지 않음). `ChipBalance` 폴더에 Notebook 8개가 생깁니다.
 2.  **Workspace → Shared**에 별도 `fabric` 폴더를 만들고 `sm_chipbalance.tmdl`, `chipbalance-theme.json`, `nb_record_decision.ipynb`를 올립니다.
-3.  참가자에게 읽기·복제·파일 내려받기 권한을 주고, Clone과 파일 내려받기가 되는지 확인합니다.
+3.  참가자에게 읽기·복제·파일 내려받기 권한을 주고, Clone과 파일 내려받기가 되는지 확인합니다. `nb_record_decision`은 Notebook을 연 뒤 **오른쪽 위 ⋮ → File → Export... → IPython Notebook**으로 내려받습니다([01장 상세 절차](../docs/01-connect.md#fabric-파일-3개-내려받기)).
 
 원본 변경은 관리자만 합니다. 원본을 갱신해도 참가자 복제본은 자동으로 갱신되지 않습니다.
+
+**참가자 PC에서 Fabric 로컬 파일 업로드가 차단된 경우:** Shared에서 파일을 내려받아도 Fabric의 **From this computer** Import는 사용할 수 없습니다. 관리자가 업로드 가능한 PC에서 참가자별 작업 영역 `chipbalance-pNNN`에 `fabric\nb_record_decision.ipynb`를 미리 Import하고 이름이 `nb_record_decision`인지 확인합니다. Notebook은 실행하지 않으며, 참가자는 11장에서 기존 Notebook을 열어 본인의 `lh_chipbalance_pNNN`을 기본 Lakehouse로 연결합니다.
+
+- `sm_chipbalance.tmdl`은 파일 Import가 아니라 내용을 TMDL View에 붙여 넣으므로 진행할 수 있습니다.
+- `chipbalance-theme.json`은 Power BI의 로컬 파일 Import가 필요합니다. 업로드가 차단된 환경에서는 10장의 사용자 지정 테마 단계를 건너뛰거나, 보고서 생성 뒤 관리자가 테마를 적용합니다.
+- `nb_record_decision.ipynb`만 참가자별 작업 영역에 사전 Import하면 11장의 로컬 Notebook 업로드 단계를 건너뛸 수 있습니다.
 
 ### (선택) Genie 확장
 

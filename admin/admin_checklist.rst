@@ -46,6 +46,7 @@ Microsoft Fabric 준비
 - [ ] Fabric 항목·Ontology·Copilot·AI Agents 테넌트 설정 허용
 - [ ] Data agent의 Ontology 추가·바인딩 원본 읽기 권한과 원본별 지침 저장 확인
 - [ ] Power BI Pro 또는 PPU와 모델·보고서 작성 권한 준비
+- [ ] 로컬 업로드 제한 시 참가자별 ``nb_record_decision`` 사전 Import
 
 Microsoft Teams 준비
 --------------------
