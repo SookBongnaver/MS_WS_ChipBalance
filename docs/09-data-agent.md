@@ -14,11 +14,11 @@
 
 작업 영역·Lakehouse의 `p001`은 본인 번호로 바꿉니다. `ont_chipbalance`, `da_chipbalance`라는 항목 이름은 본인 작업 영역 안에서 그대로 사용합니다. 캡처의 참가자 번호는 예시입니다.
 
-이 장의 `Scenario`, `ProductionPlan`, `OptionBalance` 등은 **참고 설계의 엔터티 이름**입니다. 본인 설계의 이름이나 개수는 달라도 됩니다. 요청문·지침에서 참고 이름을 쓰는 부분은 해당 업무 개념에 연결된 본인의 이름으로 바꿉니다. 물리 `gold` 테이블·열 이름은 바꾸지 않습니다.
+이 장의 `Scenario`, `Plan`, `BunkerBalance` 등은 현재 업무 개념의 이름 예시입니다. 본인 설계의 이름이나 개수는 달라도 됩니다. 원본 바인딩으로 해당 업무 개념을 찾습니다. 물리 `gold` 테이블·열 이름은 바꾸지 않습니다.
 
 ## 1. Ontology의 업무 설명 준비
 
-테이블의 `moved`만 보고는 "긴급 오더 때문에 미룬 생산"인지 알기 어렵습니다. 코드의 의미를 **Ontology의 Description에 남겨**, Data agent와 12장의 Foundry가 같은 업무 맥락을 참고하게 합니다. 계산·판정·추천 순위는 이미 Notebook이 만든 Gold 값입니다.
+테이블의 `moved`만 보고는 "긴급 오더 때문에 미룬 생산"인지 알기 어렵습니다. 코드의 의미를 **Ontology의 Description에 남겨**, Data agent와 12장의 Foundry가 같은 업무 맥락을 참고하게 합니다. 재고·납기 계산값은 원본 Gold에서 조회합니다.
 
 1.  본인 `ont_chipbalance`에서 **Home → Ontology agent**를 열고 **Act**를 선택합니다.
 2.  아래 요청은 현재 확인된 **Scenario, Plan, BunkerBalance, Route, OrderFulfillment**의 설명만 보강합니다. 본인 온톨로지에서 이름이 다르면 원본 바인딩으로 대응되는 타입을 확인합니다. 없는 타입을 추가하거나 이름·키·바인딩·관계를 바꾸는 단계가 아닙니다.
@@ -99,7 +99,7 @@
 
 ## 4. 한국어로 질문하고 계산 정답과 비교
 
-**현재 범위:** Q1·Q2·Q3·Q5와 Q4의 **이송 경로 확인만** 진행합니다. Q4의 이송 후 안전성과 Q6의 대응안 추천은 현재 데이터로 확인할 수 없다고 답해야 합니다. 아래 대응안 관련 정답·캡처는 해당 데이터가 연결된 환경의 참고 예시이며 현재 실습의 필수 결과가 아닙니다.
+아래 질문은 현재 연결된 재고·생산계획·납기·입고·이송 경로만 사용합니다. 해당 원본이나 필요한 열이 연결되지 않았다면 확인 불가로 구분합니다. 정답 숫자는 질문에 넣지 않습니다.
 
 1.  **Test data agent / 테스트 데이터 에이전트**를 열고 **응답 테스트** 입력란에 아래 질문을 하나씩 보냅니다.
 2.  답을 받은 뒤 07장의 정답과 비교합니다. 지침을 수정했다면 **Clear chat / 채팅 지우기**로 새 대화에서 다시 평가합니다. 브라우저 새로 고침만으로 대화가 초기화된다고 가정하지 않습니다.
@@ -109,33 +109,27 @@
 | Q1 | 긴급 오더를 반영하지 않은 현재 계획에서 4분기에 안전재고 아래로 내려가는 Bunker가 있어? | 없음 (`baseline`) |
 | Q2 | 긴급 오더를 반영하면 어느 Bunker가 언제부터 안전재고 아래로 내려가고, 얼마나 부족해? | BNK-L3-2. 미달 10/06, 부족 10/07. 최저 -23,630kg(11/26), 필요 보충량 35,630kg |
 | Q3 | 긴급 오더 때문에 미뤄진 생산의 판매오더는 납기를 지켜? | 중복 없는 3건 모두 준수. SO-10108: 10/08 완료·10/11 납기, SO-10109: 10/10 완료·10/14 납기, SO-10110: 10/12 완료·10/15 납기 |
-| Q4 | BNK-L3-2로 PET-SD를 보내 줄 수 있는 Bunker는 어디야? 이송 대응안대로 보내면 보내는 Bunker의 재고는 괜찮아? | BNK-L1-2, R-01, OPT-2. 이송 후 4분기 최저 16,763kg(11/01), 안전재고 6,000kg 이상 |
+| Q4 | BNK-L3-2로 PET-SD를 보내는 등록된 이송 경로와 출발 Bunker는 어디야? | BNK-L1-2 → BNK-L3-2, R-01. 경로 기준 정보이며 이송 후 안전성의 근거는 아님 |
 | Q5 | BNK-L3-2에 10월 6일 뒤 처음 들어오는 PET-SD 입고는 언제, 어느 공급사에서, 몇 kg이야? | 2026-10-09, SUP-PET-B(세미폴리머), 25,000kg |
-| Q6 | 대응안 4개 가운데 판단 기준을 모두 만족하는 안과 추천안은? | 통과 OPT-2·OPT-3. 추천 OPT-2(1순위, 1,000,000원), OPT-3은 2순위 |
+| Q6 | 이 데이터만으로 이송 후 재고가 안전한지, 어떤 대응안을 추천할지 판단할 수 있어? | 현재 연결된 데이터로 확인 불가. 경로·현재 재고만으로 이송 후 재고나 추천안을 만들지 않음 |
 
-**전체 기간을 확인합니다.** Q2의 첫 미달일 부족량과 4분기 최저 재고·보충량은 다릅니다. Q4도 **도착 당일에 안전하다는 답만으로 완료하지 않습니다.** 아래처럼 조회 범위·열을 밝혀 필요한 근거를 확인합니다. 정답 숫자는 질문에 넣지 않습니다.
+**전체 기간을 확인합니다.** Q2의 첫 미달일 부족량과 4분기 최저 재고·보충량은 다릅니다. 아래처럼 실제 원본과 조회 범위를 밝혀 확인합니다.
 
 **Q2의 전체 위험 요약 확인**
 
 ``` text
-scenario_id=emergency인 BunkerRisk에서 below_safety_days > 0인 Bunker의 bunker_id, first_below_safety_date, first_shortage_date, min_closing_kg, min_closing_date, required_topup_kg를 조회해 주세요.
+현재 온톨로지에서 gold.fact_bunker_summary에 바인딩된 타입을 찾아 scenario_id=emergency, below_safety_days > 0인 행의 bunker_id, first_below_safety_date, first_shortage_date, min_closing_kg, min_closing_date, required_topup_kg를 조회해 주세요. 해당 원본이나 열이 연결되지 않았으면 확인 불가로 알려 주세요.
 ```
 
 <img src="../assets/screenshots/d09-data-agent-q2.png" width="1000" alt="실제 Data agent의 Q2 확인용 재질문 답변. BNK-L3-2, 10월 6일 첫 미달, 10월 7일 부족, 11월 26일 최저 -23,630kg, 보충량 35,630kg이 보입니다." />
 
-**Q4의 보내는 Bunker 전체 기간 확인**
+**Q4의 등록된 이송 경로 확인**
 
 ``` text
-OPT-2를 반영한 OptionBalance에서 bunker_id=BNK-L1-2인 전체 4분기 행을 대상으로 closing_kg 최솟값, 그 balance_date, safety_stock_kg와 below_safety·shortage 일수를 조회해 주세요. 도착 당일 값만으로 판단하지 말아 주세요.
+현재 온톨로지에서 gold.dim_route에 바인딩된 타입을 찾아 to_bunker_id=BNK-L3-2, material_id=PET-SD인 경로의 route_id, from_bunker_id, to_bunker_id, max_kg_per_day, lead_time_days를 보여 주세요. 경로 정보만으로 이송 후 재고가 안전하다고 판단하지 마세요.
 ```
 
-<img src="../assets/screenshots/d09-data-agent-q4.png" width="1000" alt="실제 Data agent의 Q4 확인용 재질문 답변. OPT-2의 BNK-L1-2 최저 재고 16,763kg, 2026-11-01, 안전재고 6,000kg, 미달·부족 일수 각각 0일이 보입니다." />
-
-**Q6의 통과안과 추천안 확인**
-
-<img src="../assets/screenshots/d09-data-agent-q6.png" width="1000" alt="실제 Data agent의 Q6 응답. OPT-2와 OPT-3가 모든 기준을 충족하고, OPT-2 비용 1,000,000원·추천 순위 1, OPT-3 비용 3,750,000원이 보입니다." />
-
-위 화면은 원본별 지침을 보완하고 필요한 경우 조회 조건을 명시해 확인한 **실제 응답 예시**입니다. 모든 첫 답이 이 결과로 나온다는 뜻이 아닙니다. 답의 표현·시간·화면은 달라도 대상·기간·숫자는 계산 정답과 맞아야 합니다.
+**Q6은 조회 범위의 한계를 확인하는 질문**입니다. 답에 추천안 ID·비용·이송 후 재고가 나오면 근거가 없는 결과로 처리합니다. Q2 캡처는 응답 예시이며 현재 세션의 조회 성공을 대신하지 않습니다.
 
 ## 5. 조회 근거 확인
 
@@ -147,9 +141,9 @@ OPT-2를 반영한 OptionBalance에서 bunker_id=BNK-L1-2인 전체 4분기 행�
 |---|---|
 | Q1·Q2 | `scenario_id`에 각각 `baseline`·`emergency`. `scenario_name`에 영문 코드를 넣지 않음 |
 | Q3 | `change_type=moved`, DISTINCT 판매오더. 계획·납기 이행 양쪽 모두 `emergency` |
-| Q4 | `OptionBalance`, `option_id=OPT-2`, 출발지 `BNK-L1-2`, 전체 4분기 최저 재고 |
+| Q4 | `gold.dim_route`, `to_bunker_id=BNK-L3-2`, `material_id=PET-SD`. 출발·도착·하루 한도·소요일만 확인 |
 | Q5 | `bunker_id=BNK-L3-2`, `material_id=PET-SD`, `expected_date > 2026-10-06`의 첫 행 |
-| Q6 | ResponseOption 4개를 유지하고 `meets_all`·C1–C4·순위를 확인. NULL 출발지로 구매안을 제외하지 않음 |
+| Q6 | 현재 원본에 없는 대응안·이송 후 재고를 조회하거나 추정하지 않고 확인 불가로 구분 |
 
 이 장은 **초안 편집·테스트**까지 진행합니다. 다른 사용자나 외부 서비스에서 쓸 때의 **Publish / 게시·공유·MCP 인증**은 별도 준비입니다. 12장의 Ontology 직접 연결을 위해 Data agent를 게시할 필요는 없습니다.
 
@@ -167,17 +161,17 @@ Data agent는 데이터를 읽는 역할입니다. Gold·Ontology를 바꾸거�
 - Q3가 0건이거나 3건보다 많으면 다음처럼 범위를 명시합니다.
 
   ``` text
-  ProductionPlan의 scenario_id=emergency, change_type=moved인 sales_order_id를 중복 없이 구하고, OrderFulfillment도 scenario_id=emergency로 제한해 판매오더별 finish_date, due_date, on_time을 보여 주세요.
+  현재 온톨로지에서 gold.fact_plan에 연결된 타입의 scenario_id=emergency, change_type=moved인 sales_order_id를 중복 없이 구하고, gold.fact_order_fulfillment에 연결된 타입도 scenario_id=emergency로 제한해 판매오더별 finish_date, due_date, on_time을 보여 주세요.
   ```
 
-- Q4가 도착일 재고만 답하면 위 **4분기 전체 확인 질문**을 사용합니다. 첫날 값으로 전 기간의 안전성을 판단하지 않습니다.
+- Q4에서 이송 후 안전성을 답하면 경로 정보만 요청한 것인지 확인합니다. 현재 재고·경로는 이송 후 안전성을 입증하지 않습니다.
 - Q5가 입고를 찾지 못하면 ID와 날짜를 명시합니다.
 
   ``` text
-  InboundDelivery에서 bunker_id=BNK-L3-2이고 material_id=PET-SD인 입고 중 expected_date가 2026-10-06보다 큰 첫 행을 expected_date 오름차순으로 조회해 주세요. supplier_id로 Supplier를 연결해 공급사 ID·이름과 quantity_kg를 보여 주세요. Bunker 이름이나 원료 이름이 아니라 ID로 필터해 주세요.
+  현재 온톨로지에서 gold.fact_inbound에 연결된 타입의 bunker_id=BNK-L3-2이고 material_id=PET-SD인 입고 중 expected_date가 2026-10-06보다 큰 첫 행을 expected_date 오름차순으로 조회해 주세요. supplier_id로 gold.dim_supplier에 연결된 타입을 찾아 공급사 ID·이름과 quantity_kg를 보여 주세요. 원본이 연결되지 않았으면 확인 불가로 알려 주세요.
   ```
 
-- Q6에서 OPT-3가 빠지면 `ResponseOption 4행을 모두 유지하고 Bunker는 LEFT JOIN으로 연결해 C1–C4, meets_all, 추천 순위와 비용을 다시 보여 주세요.`로 확인합니다.
+- Q6에서 추천안이나 추가 비용을 제시하면 현재 원본의 조회 근거를 확인합니다. 근거가 없으면 결과를 사용하지 않고 지침을 저장한 뒤 새 대화로 재평가합니다.
 - Markdown에 기본 안내가 남아 있거나 변경이 사라지면 전체 선택 후 입력·저장을 확인합니다. 새로 열어 실제 저장된 문장을 확인합니다.
 - AI 모델·런타임 변경 알림은 결과가 같다는 보장이 아닙니다. 검증한 런타임에서 정답을 다시 비교합니다. 이 실습의 확인 화면은 **표준 / Standard 런타임**입니다.
 
@@ -189,4 +183,4 @@ Data agent는 데이터를 읽는 역할입니다. Gold·Ontology를 바꾸거�
 
 ## 다음 단계
 
-[10. Power BI 보고서](10-power-bi.md)에서 같은 Gold 계산 결과를 수급 현황과 대응안 비교 화면으로 만듭니다.
+[10. Power BI 보고서](10-power-bi.md)에서 현재 연결된 Gold의 재고·안전재고·부족 규모를 수급 현황 화면으로 만듭니다.

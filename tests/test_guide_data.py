@@ -187,6 +187,22 @@ class GuideDataTests(unittest.TestCase):
         self.assertIn("06장까지 실행해도 18행", gold)
         self.assertNotIn("18행 이상(06장까지 실행했다면 21행)", gold)
 
+    def test_inventory_tmdl_references_real_gold_columns(self):
+        text = (ROOT / "fabric" / "sm_chipbalance_inventory.tmdl").read_text(encoding="utf-8")
+        references = re.findall(r"\b(\w+)\[(\w+)\]", text)
+        references += re.findall(r"(?:fromColumn|toColumn):\s+(\w+)\.(\w+)", text)
+        for table, column in references:
+            with self.subTest(table=table, column=column):
+                self.assertIn(table, self.final)
+                self.assertIn(column, self.final[table][0])
+        emergency_balance = [r for r in self.emergency["fact_balance"] if r["bunker_id"] == "BNK-L3-2"]
+        lowest = min(emergency_balance, key=lambda r: (r["closing_kg"], r["balance_date"]))
+        self.assertEqual((-23630, "2026-11-26", 12000),
+                         (lowest["closing_kg"], day(lowest["balance_date"]), lowest["safety_stock_kg"]))
+        foundry = (ROOT / "docs" / "12-foundry-agent.md").read_text(encoding="utf-8")
+        self.assertIn("-23,630 kg", foundry)
+        self.assertIn("2026-11-26", foundry)
+
 
 if __name__ == "__main__":
     unittest.main()

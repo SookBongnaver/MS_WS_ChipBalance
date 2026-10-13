@@ -1,0 +1,53 @@
+createOrReplace
+
+	relationship fact_balance_scenario
+		fromColumn: fact_balance.scenario_id
+		toColumn: dim_scenario.scenario_id
+
+	relationship fact_balance_bunker
+		fromColumn: fact_balance.bunker_id
+		toColumn: dim_bunker.bunker_id
+
+	relationship fact_balance_date
+		fromColumn: fact_balance.balance_date
+		toColumn: dim_date.date_key
+
+	relationship fact_bunker_summary_scenario
+		fromColumn: fact_bunker_summary.scenario_id
+		toColumn: dim_scenario.scenario_id
+
+	relationship fact_bunker_summary_bunker
+		fromColumn: fact_bunker_summary.bunker_id
+		toColumn: dim_bunker.bunker_id
+
+	ref table fact_balance
+
+		/// 날짜별 현재 계획의 기말 재고입니다. 여러 날짜를 합산하지 않습니다.
+		measure '현재 계획 재고 (kg)' = CALCULATE(SUM(fact_balance[closing_kg]), dim_scenario[scenario_id] = "baseline")
+			formatString: #,0
+
+		/// 날짜별 긴급 오더 반영 계획의 기말 재고이며 이송 대응안 적용 결과가 아닙니다.
+		measure '긴급 오더 재고 (kg)' = CALCULATE(SUM(fact_balance[closing_kg]), dim_scenario[scenario_id] = "emergency")
+			formatString: #,0
+
+		/// 재고 행이 있는 문맥에서 선택한 벙커의 안전재고를 표시합니다.
+		measure '안전재고 (kg)' = IF(NOT ISBLANK(SUM(fact_balance[closing_kg])), SUM(dim_bunker[safety_stock_kg]))
+			formatString: #,0
+
+	ref table fact_bunker_summary
+
+		/// 현재 계획의 전체 벙커 중 안전재고 미달일이 있는 벙커 수입니다.
+		measure '미달 Bunker 수 (현재 계획)' = CALCULATE(COUNTROWS(fact_bunker_summary), fact_bunker_summary[below_safety_days] > 0, dim_scenario[scenario_id] = "baseline", REMOVEFILTERS(dim_bunker)) + 0
+			formatString: 0
+
+		/// 긴급 계획의 전체 벙커 중 안전재고 미달일이 있는 벙커 수입니다.
+		measure '미달 Bunker 수 (긴급 오더)' = CALCULATE(COUNTROWS(fact_bunker_summary), fact_bunker_summary[below_safety_days] > 0, dim_scenario[scenario_id] = "emergency", REMOVEFILTERS(dim_bunker)) + 0
+			formatString: 0
+
+		/// 긴급 계획에서 전체 벙커가 처음 안전재고를 밑도는 날짜입니다.
+		measure '첫 미달일 (긴급 오더)' = CALCULATE(MIN(fact_bunker_summary[first_below_safety_date]), dim_scenario[scenario_id] = "emergency", REMOVEFILTERS(dim_bunker))
+			formatString: yyyy-mm-dd
+
+		/// 긴급 계획의 최저 재고를 안전재고까지 올리는 데 필요한 보충량의 합계입니다.
+		measure '필요 보충량 (kg)' = CALCULATE(SUM(fact_bunker_summary[required_topup_kg]), dim_scenario[scenario_id] = "emergency", REMOVEFILTERS(dim_bunker))
+			formatString: #,0

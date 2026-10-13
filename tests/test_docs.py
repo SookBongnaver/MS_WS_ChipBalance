@@ -102,7 +102,8 @@ class DocumentTests(unittest.TestCase):
         foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
         self.assertLess(operations.index("**아직 Proceed·Confirm을 누르지 않습니다.**"),
                         operations.index("4.  **Proceed**를 누릅니다."))
-        self.assertIn("**5단계 검토가 끝나면 11장의 7단계 4번으로 돌아가", foundry)
+        self.assertIn("현재 실습에서는 11장으로 돌아가 승인하지 않습니다", foundry)
+        self.assertIn("현재 데이터 범위에는 위험 이벤트·추천 대응안이 없으므로", operations)
         self.assertIn("이미 만든 Foundry 프로젝트와 에이전트를 다시 만들지 않습니다.", operations)
 
     def test_data_agent_uses_ontology_and_query_source_instructions(self):
@@ -110,10 +111,10 @@ class DocumentTests(unittest.TestCase):
         for phrase in ("da_chipbalance", "Add ontology", "온톨로지용 데이터 원본",
                        "Agent instructions", "Data source instructions",
                        "scenario_name", "scenario_id", "DISTINCT", "LEFT JOIN",
-                       "전체 4분기", "Clear chat", "초안 편집·테스트"):
+                       "전체 기간", "Clear chat", "초안 편집·테스트"):
             self.assertIn(phrase, guide)
         self.assertNotIn("별도 Fabric Data agent는 만들지 않습니다", guide)
-        for image in ("sources", "q2", "q4", "q6"):
+        for image in ("sources", "q2"):
             self.assertIn(f"d09-data-agent-{image}.png", guide)
         foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
         self.assertIn("da_chipbalance", foundry)
@@ -168,6 +169,38 @@ class DocumentTests(unittest.TestCase):
         self.assertIn("현재 데이터로 확인할 수 없다고", prompts[0])
         self.assertIn("현재 계획·긴급 계획의 재고를 이송 후 재고로 대신하지", prompts[1])
         self.assertNotIn("d09-data-agent-source-instructions.png", guide)
+
+    def test_current_chapters_exclude_unsupported_option_approval_flow(self):
+        data_agent = (DOCS / "09-data-agent.md").read_text(encoding="utf-8")
+        questions = data_agent.split("| 번호 | 질문 |", 1)[1].split("## 5.", 1)[0]
+        for absent in ("OptionBalance", "ResponseOption", "OPT-2", "16,763"):
+            self.assertNotIn(absent, questions)
+        self.assertIn("등록된 이송 경로", questions)
+        self.assertIn("현재 연결된 데이터로 확인 불가", questions)
+        report = (DOCS / "10-power-bi.md").read_text(encoding="utf-8")
+        current = report.split("<details>", 1)[0]
+        self.assertIn("sm_chipbalance_inventory.tmdl", current)
+        self.assertIn("재고 테이블 5개만", current)
+        self.assertIn("대응안 절차는 진행하지 않습니다", current)
+        operations = (DOCS / "11-operations-agent.md").read_text(encoding="utf-8")
+        self.assertIn("실습은 진행하지 않습니다", operations.split("<details>", 1)[0])
+        foundry = (DOCS / "12-foundry-agent.md").read_text(encoding="utf-8")
+        for absent in ("OPT-2", "OptionBalance", "ResponseOption", "16,763",
+                       "d12-ask-value.png", "d12-trace.png"):
+            self.assertNotIn(absent, foundry)
+        self.assertIn("scenario_id=emergency", foundry)
+
+    def test_inventory_tmdl_uses_only_inventory_source_tables(self):
+        script = (ROOT / "fabric" / "sm_chipbalance_inventory.tmdl").read_text(encoding="utf-8")
+        self.assertTrue(script.startswith("createOrReplace"))
+        self.assertEqual(5, len(re.findall(r"^\s*relationship ", script, re.MULTILINE)))
+        self.assertEqual(7, len(re.findall(r"^\s*measure ", script, re.MULTILINE)))
+        self.assertEqual(7, len(re.findall(r"^\s*formatString:", script, re.MULTILINE)))
+        allowed = {"fact_balance", "fact_bunker_summary", "dim_scenario", "dim_bunker", "dim_date"}
+        tables = set(re.findall(r"(?:fromColumn:|toColumn:)\s+(\w+)\.", script))
+        tables.update(re.findall(r"\b(\w+)\[", script))
+        self.assertEqual(allowed, tables)
+        self.assertNotRegex(script, r"fact_(?:option_balance|response_option|risk_event)")
 
     def test_participant_notebooks_are_cloned_from_shared(self):
         setup = (DOCS / "01-connect.md").read_text(encoding="utf-8").replace("**", "")
