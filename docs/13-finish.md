@@ -37,7 +37,7 @@
 
 1.  Fabric 작업 영역 `chipbalance-p001`: `oa_chipbalance` → `nb_record_decision` → `eh_chipbalance` → `rpt_chipbalance` → `sm_chipbalance` → `da_chipbalance` → `ont_chipbalance`. 항목의 **...** \> **Delete**를 누릅니다. `ont_chipbalance`를 지우면 함께 만들어진 `ont_chipbalance_eh_…`, `ont_chipbalance_graph_…`도 지웁니다.
 2.  Foundry: `fa-chipbalance` 에이전트 목록의 **작업** \> **삭제**로 에이전트를 지웁니다. 프로젝트와 Foundry 리소스 `fdy-chipbalance-p001`은 관리자가 Azure portal에서 지웁니다.
-3.  Databricks: Unity Catalog 스키마 `lab_factory_p001.chipbalance_p001`(Bronze·Silver)은 관리자가 지웁니다. Genie 선택 단계를 만들었다면 `fabric_chipbalance_p001`과 `onelake_connection_p001`도 사용 의존성을 확인한 뒤 관리자가 정리합니다. Gold 원본은 Fabric Lakehouse에 있습니다.
+3.  Databricks: Unity Catalog 스키마 `lab_factory_p001.chipbalance_p001`(Bronze·Silver)은 관리자가 지웁니다. Genie 선택 단계를 실행했다면 본인이 만든 `fabric_chipbalance_p001`과 관리자 소유 `onelake_connection_p001`도 사용 의존성을 확인한 뒤 관리자가 정리하고 생성 권한을 회수합니다. Gold 원본은 Fabric Lakehouse에 있습니다.
 
 Fabric 용량 일시 중지는 관리자가 합니다. 삭제 안내가 없다면 항목을 보존하고 감시·실행 중지만 확인합니다.
 

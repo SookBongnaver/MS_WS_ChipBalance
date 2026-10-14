@@ -38,7 +38,7 @@ GRANT READ VOLUME, WRITE VOLUME ON VOLUME lab_factory_p001.chipbalance_p001.raw 
 
 Bronze·Silver는 03–04 Notebook이 Unity Catalog에 만듭니다. Gold는 05–06 Notebook이 Fabric Lakehouse(OneLake)에만 저장합니다.
 
-Databricks 쪽 준비(service credential 등록, Catalog·스키마·Volume과 권한)는 `admin/00_admin_setup.ipynb`로 한 번에 처리할 수 있습니다. **Notebook Serverless** 또는 **Runtime 18.0 이상 / Standard access mode**에서 0단계(SDK 확인·재시작) 후 1–5단계를 순서대로 실행합니다. 6단계(Genie Federation)는 05장 이후 선택 실행입니다.
+Databricks 쪽 준비(service credential 등록, Catalog·스키마·Volume과 권한)는 `admin/00_admin_setup.ipynb`로 한 번에 처리할 수 있습니다. **Notebook Serverless** 또는 **Runtime 18.0 이상 / Standard access mode**에서 0단계(SDK 확인·재시작) 후 1–5단계를 순서대로 실행합니다. Genie를 운영하면 참가자별 Fabric 작업 영역 ID를 넣고 6단계도 실행해 Connection과 생성 권한을 준비합니다.
 
 ### 공유 Notebook과 Fabric 파일 원본
 
@@ -60,7 +60,9 @@ Shared 아래에 Notebook 원본 ``ChipBalance``와 파일 원본 ``fabric``을 
 
 - SQL warehouse `chipbalance-pro`(Serverless 또는 Pro, 2X-Small, Auto stop 15분)를 만들고 참가자에게 **Can use**를 줍니다.
 - 계정 콘솔에서 **Partner-powered AI features**를 켭니다.
-- OneLake를 **Foreign catalog** `fabric_chipbalance_pNNN`으로 연결합니다(읽기 전용, `00_admin_setup` 6단계). Fabric 테넌트 설정 **Service principals can call Fabric public APIs**, **Users can access data stored in OneLake with apps external to Fabric**, **Use short-lived user-delegated SAS tokens**를 켜고, 작업 영역 OneLake settings에서 SAS 토큰 인증을 켭니다.
+- `00_admin_setup` 6단계로 공용 storage credential과 참가자별 Connection `onelake_connection_pNNN`을 만들고, 참가자에게 메타스토어 `CREATE CATALOG`과 본인 Connection의 `CREATE FOREIGN CATALOG` 권한을 줍니다.
+- 참가자는 05장 10단계에서 본인 Lakehouse ID를 입력해 읽기 전용 Foreign catalog `fabric_chipbalance_pNNN`을 직접 만듭니다. Fabric 테넌트 설정 **Service principals can call Fabric public APIs**, **Users can access data stored in OneLake with apps external to Fabric**, **Use short-lived user-delegated SAS tokens**를 켜고, 작업 영역 OneLake settings에서 SAS 토큰 인증을 켭니다.
+- `CREATE CATALOG`은 메타스토어 전체의 Catalog 생성 권한입니다. 선택 실습 종료 뒤 더 만들 필요가 없으면 참가자별로 `REVOKE CREATE CATALOG ON METASTORE`와 `REVOKE CREATE FOREIGN CATALOG ON CONNECTION onelake_connection_pNNN`을 실행합니다.
 - OneLake Federation용 SQL warehouse는 **SQL 버전 2025.40 이상**이 필요합니다([요구 사항](https://learn.microsoft.com/azure/databricks/query-federation/onelake)).
 
 ## 2. Managed Identity와 service credential
@@ -131,9 +133,10 @@ Private endpoint 사용 시 Network Connectivity Configuration을 구성합니�
 
 1.  SQL warehouse `chipbalance-pro` **Stop**.
 2.  참가자별 Operations agent `oa_chipbalance` **Stop** 확인.
-3.  (선택) 실습 데이터 삭제: Unity Catalog `lab_factory_pNNN`, Fabric 작업 영역의 `oa_chipbalance`·`nb_record_decision`·`eh_chipbalance`·`rpt_chipbalance`·`sm_chipbalance`·`da_chipbalance`·`ont_chipbalance`(연관 Eventhouse·Graph 포함), Foundry 리소스 `fdy-chipbalance-pNNN`.
+3.  (선택) 실습 데이터 삭제: Unity Catalog `lab_factory_pNNN`·참가자가 만든 `fabric_chipbalance_pNNN`·`onelake_connection_pNNN`, Fabric 작업 영역의 `oa_chipbalance`·`nb_record_decision`·`eh_chipbalance`·`rpt_chipbalance`·`sm_chipbalance`·`da_chipbalance`·`ont_chipbalance`(연관 Eventhouse·Graph 포함), Foundry 리소스 `fdy-chipbalance-pNNN`.
 4.  Fabric 용량 **Pause**.
-5.  더 쓰지 않으면 `ac-chipbalance-onelake` 권한, 공용 credential을 의존성 확인 후 삭제.
+5.  참가자의 메타스토어 `CREATE CATALOG`과 본인 Connection의 `CREATE FOREIGN CATALOG` 권한을 회수.
+6.  더 쓰지 않으면 `ac-chipbalance-onelake` 권한, 공용 credential을 의존성 확인 후 삭제.
 
 ## 8. 유지보수
 

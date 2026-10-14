@@ -31,11 +31,11 @@
 
 ## 선택 확장: Genie로 같은 질문하기
 
-Genie가 질문을 SQL로 바꾸어 **같은 Gold에서 같은 정답을 찾는지** 확인합니다. Gold를 Unity Catalog에 복사하는 것이 아니라, 관리자가 연결한 **Foreign Catalog**로 OneLake를 읽습니다.
+Genie가 질문을 SQL로 바꾸어 **같은 Gold에서 같은 정답을 찾는지** 확인합니다. Gold를 Unity Catalog에 복사하는 것이 아니라, 05장에서 본인이 만든 **Foreign Catalog**로 OneLake를 읽습니다.
 
 **선택 단계의 준비:** 아래 두 가지를 관리자에게 확인한 뒤 시작합니다.
 
-- **Foreign Catalog와 데이터 권한:** `admin/00_admin_setup` 6단계에서 준비한 `fabric_chipbalance_<참가자>.gold.<테이블>`을 사용합니다. 본인의 `USE CATALOG`, `USE SCHEMA`, `SELECT` 권한이 필요합니다([관리자 준비 가이드](../admin/README.md)).
+- **Foreign Catalog:** 관리자가 `admin/00_admin_setup` 6단계에서 Connection과 생성 권한을 준비하고, 참가자가 05장 10단계에서 만든 `fabric_chipbalance_<참가자>.gold.<테이블>`을 사용합니다. Catalog 소유자인 본인 계정으로 진행합니다([05장 선택 단계](05-gold-onelake.md#5-선택-unity-catalog에서-같은-gold-보기)).
 - **SQL warehouse와 실행 권한:** SQL 버전 **2025.40 이상**의 **Serverless 또는 Pro warehouse**, 작성자의 **CAN USE** 권한이 필요합니다. `chipbalance-pro`는 이름 예시이며 Pro만 필수인 것은 아닙니다. **Notebook Serverless와 별개**입니다. 클래식 Compute로 Foreign Catalog를 조회하는 경우에는 **Databricks Runtime 18.0 이상·standard access mode**가 필요합니다.
 
 연결 동작과 설명 편집 범위는 다음과 같습니다.

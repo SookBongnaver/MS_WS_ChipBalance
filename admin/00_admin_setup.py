@@ -9,7 +9,7 @@
 # MAGIC | 2 | Access Connector의 Managed Identity를 service credential `chipbalance_onelake_hyosung`로 등록 |
 # MAGIC | 3 | 참가자별 Catalog·스키마·Volume 만들기 |
 # MAGIC | 4 | 참가자에게 service credential, Catalog, 스키마, Volume 권한 주기 |
-# MAGIC | 6 | (선택) Genie용 OneLake 연결: storage credential, 참가자별 Connection, Foreign catalog 만들고 참가자에게 조회 권한 주기. 05장 Gold를 만든 뒤에 실행 |
+# MAGIC | 6 | (선택) Genie용 OneLake 연결 기반: storage credential과 참가자별 Connection을 만들고 참가자에게 본인 Foreign catalog 생성 권한 주기 |
 # MAGIC
 # MAGIC **먼저 Azure portal에서 해야 하는 일:** Access Connector for Azure Databricks 만들기(System-assigned). Resource ID를 아래 설정값에 넣습니다.
 # MAGIC
@@ -35,7 +35,7 @@ dbutils.library.restartPython()
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 1. 설정값
-# MAGIC `access_connector_id`와 `participants`(참가자 번호: 로그인 계정)를 채웁니다.
+# MAGIC `access_connector_id`와 `participants`(참가자 번호: 로그인 계정)를 채웁니다. Genie를 운영하면 참가자별 `fabric_workspace_ids`도 채웁니다.
 
 # COMMAND ----------
 access_connector_id = "/subscriptions/<구독 ID>/resourceGroups/<리소스 그룹>/providers/Microsoft.Databricks/accessConnectors/ac-chipbalance-onelake"
@@ -49,9 +49,6 @@ participants = {
 storage_credential = "onelake_storage_cred_hyosung"
 fabric_workspace_ids = {
     "p101": "<chipbalance-p101 작업 영역 ID>",
-}
-fabric_lakehouse_ids = {
-    "p101": "<lh_chipbalance_p101 Lakehouse ID>",
 }
 
 # COMMAND ----------
@@ -144,7 +141,7 @@ display(spark.sql(f"SHOW GRANTS ON SERVICE CREDENTIAL `{service_credential}`"))
 
 # COMMAND ----------
 # MAGIC %md
-# MAGIC ## 6. (선택) Genie용 OneLake 연결 준비
+# MAGIC ## 6. (선택) Genie용 OneLake 연결 기반 준비
 # MAGIC Genie는 Unity Catalog의 테이블만 씁니다. Gold는 OneLake에만 있으므로, OneLake의 Lakehouse를 Unity Catalog의 **Foreign catalog**\로 연결합니다. 복사하지 않고 메타데이터만 연결하며 읽기 전용입니다.
 # MAGIC
 # MAGIC 먼저 Fabric에서 아래를 확인합니다. 이 Notebook으로는 바꿀 수 없습니다.
@@ -152,13 +149,13 @@ display(spark.sql(f"SHOW GRANTS ON SERVICE CREDENTIAL `{service_credential}`"))
 # MAGIC * 작업 영역 `chipbalance-pNNN`\의 **Workspace settings** > **Delegated Settings** > **OneLake settings**\에서 **Authenticate with OneLake user-delegated SAS tokens**\를 켭니다.
 # MAGIC * Access Connector가 작업 영역의 **Contributor**\입니다. (2단계와 같은 Access Connector를 씁니다.)
 # MAGIC
-# MAGIC 이 단계는 storage credential(service credential과 **다른 종류**), 참가자별 Connection과 Foreign catalog `fabric_chipbalance_pNNN`\을 만들고, 참가자에게 조회 권한을 줍니다.
-# MAGIC Connection은 만든 뒤 Fabric 작업 영역을 바꿀 수 없으므로 참가자마다 따로 만듭니다. Lakehouse ID는 Lakehouse 주소 .../lakehouses/<Lakehouse ID> 에서 찾습니다.
-# MAGIC 참가자는 메타스토어 권한이 필요 없고, Foreign catalog를 **읽기만** 합니다.
+# MAGIC 이 단계는 storage credential(service credential과 **다른 종류**)과 참가자별 Connection `onelake_connection_pNNN`\을 만듭니다.
+# MAGIC 참가자에게 메타스토어 `CREATE CATALOG`과 본인 Connection의 `CREATE FOREIGN CATALOG` 권한을 줍니다. 참가자는 05장 10단계에서 본인 Lakehouse ID를 입력해 `fabric_chipbalance_pNNN`\을 직접 만듭니다.
+# MAGIC Connection은 만든 뒤 Fabric 작업 영역을 바꿀 수 없으므로 참가자마다 따로 만듭니다.
 # MAGIC OneLake federation 조회는 SQL warehouse 2025.40 이상, 또는 Databricks Runtime 18.0 이상 standard access mode가 필요합니다. Genie는 Serverless 또는 Pro SQL warehouse를 지원합니다. [OneLake federation 조건](https://learn.microsoft.com/azure/databricks/query-federation/onelake)을 확인합니다.
-# MAGIC 같은 이름의 storage credential·Connection·Foreign catalog가 있으면 SDK `get` 결과의 Access Connector, `options.workspace`·`options.credential`, `connection_name`·`options.data_item`·`options.item_type`을 확인합니다.
-# MAGIC 불일치나 조회 권한 오류는 그대로 중단하며, 모두 확인하기 전에는 Foreign catalog 권한을 주지 않습니다.
-# MAGIC SDK 근거: [Storage credentials](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/catalog/storage_credentials.html), [Connections](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/catalog/connections.html), [Catalogs](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/catalog/catalogs.html).
+# MAGIC 같은 이름의 storage credential·Connection이 있으면 SDK `get` 결과의 Access Connector와 `options.workspace`·`options.credential`을 확인합니다.
+# MAGIC 불일치나 조회 권한 오류는 그대로 중단하며, 모든 Connection을 확인하기 전에는 생성 권한을 주지 않습니다.
+# MAGIC SDK 근거: [Storage credentials](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/catalog/storage_credentials.html), [Connections](https://databricks-sdk-py.readthedocs.io/en/latest/workspace/catalog/connections.html).
 
 # COMMAND ----------
 from uuid import UUID
@@ -166,12 +163,11 @@ from uuid import UUID
 from databricks.sdk.service.catalog import AzureManagedIdentityRequest
 
 for number in participants:
-    for label, ids in (("fabric_workspace_ids", fabric_workspace_ids), ("fabric_lakehouse_ids", fabric_lakehouse_ids)):
-        value = ids.get(number, "")
-        try:
-            UUID(value)
-        except ValueError as error:
-            raise ValueError(f"1. 설정값의 {label}['{number}']에 Fabric GUID를 넣습니다.") from error
+    value = fabric_workspace_ids.get(number, "")
+    try:
+        UUID(value)
+    except ValueError as error:
+        raise ValueError(f"1. 설정값의 fabric_workspace_ids['{number}']에 Fabric GUID를 넣습니다.") from error
 
 try:
     existing_storage = w.storage_credentials.get(name=storage_credential)
@@ -198,20 +194,9 @@ for number in participants:
     connection_options = existing_connection.options or {}
     require_match(connection, "workspace", connection_options.get("workspace"), fabric_workspace_ids[number])
     require_match(connection, "credential", connection_options.get("credential"), storage_credential)
-    foreign_catalog = f"fabric_chipbalance_{number}"
-    try:
-        existing_catalog = w.catalogs.get(name=foreign_catalog)
-    except NotFound:
-        spark.sql(f"""CREATE FOREIGN CATALOG IF NOT EXISTS `{foreign_catalog}` USING CONNECTION `{connection}`
-            OPTIONS (data_item '{fabric_lakehouse_ids[number]}', item_type 'Lakehouse')""")
-        existing_catalog = w.catalogs.get(name=foreign_catalog)
-    catalog_options = existing_catalog.options or {}
-    require_match(foreign_catalog, "catalog_type", existing_catalog.catalog_type, "FOREIGN_CATALOG")
-    require_match(foreign_catalog, "connection_name", existing_catalog.connection_name, connection)
-    require_match(foreign_catalog, "data_item", catalog_options.get("data_item"), fabric_lakehouse_ids[number])
-    require_match(foreign_catalog, "item_type", catalog_options.get("item_type"), "Lakehouse")
 
 for number, email in participants.items():
-    foreign_catalog = f"fabric_chipbalance_{number}"
-    spark.sql(f"GRANT USE CATALOG, USE SCHEMA, SELECT ON CATALOG `{foreign_catalog}` TO `{email}`")
-    print("연결 준비:", f"{foreign_catalog}.gold", "->", email)
+    connection = f"onelake_connection_{number}"
+    spark.sql(f"GRANT CREATE CATALOG ON METASTORE TO `{email}`")
+    spark.sql(f"GRANT CREATE FOREIGN CATALOG ON CONNECTION `{connection}` TO `{email}`")
+    print("생성 권한:", f"fabric_chipbalance_{number}", "->", email)
