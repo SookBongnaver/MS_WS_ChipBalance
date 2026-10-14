@@ -87,7 +87,8 @@ Microsoft Foundry 준비
 
 상세: `관리자 확인 <README.md#6-참가자에게-알려-줄-값>`__
 
-- [ ] Fabric 용량 활성 상태·작업 영역 할당 확인
+- [ ] 참가자별 Microsoft Fabric F SKU 용량 Resume
+- [ ] ``chipbalance-pNNN`` 작업 영역별 F SKU 용량 할당 확인
 - [ ] Shared의 Notebook·Fabric 파일 배포본 변경 중지
 - [ ] 선택 Genie 운영 시 ``chipbalance-pro`` 사용 가능 상태 확인
 
