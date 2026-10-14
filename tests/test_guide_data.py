@@ -186,6 +186,10 @@ class GuideDataTests(unittest.TestCase):
         gold = (ROOT / "src" / "notebooks" / "05_gold.py").read_text(encoding="utf-8")
         self.assertIn("06장까지 실행해도 18행", gold)
         self.assertNotIn("18행 이상(06장까지 실행했다면 21행)", gold)
+        self.assertIn("CREATE FOREIGN CATALOG IF NOT EXISTS", gold)
+        self.assertIn('fabric_lakehouse_id = "<본인 lh_chipbalance_pNNN Lakehouse ID>"', gold)
+        self.assertIn('connection = f"onelake_connection_{participant}"', gold)
+        self.assertIn("선택 단계입니다.", gold)
 
 
 if __name__ == "__main__":

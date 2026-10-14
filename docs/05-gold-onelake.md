@@ -119,11 +119,29 @@ ORDER BY balance_date;
 
 <img src="../assets/screenshots/d05-sql.png" width="1000" alt="SQL analytics endpoint의 SQL query 1. 위에 SELECT 문이 있고, 아래 Results에 balance_date, opening_kg, receipt_kg, requirement_kg, closing_kg, below_safety 열이 있는 10행 표가 있습니다. 2026-10-01 opening 30370, closing 22898입니다." />
 
+## 5. (선택) Unity Catalog에서 같은 Gold 보기
+
+07장의 Genie를 진행할 때만 Notebook 맨 아래 **10. (선택) Unity Catalog에서 같은 Gold 보기**를 실행합니다. 관리자는 본인 Fabric 작업 영역을 가리키는 Connection `onelake_connection_p001`과 Foreign catalog 생성 권한만 준비합니다. Foreign catalog는 참가자가 직접 만듭니다.
+
+1.  Fabric에서 본인 Lakehouse `lh_chipbalance_p001`을 엽니다.
+2.  브라우저 주소의 `.../lakehouses/<Lakehouse ID>`에서 `<Lakehouse ID>` GUID를 복사합니다.
+3.  `05_gold`의 10번 셀에서 아래 값을 실제 GUID로 바꿉니다.
+
+    ``` python
+    fabric_lakehouse_id = "<본인 lh_chipbalance_pNNN Lakehouse ID>"
+    ```
+
+4.  10번 셀을 실행합니다. 셀이 `onelake_connection_p001`을 사용해 본인 Foreign catalog `fabric_chipbalance_p001`을 만들고 `gold`의 18개 테이블을 확인합니다.
+
+**예상 결과:** 마지막에 `Foreign catalog: fabric_chipbalance_p001.gold`가 표시되고 테이블 18개의 행 수가 9번 셀과 같습니다. 이미 같은 이름의 Catalog가 다른 Connection이나 Lakehouse를 가리키면 셀이 오류로 중단됩니다.
+
+권한 오류가 나면 관리자가 `admin/00_admin_setup` 6단계에서 본인 Connection과 `CREATE CATALOG`, `CREATE FOREIGN CATALOG` 권한을 준비했는지 확인합니다. 이 단계는 선택이며, Genie를 하지 않으면 실행하지 않습니다.
+
 ## 이 장의 완료 기준
 
 현재 계획(`baseline`)의 **모든 Bunker가 안전재고를 지키고, 판매오더 납기 지연이 0개**인지 확인합니다. OneLake Gold는 **18개**, `fact_balance`는 **2,208행**(24개 Bunker × 92일)이어야 합니다.
 
-이 결과와 Lakehouse 저장 확인이 끝났으면 06장으로 진행합니다. 위 SQL 조회와 Notebook의 **10. (선택) Unity Catalog에서 같은 Gold 보기**는 선택 사항이며, 별도 연결이 준비된 경우에만 실행합니다.
+이 결과와 Lakehouse 저장 확인이 끝났으면 06장으로 진행합니다. 위 SQL 조회와 Notebook의 **10. (선택) Unity Catalog에서 같은 Gold 보기**는 선택 사항이며, Genie용 Connection과 생성 권한이 준비된 경우에만 실행합니다.
 
 ## Troubleshooting
 

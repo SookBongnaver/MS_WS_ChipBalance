@@ -281,15 +281,48 @@ print("OneLake 경로:", f"{ONELAKE_ROOT}/Tables/gold")
 # COMMAND ----------
 # MAGIC %md
 # MAGIC ## 10. (선택) Unity Catalog에서 같은 Gold 보기
-# MAGIC Genie(07장)는 Unity Catalog의 테이블만 씁니다. 관리자가 OneLake의 Lakehouse를 Unity Catalog의 Foreign catalog `fabric_chipbalance_<참가자 번호>`\로 연결해 두었으면, 복사 없이 같은 Gold를 `fabric_chipbalance_<참가자 번호>.gold.<테이블 이름>`\으로 읽을 수 있습니다. 읽기 전용입니다.
+# MAGIC Genie(07장)는 Unity Catalog의 테이블만 씁니다. 관리자가 준비한 본인 Connection `onelake_connection_<참가자 번호>`\을 사용해 Foreign catalog `fabric_chipbalance_<참가자 번호>`\을 직접 만듭니다. OneLake 데이터를 복사하지 않고 읽기 전용으로 연결합니다.
 # MAGIC
-# MAGIC **예상 결과:** 이 셀은 `GOLD_TABLES`의 18개만 확인하므로 06장까지 실행해도 18행입니다. 테이블별 행 수는 실행 시점의 OneLake와 같습니다. 06장 전에는 9번 셀의 `OneLake 행 수`와 같습니다. 06장이 추가한 3개 테이블은 교재 07장의 SQL로 확인합니다. 연결이 준비되지 않았으면 안내 문구가 나오고 끝납니다.
+# MAGIC 1. Fabric에서 본인 Lakehouse `lh_chipbalance_<참가자 번호>`\를 엽니다.
+# MAGIC 2. 주소의 `.../lakehouses/<Lakehouse ID>`\에서 GUID를 복사해 아래 `fabric_lakehouse_id`\에 넣습니다.
+# MAGIC 3. 이 셀을 실행합니다. 관리자가 6단계에서 Connection과 생성 권한을 준비하지 않았다면 원본 권한 오류가 표시됩니다.
+# MAGIC
+# MAGIC **예상 결과:** `fabric_chipbalance_<참가자 번호>.gold` 연결을 만든 뒤 `GOLD_TABLES` 18개의 행 수가 표시됩니다. 이 셀은 `GOLD_TABLES`만 확인하므로 06장까지 실행해도 18행입니다. 06장이 추가하는 3개 테이블은 07장의 SQL로 확인합니다.
 
 # COMMAND ----------
+from uuid import UUID
+
+from databricks.sdk import WorkspaceClient
+
+fabric_lakehouse_id = "<본인 lh_chipbalance_pNNN Lakehouse ID>"
+connection = f"onelake_connection_{participant}"
 foreign_catalog = f"fabric_chipbalance_{participant}"
-try:
+
+if "<" in fabric_lakehouse_id:
+    print("선택 단계입니다. Fabric Lakehouse 주소의 GUID를 fabric_lakehouse_id에 넣고 이 셀을 다시 실행합니다.")
+else:
+    try:
+        fabric_lakehouse_id = str(UUID(fabric_lakehouse_id))
+    except ValueError as error:
+        raise ValueError("fabric_lakehouse_id에 Lakehouse 주소의 GUID를 넣습니다.") from error
+
+    spark.sql(f"""CREATE FOREIGN CATALOG IF NOT EXISTS `{foreign_catalog}` USING CONNECTION `{connection}`
+        OPTIONS (data_item '{fabric_lakehouse_id}', item_type 'Lakehouse')""")
+
+    existing = WorkspaceClient().catalogs.get(name=foreign_catalog)
+    catalog_type = getattr(existing.catalog_type, "value", existing.catalog_type)
+    options = existing.options or {}
+    expected = {
+        "catalog_type": (catalog_type, "FOREIGN_CATALOG"),
+        "connection_name": (existing.connection_name, connection),
+        "data_item": (options.get("data_item"), fabric_lakehouse_id),
+        "item_type": (options.get("item_type"), "Lakehouse"),
+    }
+    mismatches = [f"{field}: 기존={current!r}, 설정={wanted!r}" for field, (current, wanted) in expected.items()
+                  if str(current or "").strip().casefold() != str(wanted).strip().casefold()]
+    if mismatches:
+        raise ValueError(f"{foreign_catalog} 연결 대상 불일치. " + "; ".join(mismatches))
+
     rows = [(t, spark.table(f"{foreign_catalog}.gold.{t}").count()) for t in GOLD_TABLES]
     display(spark.createDataFrame(rows, "`테이블` string, `Unity Catalog 행 수` long"))
-except Exception as error:
-    print(f"{foreign_catalog}를 읽지 못했습니다. 관리자가 Genie용 OneLake 연결(00_admin_setup 6단계)을 준비했는지 확인합니다.")
-    print("원본 오류:", type(error).__name__, str(error)[:200])
+    print("Foreign catalog:", f"{foreign_catalog}.gold")
