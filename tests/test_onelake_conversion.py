@@ -1,11 +1,14 @@
 """Exercise the OneLake export helper without a Spark session or cloud access."""
 import ast
+import sys
 import types
 import unittest
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+import notebook_source
 
 
 class TimestampType:
@@ -66,7 +69,7 @@ class Frame:
 
 class OneLakeConversionTests(unittest.TestCase):
     def setUp(self):
-        source = (ROOT / "src" / "notebooks" / "01_setup.py").read_text(encoding="utf-8")
+        source = notebook_source.code(ROOT / "notebooks" / "01_setup.ipynb")
         node = next(node for node in ast.parse(source).body
                     if isinstance(node, ast.FunctionDef) and node.name == "to_arrow")
         self.namespace = {

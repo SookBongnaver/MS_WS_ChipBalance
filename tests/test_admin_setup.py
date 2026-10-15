@@ -10,11 +10,13 @@ from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-import build_notebooks
+import notebook_source
 
-SOURCE = ROOT / "admin" / "00_admin_setup.py"
-CELLS = build_notebooks.cells_from_source(SOURCE)
-CODE = ["".join(c["source"]) for c in CELLS if c["cell_type"] == "code"]
+SOURCE = ROOT / "admin" / "00_admin_setup.ipynb"
+CELLS = notebook_source.cells(SOURCE)
+CODE = [notebook_source.cell_text(c) for c in CELLS if c["cell_type"] == "code"]
+PYTHON_CODE = notebook_source.code_cells(SOURCE)
+SOURCE_TEXT = "\n".join(notebook_source.cell_text(c) for c in CELLS)
 SERVICE_CELL = next(c for c in CODE if "w = WorkspaceClient()" in c)
 GRANT_CELL = next(c for c in CODE if "GRANT ACCESS ON SERVICE CREDENTIAL" in c)
 FEDERATION_CELL = next(c for c in CODE if "w.storage_credentials.get" in c)
@@ -61,7 +63,7 @@ class AdminSetupTests(unittest.TestCase):
         self.assertLess(install, restart)
         self.assertLess(restart, configuration)
         self.assertLess(configuration, service)
-        self.assertNotIn("%pip install databricks-sdk==0.81.0", SOURCE.read_text(encoding="utf-8"))
+        self.assertNotIn("%pip install databricks-sdk==0.81.0", SOURCE_TEXT)
 
     def setUp(self):
         self.client = types.SimpleNamespace(
@@ -223,19 +225,39 @@ class AdminSetupTests(unittest.TestCase):
                     self.env[ids]["p001"] = value
 
     def test_source_has_no_broad_exception_handler_or_delete(self):
-        tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
+        tree = ast.parse("\n".join(PYTHON_CODE))
         handlers = [n for n in ast.walk(tree) if isinstance(n, ast.ExceptHandler)]
         self.assertTrue(handlers)
         self.assertTrue(all(isinstance(n.type, ast.Name) and n.type.id in ("NotFound", "ValueError") for n in handlers))
         self.assertFalse(any(isinstance(n, ast.Attribute) and n.attr == "delete" for n in ast.walk(tree)))
 
-    def test_admin_notebook_matches_source_and_has_no_outputs(self):
-        notebook = json.loads(SOURCE.with_suffix(".ipynb").read_text(encoding="utf-8"))
-        self.assertEqual(CELLS, notebook["cells"])
-        for cell in notebook["cells"]:
+    def test_admin_notebook_has_no_outputs(self):
+        for cell in CELLS:
             self.assertFalse(cell.get("outputs"))
             if cell["cell_type"] == "code":
                 self.assertIsNone(cell["execution_count"])
+
+    def test_catalog_cell_uses_managed_location_and_checks_visibility(self):
+        cell = next(c for c in CODE if "CREATE CATALOG IF NOT EXISTS" in c)
+        self.assertIn("managed_location", "\n".join(CODE))
+        for location, expected in (("", ""), (" abfss://c@a.dfs.core.windows.net/root/ ",
+                                            " MANAGED LOCATION 'abfss://c@a.dfs.core.windows.net/root/lab_factory_p001'")):
+            with self.subTest(location=location):
+                statements = []
+                shown = {"lab_factory_p001"}
+
+                class Spark:
+                    @staticmethod
+                    def sql(statement):
+                        statements.append(statement)
+                        return types.SimpleNamespace(collect=lambda: [(name,) for name in shown])
+
+                env = {"spark": Spark, "participants": {"p001": "a@b.c"}, "managed_location": location.strip()}
+                exec(cell, env)
+                self.assertEqual("CREATE CATALOG IF NOT EXISTS `lab_factory_p001`" + expected, statements[0])
+        shown = set()
+        with self.assertRaisesRegex(ValueError, "보이지 않습니다"):
+            exec(cell, {"spark": Spark, "participants": {"p001": "a@b.c"}, "managed_location": ""})
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ SAP, FPIMS, PVSS 추출 파일을 Bronze로 적재한 뒤 Silver 품질 규칙�
 
 Fabric은 SQL analytics endpoint, Power BI Direct Lake, Fabric IQ Ontology와 연결된 Data agent에서 Gold를 사용합니다. Data agent `da_chipbalance`는 Ontology의 엔터티·관계 맥락과 바인딩된 원본을 사용해 조회합니다. Microsoft Foundry의 `fa-chipbalance`는 별도로 Fabric IQ 도구로 Ontology에 직접 질문합니다. Operations agent는 Eventhouse `eh_chipbalance`의 `RiskEventStatus`를 감시합니다. 승인 결정은 Fabric Notebook `nb_record_decision`이 상태 이력과 `dbo.chip_decision_log`에 기록하며 Databricks는 승인 기록을 쓰지 않습니다.
 
-아래 수치는 `src/notebooks/source_systems.py`의 고정 seed `20261001`, `05_gold`와 `06_emergency_order` 및 로컬 계산 `tools/reference_pipeline.py`를 기준으로 합니다. 시나리오의 `TODAY`는 실제 실행일이 아니라 **2026-10-01**입니다.
+아래 수치는 `notebooks/source_systems.ipynb`의 고정 seed `20261001`, `05_gold`와 `06_emergency_order` 및 로컬 계산 `tools/reference_pipeline.py`를 기준으로 합니다. 시나리오의 `TODAY`는 실제 실행일이 아니라 **2026-10-01**입니다.
 
 ## 원천 파일
 

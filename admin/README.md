@@ -137,11 +137,11 @@ Private endpoint 사용 시 Network Connectivity Configuration을 구성합니�
 
 ## 8. 유지보수
 
-- Notebook은 `src/notebooks/*.py`에서 고치고, 아래로 재생성·검사합니다.
+- Notebook은 `notebooks/*.ipynb`와 `admin/00_admin_setup.ipynb`에서 직접 고칩니다. 저장 전에 출력을 지웁니다. 가져오기용 ZIP과 검사는 아래로 합니다.
 
 ``` powershell
 python tools/generate_source_data.py
-python tools/build_notebooks.py
+python tools/notebook_source.py
 python -m unittest discover tests
 ```
 

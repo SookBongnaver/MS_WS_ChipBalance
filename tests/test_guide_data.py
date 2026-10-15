@@ -10,7 +10,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import generate_source_data as gen
+import notebook_source
 import reference_pipeline as rp
+
+
+def notebook_text(name):
+    """Code and markdown of a workshop notebook, so both explanations and code can be checked."""
+    path = ROOT / "notebooks" / f"{name}.ipynb"
+    return notebook_source.markdown(path) + "\n" + notebook_source.code(path)
 
 
 def markdown_rows(text):
@@ -52,7 +59,7 @@ class GuideDataTests(unittest.TestCase):
         self.assertIn(f"{sum(self.counts.values()):,}행", self.design)
 
     def test_gold_table_names_counts_and_columns_match_reference_and_notebooks(self):
-        setup = ast.parse((ROOT / "src" / "notebooks" / "01_setup.py").read_text(encoding="utf-8"))
+        setup = ast.parse(notebook_source.code(ROOT / "notebooks" / "01_setup.ipynb"))
         names = {}
         for node in setup.body:
             if isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name):
@@ -74,7 +81,7 @@ class GuideDataTests(unittest.TestCase):
         self.assertNotRegex(self.design, r"\bchip_(?:dim_|fact_|scenario_summary|response_option|option_balance|risk_event)")
 
     def test_dimension_integer_types_follow_silver_casts(self):
-        silver = ast.parse((ROOT / "src" / "notebooks" / "04_silver.py").read_text(encoding="utf-8"))
+        silver = ast.parse(notebook_source.code(ROOT / "notebooks" / "04_silver.ipynb"))
         typed = next(ast.literal_eval(n.value) for n in silver.body
                      if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name) and n.targets[0].id == "typed_tables")
         for name in ("dim_material", "dim_supplier", "dim_route"):
@@ -128,7 +135,7 @@ class GuideDataTests(unittest.TestCase):
         from datetime import timedelta
         self.assertEqual(rp.TODAY + timedelta(days=supplier["standard_lead_time_days"] +
                                              supplier["planning_delay_days"]), purchase["first_arrival_date"])
-        source = (ROOT / "src" / "notebooks" / "06_emergency_order.py").read_text(encoding="utf-8")
+        source = notebook_text("06_emergency_order")
         self.assertIn("이송 출고는 다음 날부터, 신규 구매 발주는 당일부터", source)
         self.assertIn("판단 기준일 `TODAY` 당일 발주", self.design)
 
@@ -183,7 +190,7 @@ class GuideDataTests(unittest.TestCase):
         self.assertIn("**원본에 세 테이블이 없을 때만**", text)
         self.assertIn("위험 이벤트 `status`를 `open`으로 덮어쓰", text)
         self.assertNotIn("목록에 테이블이 18개만 보이면 06장을 다시 실행", text)
-        gold = (ROOT / "src" / "notebooks" / "05_gold.py").read_text(encoding="utf-8")
+        gold = notebook_text("05_gold")
         self.assertIn("06장까지 실행해도 18행", gold)
         self.assertNotIn("18행 이상(06장까지 실행했다면 21행)", gold)
 

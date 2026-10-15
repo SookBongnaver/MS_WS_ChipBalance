@@ -3,14 +3,17 @@ import importlib.util
 import ast
 import json
 import re
+import sys
 import types
 import unittest
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+import notebook_source
+
 DOCS = ROOT / "docs"
-SOURCES = ROOT / "src" / "notebooks"
 NOTEBOOKS = ROOT / "notebooks"
 
 CHAPTERS = [
@@ -216,9 +219,8 @@ class DocumentTests(unittest.TestCase):
         texts = {rel(path): path.read_text(encoding="utf-8")
                  for path in [*md_files(), *sorted((ROOT / "admin").glob("*.md")), ROOT / "assets" / "architecture.svg"]
                  if path.is_file()}
-        for source in sorted(SOURCES.glob("*.py")):
-            texts[rel(source)] = "\n".join(line for line in source.read_text(encoding="utf-8").splitlines()
-                                           if line.startswith("# MAGIC"))
+        for notebook in sorted(NOTEBOOKS.glob("*.ipynb")):
+            texts[rel(notebook)] = notebook_source.markdown(notebook)
         for name, text in texts.items():
             for phrase in HISTORY_PHRASES:
                 with self.subTest(document=name, phrase=phrase):
@@ -236,16 +238,14 @@ class NotebookTests(unittest.TestCase):
                     with self.subTest(notebook=rel(path), cell=cell.get("id")):
                         self.assertNotIn("~", "".join(cell["source"]))
 
-    def sources(self):
-        sources = sorted(SOURCES.glob("*.py"))
-        self.assertTrue(sources, "src/notebooks has no .py files")
-        return sources
+    def notebooks(self):
+        notebooks = sorted(NOTEBOOKS.glob("*.ipynb"))
+        self.assertTrue(notebooks, "notebooks has no .ipynb files")
+        return notebooks
 
     def test_notebooks_are_clean_ipynb(self):
-        for source in self.sources():
-            target = NOTEBOOKS / f"{source.stem}.ipynb"
+        for target in self.notebooks():
             with self.subTest(notebook=rel(target)):
-                self.assertTrue(target.is_file(), f"{rel(target)} is missing; run python tools/build_notebooks.py")
                 notebook = json.loads(target.read_text(encoding="utf-8"))
                 self.assertEqual(notebook.get("nbformat"), 4)
                 self.assertTrue(notebook.get("cells"))
@@ -254,25 +254,16 @@ class NotebookTests(unittest.TestCase):
                     if cell.get("cell_type") == "code":
                         self.assertIsNone(cell.get("execution_count"))
 
-    def test_notebooks_match_sources(self):
-        spec = importlib.util.spec_from_file_location("build_notebooks", ROOT / "tools" / "build_notebooks.py")
-        build_notebooks = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(build_notebooks)
-        for source in self.sources():
-            target = NOTEBOOKS / f"{source.stem}.ipynb"
-            if not target.is_file():
-                continue
-            with self.subTest(notebook=rel(target)):
-                cells = json.loads(target.read_text(encoding="utf-8"))["cells"]
-                self.assertEqual(cells, build_notebooks.cells_from_source(source),
-                                 f"{rel(target)} differs from {rel(source)}; run python tools/build_notebooks.py")
+    def test_notebook_code_cells_are_valid_python(self):
+        for target in [*self.notebooks(), ROOT / "admin" / "00_admin_setup.ipynb"]:
+            for number, source in enumerate(notebook_source.code_cells(target), 1):
+                with self.subTest(notebook=rel(target), cell=number):
+                    compile(source, f"{target.name} cell {number}", "exec")
 
-    def test_administrator_notebook_matches_source(self):
-        spec = importlib.util.spec_from_file_location("build_notebooks", ROOT / "tools" / "build_notebooks.py")
-        builder = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(builder)
-        notebook = json.loads((ROOT / "admin" / "00_admin_setup.ipynb").read_text(encoding="utf-8"))
-        self.assertEqual(notebook["cells"], builder.cells_from_source(ROOT / "admin" / "00_admin_setup.py"))
+    def test_no_python_notebook_sources_remain(self):
+        self.assertFalse((ROOT / "src" / "notebooks").exists())
+        self.assertEqual([], list((ROOT / "admin").glob("*.py")))
+        self.assertFalse((ROOT / "tools" / "build_notebooks.py").exists())
 
     def test_fabric_notebook_is_clean_and_syntactically_valid(self):
         notebook = json.loads((ROOT / "fabric" / "nb_record_decision.ipynb").read_text(encoding="utf-8"))
@@ -292,7 +283,7 @@ class NotebookTests(unittest.TestCase):
 
     def test_import_archive_matches_notebooks(self):
         archive = NOTEBOOKS / "ChipBalance.zip"
-        self.assertTrue(archive.is_file(), "notebooks/ChipBalance.zip is missing; run python tools/build_notebooks.py")
+        self.assertTrue(archive.is_file(), "notebooks/ChipBalance.zip is missing; run python tools/notebook_source.py")
         with zipfile.ZipFile(archive) as bundle:
             names = sorted(bundle.namelist())
             expected = sorted(f"ChipBalance/{p.name}" for p in NOTEBOOKS.glob("*.ipynb"))
@@ -300,15 +291,11 @@ class NotebookTests(unittest.TestCase):
             for name in names:
                 with self.subTest(entry=name):
                     self.assertEqual(bundle.read(name), (NOTEBOOKS / name.split("/", 1)[1]).read_bytes(),
-                                     f"{name} is stale; run python tools/build_notebooks.py")
+                                     f"{name} is stale; run python tools/notebook_source.py")
 
     def setup_unity_catalog_cell(self):
-        source = SOURCES / "01_setup.py"
-        spec = importlib.util.spec_from_file_location("build_notebooks", ROOT / "tools" / "build_notebooks.py")
-        build_notebooks = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(build_notebooks)
-        return next("".join(cell["source"]) for cell in build_notebooks.cells_from_source(source)
-                    if cell["cell_type"] == "code" and "CREATE CATALOG IF NOT EXISTS" in "".join(cell["source"]))
+        return next(source for source in notebook_source.code_cells(NOTEBOOKS / "01_setup.ipynb")
+                    if "CREATE CATALOG IF NOT EXISTS" in source)
 
     def test_setup_prepares_and_checks_unity_catalog(self):
         setup_cell = self.setup_unity_catalog_cell()
