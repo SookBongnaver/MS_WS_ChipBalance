@@ -32,7 +32,7 @@ Azure Databricks 준비
 - [ ] 실행 결과 없는 Notebook 8개 확인
 - [ ] Shared의 ``fabric`` 폴더에 TMDL·테마·승인 Notebook 3개 배치
 - [ ] 참가자 읽기·Clone·파일 내려받기 권한 부여
-- [ ] 선택 Genie용 ``chipbalance-pro``·OneLake Federation·데이터 권한 준비
+- [ ] 선택 Genie용 ``chipbalance-pro``·참가자별 OneLake Connection·Catalog 생성 권한 준비
 
 Microsoft Fabric 준비
 ---------------------
@@ -87,7 +87,8 @@ Microsoft Foundry 준비
 
 상세: `관리자 확인 <README.md#6-참가자에게-알려-줄-값>`__
 
-- [ ] Fabric 용량 활성 상태·작업 영역 할당 확인
+- [ ] 참가자별 Microsoft Fabric F SKU 용량 Resume
+- [ ] ``chipbalance-pNNN`` 작업 영역별 F SKU 용량 할당 확인
 - [ ] Shared의 Notebook·Fabric 파일 배포본 변경 중지
 - [ ] 선택 Genie 운영 시 ``chipbalance-pro`` 사용 가능 상태 확인
 
@@ -101,6 +102,7 @@ Microsoft Foundry 준비
 - [ ] SQL warehouse ``chipbalance-pro`` Stop
 - [ ] 참가자별 Fabric 항목·작업 영역 보존 또는 삭제
 - [ ] 선택 Genie Foreign catalog·Connection 의존성 확인 후 삭제
+- [ ] 선택 Genie 참가자 ``CREATE CATALOG``·``CREATE FOREIGN CATALOG`` 권한 회수
 - [ ] Unity Catalog·스키마·Volume 보존 또는 삭제
 - [ ] Foundry 리소스 삭제·필요 시 purge
 - [ ] Fabric 용량 Pause
